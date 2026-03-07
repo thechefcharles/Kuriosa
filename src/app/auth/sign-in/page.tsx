@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "@/lib/services/user/auth-actions";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/lib/constants/routes";
 
-export default function SignInPage() {
+function SignInForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const searchParams = useSearchParams();
@@ -69,5 +69,13 @@ export default function SignInPage() {
         </p>
       </CardContent>
     </Card>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<Card className="w-full max-w-sm"><CardHeader><CardTitle>Sign in</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">Loading…</p></CardContent></Card>}>
+      <SignInForm />
+    </Suspense>
   );
 }
