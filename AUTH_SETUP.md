@@ -5,7 +5,7 @@
 - **Supabase Auth** handles sign up, sign in, and sign out.
 - **Session** is stored in cookies and refreshed by middleware on each request.
 - **Profile bootstrapping**: When a user signs up, a database trigger creates a matching row in `profiles`.
-- **Protected routes**: `/home`, `/discover`, `/progress`, `/profile` require authentication. Unauthenticated users are redirected to `/auth/sign-in`.
+- **Protected routes**: `/home`, `/discover`, `/progress`, `/profile`, `/curiosity/*`, `/challenge/*` require authentication. Unauthenticated users are redirected to `/auth/sign-in`.
 
 ## Routes
 
@@ -14,7 +14,7 @@
 | `/auth/sign-in` | Sign in with email/password |
 | `/auth/sign-up` | Create account |
 | `/` | Landing (public) |
-| `/home`, `/discover`, `/progress`, `/profile` | App pages (protected) |
+| `/home`, `/discover`, `/progress`, `/profile`, `/curiosity/[slug]`, `/challenge/[slug]` | App pages (protected) |
 
 ## Profile Bootstrapping
 
@@ -32,13 +32,13 @@ A database trigger `on_auth_user_created` runs when a row is inserted into `auth
 
 ## Run Migrations
 
-Apply the profile trigger migration:
+Apply all migrations (schema, seed, profile trigger, RLS):
 
 ```bash
 supabase db push
 ```
 
-Or run `supabase/migrations/20250307120002_create_profile_trigger.sql` manually in the SQL Editor.
+Or run each migration file manually in Supabase SQL Editor. See `SUPABASE_MIGRATIONS.md` for the full list.
 
 ## Testing Locally
 

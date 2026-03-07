@@ -37,7 +37,9 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/home") ||
     request.nextUrl.pathname.startsWith("/discover") ||
     request.nextUrl.pathname.startsWith("/progress") ||
-    request.nextUrl.pathname.startsWith("/profile");
+    request.nextUrl.pathname.startsWith("/profile") ||
+    request.nextUrl.pathname.startsWith("/curiosity/") ||
+    request.nextUrl.pathname.startsWith("/challenge/");
 
   if (isAppProtected && !user) {
     const signInUrl = new URL("/auth/sign-in", request.url);

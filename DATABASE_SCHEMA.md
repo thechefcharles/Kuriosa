@@ -119,8 +119,18 @@ Badge unlocks. Unique on `(user_id, badge_id)`.
 - Foreign keys, unique constraints, basic indexes
 - Seed data for categories and badges
 
-## What Remains (Later Phases)
+## Phase 3 Status
 
-- **RLS (Row Level Security)** — Not yet applied
-- **Auth triggers** — Auto-create profile on signup
-- **Topic and quiz content** — Not seeded yet
+- **RLS** — Enabled (see DATABASE_SECURITY.md)
+- **Profile trigger** — Auto-creates profile on signup
+- **Topic and quiz content** — Not seeded yet (Phase 4+)
+
+## TypeScript Types
+
+Generate Supabase types after migrations:
+
+```bash
+npx supabase gen types typescript --project-id <your-project-ref> > src/types/database.ts
+```
+
+See `SUPABASE_MIGRATIONS.md` for details. The placeholder `src/types/database.ts` documents this workflow.
