@@ -33,6 +33,8 @@
    - `supabase/migrations/20250307120000_create_core_schema.sql`
    - `supabase/migrations/20250307120001_seed_categories_and_badges.sql`
    - `supabase/migrations/20250307120002_create_profile_trigger.sql` (for auth)
+   - `supabase/migrations/20250307130000_enable_rls.sql` (Phase 3.3)
+   - `supabase/migrations/20250307130001_seed_reference_data.sql` (Phase 3.3)
 
 ### Verify
 
