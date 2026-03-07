@@ -21,5 +21,4 @@ const phKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const phHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 if (phKey && phHost) {
   posthog.init(phKey, { api_host: phHost });
-  posthog.capture("$pageview");
 }
