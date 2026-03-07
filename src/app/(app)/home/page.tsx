@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,6 +30,24 @@ export default function HomePage() {
           </CardHeader>
           <CardContent>
             <Button>Get Started</Button>
+          </CardContent>
+        </Card>
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Infrastructure</CardTitle>
+            <CardDescription>
+              Setup verification. Environment and Supabase utilities ready.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link
+              href="/api/health"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-primary underline-offset-4 hover:underline"
+            >
+              Check /api/health
+            </Link>
           </CardContent>
         </Card>
       </Section>
