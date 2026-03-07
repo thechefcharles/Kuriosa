@@ -1,8 +1,37 @@
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { PageContainer } from "@/components/shared/page-container";
+import { PageHeader } from "@/components/shared/page-header";
+import { Section } from "@/components/shared/section";
+import { SupabaseInitCheck } from "@/components/shared/supabase-init-check";
+
 export default function HomePage() {
   return (
-    <div className="px-4 py-6">
-      <h1 className="text-xl font-semibold text-slate-900">Home</h1>
-      <p className="mt-2 text-slate-600">Your daily curiosity and progress.</p>
-    </div>
+    <PageContainer>
+      <SupabaseInitCheck />
+      <PageHeader
+        title="Home"
+        description="Your daily curiosity and progress."
+      />
+      <Section className="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Welcome to Kuriosa</CardTitle>
+            <CardDescription>
+              Discover something fascinating every day.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button>Get Started</Button>
+          </CardContent>
+        </Card>
+      </Section>
+    </PageContainer>
   );
 }
