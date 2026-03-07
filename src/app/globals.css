@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --kuriosa-primary: 59 130 246;
+    --kuriosa-primary-foreground: 255 255 255;
+    --kuriosa-secondary: 241 245 249;
+    --kuriosa-accent: 234 88 12;
+    --kuriosa-background: 255 255 255;
+    --kuriosa-foreground: 15 23 42;
+  }
+  .dark {
+    --kuriosa-primary: 96 165 250;
+    --kuriosa-primary-foreground: 15 23 42;
+    --kuriosa-background: 15 23 42;
+    --kuriosa-foreground: 248 250 252;
+  }
+}
