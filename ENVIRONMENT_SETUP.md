@@ -57,6 +57,13 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 2. **API keys** → Create new secret key
 3. Copy the key → `OPENAI_API_KEY`
 
+## Auth Redirect URLs (Supabase Dashboard)
+
+For email confirmation and OAuth (if added later), configure in **Authentication → URL Configuration**:
+
+- **Site URL**: `http://localhost:3005` (development) or your production URL
+- **Redirect URLs**: Add `http://localhost:3005/**` and your production URL with `/**`
+
 ## Setup Steps
 
 1. Copy `.env.example` to `.env.local`:

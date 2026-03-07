@@ -32,6 +32,7 @@
 3. Run each migration file in order:
    - `supabase/migrations/20250307120000_create_core_schema.sql`
    - `supabase/migrations/20250307120001_seed_categories_and_badges.sql`
+   - `supabase/migrations/20250307120002_create_profile_trigger.sql` (for auth)
 
 ### Verify
 

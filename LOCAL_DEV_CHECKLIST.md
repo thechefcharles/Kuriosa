@@ -22,7 +22,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3005](http://localhost:3005) in your browser.
 
 ## 4. Verify Route Navigation
 
@@ -33,7 +33,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 5. Verify /api/health
 
-1. With the dev server running, open: [http://localhost:3000/api/health](http://localhost:3000/api/health)
+1. With the dev server running, open: [http://localhost:3005/api/health](http://localhost:3005/api/health)
 2. You should see JSON like:
    ```json
    {
