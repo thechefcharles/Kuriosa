@@ -8,7 +8,40 @@
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon (public) key |
 | `OPENAI_API_KEY` | OpenAI API key |
 
-## How to Obtain
+## Optional Variables (Analytics & Monitoring)
+
+| Variable | Description | Client / Server |
+|----------|-------------|-----------------|
+| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project API key | Client (safe) |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog API host (e.g. `https://us.i.posthog.com`) | Client (safe) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN for client error monitoring | Client (safe) |
+| `SENTRY_DSN` | Sentry DSN for server; falls back to `NEXT_PUBLIC_SENTRY_DSN` if unset | Server |
+
+### What PostHog Is Used For
+
+PostHog provides product analytics: page views, user actions, feature usage, and (optionally) session recordings. It helps understand how users interact with Kuriosa.
+
+### What Sentry Is Used For
+
+Sentry captures runtime errors (client and server), stack traces, and helps debug production issues. No analytics or user tracking—just error monitoring.
+
+### Where to Get These Values
+
+**PostHog**
+
+1. Go to [posthog.com](https://posthog.com) and sign in or create an account
+2. Create or open a project
+3. **Project Settings** → **Project API Key** → copy to `NEXT_PUBLIC_POSTHOG_KEY`
+4. Use `https://us.i.posthog.com` (US) or `https://eu.i.posthog.com` (EU) for `NEXT_PUBLIC_POSTHOG_HOST`
+
+**Sentry**
+
+1. Go to [sentry.io](https://sentry.io) and sign in or create an account
+2. Create or open a project (choose Next.js)
+3. **Project Settings** → **Client Keys (DSN)** → copy the DSN
+4. Use the same DSN for `NEXT_PUBLIC_SENTRY_DSN` and (optionally) `SENTRY_DSN`
+
+## How to Obtain (Core)
 
 ### Supabase
 

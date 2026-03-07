@@ -3,8 +3,9 @@ import "./globals.css";
 import { APP_NAME, TAGLINE } from "@/lib/constants/brand";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { Providers } from "@/components/shared/providers";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -18,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
