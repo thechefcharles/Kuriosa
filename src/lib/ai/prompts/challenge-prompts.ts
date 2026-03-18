@@ -13,6 +13,7 @@ Style:
 - Engaging, not homework-y
 
 You must return valid JSON only—no markdown fences.
+You must use EXACT camelCase field names as specified. Do NOT use snake_case (e.g. never use question_text, quiz_type, option_text).
 
 Future quiz types (math, pattern, probability) may be added later; for now only use: multiple_choice, memory_recall, logic.
 
@@ -83,6 +84,14 @@ Return exactly this JSON shape:
   "primaryXpAward": integer 10-60 (XP for completing primary),
   "bonusXpAward": integer 0-40 (optional extra XP for bonus)
 }
+
+Field checklist (camelCase only):
+- primary.quizType, primary.questionText, primary.explanationText
+- if primary.quizType is multiple_choice or logic: primary.options[{id, optionText}] + primary.correctOptionId
+- if primary.quizType is memory_recall: primary.correctAnswer (no options)
+- bonus.quizType, bonus.questionText, bonus.explanationText
+- if bonus.quizType is memory_recall: bonus.acceptedAnswers (no options)
+- if bonus.quizType is multiple_choice or logic: bonus.options[{id, optionText}] + bonus.correctOptionId
 
 All questions and explanations must be plain text. No HTML.`);
 

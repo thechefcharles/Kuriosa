@@ -11,15 +11,8 @@ const slugCandidateSchema = z
   .max(72)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "slugCandidate must be lowercase kebab-case");
 
-const relationshipTypeSchema = z.enum([
-  "same_category",
-  "deeper_dive",
-  "tangential",
-  "contrast",
-  "application",
-]);
-
-const confidenceHintSchema = z.enum(["high", "medium", "speculative"]);
+const relationshipTypeSchema = z.string().trim().min(1).max(40);
+const confidenceHintSchema = z.string().trim().min(1).max(40);
 
 export const generatedTrailItemSchema = z.object({
   title: z.string().trim().min(8).max(140),

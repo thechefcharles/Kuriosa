@@ -14,7 +14,9 @@
     "ai:trails": "npx tsx src/lib/ai/examples/run-trail-generation-example.ts",
     "ai:audio": "npx tsx src/lib/ai/examples/run-audio-generation-example.ts",
     "ai:assemble-draft": "npx tsx src/lib/ai/examples/run-curiosity-draft-assembly-example.ts",
-    "persist:draft": "npx tsx src/lib/ai/examples/run-persist-curiosity-draft-example.ts"
+    "persist:draft": "npx tsx src/lib/ai/examples/run-persist-curiosity-draft-example.ts",
+    "seed:phase4": "npx tsx src/lib/content/seeds/run-phase-4-seed.ts",
+    "seed:verify": "npx tsx src/lib/content/seeds/run-phase-4-seed-verification.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",

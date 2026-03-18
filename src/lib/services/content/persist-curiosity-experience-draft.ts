@@ -41,6 +41,37 @@ async function resolveCategoryId(
   return (byName?.id as string) ?? null;
 }
 
+async function ensureCategoryId(
+  categorySlug: string,
+  categoryLabel: string
+): Promise<{ id: string; created: boolean }> {
+  const supabase = getSupabaseServiceRoleClient();
+  const existing = await resolveCategoryId(categorySlug, categoryLabel);
+  if (existing) return { id: existing, created: false };
+
+  const { data, error } = await supabase
+    .from("categories")
+    .upsert(
+      {
+        name: categoryLabel.trim(),
+        slug: categorySlug.trim(),
+        description: `Auto-created for Phase 4 seeding: ${categoryLabel.trim()}`,
+        sort_order: 99,
+      },
+      { onConflict: "slug" }
+    )
+    .select("id")
+    .single();
+
+  if (error || !data?.id) {
+    throw new Error(
+      error?.message ??
+        `Failed to create missing category (${categorySlug} / ${categoryLabel})`
+    );
+  }
+  return { id: data.id as string, created: true };
+}
+
 async function loadTopicIdsBySlug(slugs: string[]): Promise<Map<string, string>> {
   const unique = [...new Set(slugs.filter(Boolean))];
   if (unique.length === 0) return new Map();
@@ -82,19 +113,18 @@ export async function persistCuriosityExperienceDraft(
   const exp = validated.data;
 
   try {
-    const categoryId = await resolveCategoryId(
+    const ensuredCategory = await ensureCategoryId(
       exp.taxonomy.categorySlug,
       exp.taxonomy.category
     );
-    if (!categoryId) {
-      return {
-        ...base,
-        error: `No category found for slug "${exp.taxonomy.categorySlug}" or name "${exp.taxonomy.category}". Seed categories first.`,
-      };
+    if (ensuredCategory.created) {
+      base.warnings.push(
+        `Category auto-created: ${exp.taxonomy.category} (${exp.taxonomy.categorySlug})`
+      );
     }
 
     const supabase = getSupabaseServiceRoleClient();
-    const topicRow = mapDraftToTopicRow(exp, categoryId);
+    const topicRow = mapDraftToTopicRow(exp, ensuredCategory.id);
 
     const { data: topicUpsert, error: topicErr } = await supabase
       .from("topics")

@@ -132,3 +132,14 @@ export interface CuriosityExperience {
   moderation?: CuriosityModeration;
   analytics?: CuriosityAnalyticsMetadata;
 }
+
+/**
+ * Read model from Postgres: same as CuriosityExperience but challenge may be
+ * absent when no quiz row exists yet.
+ */
+export type LoadedCuriosityExperience = Omit<
+  CuriosityExperience,
+  "challenge"
+> & {
+  challenge?: CuriosityChallenge;
+};

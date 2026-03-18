@@ -36,6 +36,7 @@
    - `supabase/migrations/20250307130000_enable_rls.sql` (Phase 3.3)
    - `supabase/migrations/20250307130001_seed_reference_data.sql` (Phase 3.3)
    - `supabase/migrations/20250318120000_add_quiz_memory_recall_hints.sql` (Phase 4.9 — persistence)
+   - `supabase/migrations/20250318121000_seed_additional_phase4_categories.sql` (Phase 4.11 — seed categories)
 
 ### Verify
 

@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import type { CuriosityExperience } from "@/types/curiosity-experience";
+import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { ROUTES } from "@/lib/constants/routes";
 import { getCurrentUser } from "@/lib/services/user/auth";
 import { assertInternalContentWorkflowAllowed } from "@/lib/services/internal/internal-content-workflow-guard";
@@ -24,7 +24,7 @@ function renderExcerpt(text: string, maxChars: number) {
   return `${s.slice(0, maxChars)}…`;
 }
 
-function getReviewStatus(exp: CuriosityExperience): string {
+function getReviewStatus(exp: LoadedCuriosityExperience): string {
   return exp.moderation?.reviewStatus ?? "draft";
 }
 
@@ -86,26 +86,30 @@ export default async function InternalContentPreviewPage({
       </Section>
 
       <Section title="Challenge">
-        <div>
+        {exp.challenge ? (
           <div>
-            Question: <strong>{exp.challenge.questionText}</strong>
-          </div>
-          <div>Quiz type: {exp.challenge.quizType}</div>
-          <div style={{ marginTop: 8 }}>
-            Options:{" "}
-            {exp.challenge.options.map((o, i) => (
-              <div key={`${o.optionText}-${i}`}>
-                - {o.optionText} {o.isCorrect ? "(correct)" : ""}
-              </div>
-            ))}
-          </div>
-          {exp.challenge.explanationText ? (
-            <div style={{ marginTop: 8 }}>
-              Explanation:{" "}
-              <span>{renderExcerpt(exp.challenge.explanationText, 600)}</span>
+            <div>
+              Question: <strong>{exp.challenge.questionText}</strong>
             </div>
-          ) : null}
-        </div>
+            <div>Quiz type: {exp.challenge.quizType}</div>
+            <div style={{ marginTop: 8 }}>
+              Options:{" "}
+              {exp.challenge.options.map((o, i) => (
+                <div key={`${o.optionText}-${i}`}>
+                  - {o.optionText} {o.isCorrect ? "(correct)" : ""}
+                </div>
+              ))}
+            </div>
+            {exp.challenge.explanationText ? (
+              <div style={{ marginTop: 8 }}>
+                Explanation:{" "}
+                <span>{renderExcerpt(exp.challenge.explanationText, 600)}</span>
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <div>(no quiz rows yet)</div>
+        )}
       </Section>
 
       <Section title="Follow-ups">
