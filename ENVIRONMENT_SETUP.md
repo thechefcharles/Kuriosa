@@ -67,6 +67,8 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 
 **Persistence demo (4.9)**: `npm run persist:draft` writes the octopus fixture to Supabase using **`SUPABASE_SERVICE_ROLE_KEY`**.
 
+**Progress engine demo (6.2)**: `npm run progress:complete-example` runs `processCuriosityCompletion` against real data. Set **`PHASE6_DEMO_USER_ID`**, **`PHASE6_DEMO_TOPIC_ID`**, **`PHASE6_DEMO_TOPIC_SLUG`** (must match the topic row). Requires migration `20260319130000_phase62_rewards_granted.sql`. Mutates DB — use a test user. See **`COMPLETION_PROGRESS_PROCESSOR.md`**.
+
 ## Auth Redirect URLs (Supabase Dashboard)
 
 For email confirmation and OAuth (if added later), configure in **Authentication → URL Configuration**:

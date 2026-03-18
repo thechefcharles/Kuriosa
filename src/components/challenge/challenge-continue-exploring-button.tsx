@@ -33,6 +33,7 @@ export function ChallengeContinueExploringButton({
       const { wasDailyFeature, wasRandomSpin } = getTopicDiscoveryContext(slug);
       const res = await mutateAsync({
         topicId,
+        slug,
         modeUsed: getModeUsedLabel(slug),
         challengeCorrect,
         wasDailyFeature,

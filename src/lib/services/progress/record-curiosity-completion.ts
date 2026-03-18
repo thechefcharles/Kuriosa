@@ -1,6 +1,7 @@
 /**
- * Persists a lightweight curiosity completion to user_topic_history.
- * Phase 5: no XP; xp_earned stays 0.
+ * Legacy client-side upsert (Phase 5). Production flow uses
+ * POST /api/progress/complete-curiosity → processCuriosityCompletion (XP, streaks, profile).
+ * Kept for reference or one-off scripts only.
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
