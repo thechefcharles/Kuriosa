@@ -131,11 +131,45 @@ export function primaryQuizToCuriosityOptions(
   }));
 }
 
-/** Generated follow-up Q&A before assembly. */
-export interface GeneratedFollowupContent {
+/** Options for `generateFollowups`. */
+export interface GeneratedFollowupRequestOptions {
+  topicTitle: string;
+  category: string;
+  subcategory?: string;
+  difficulty?: string;
+  lessonSummaryOrContent: string;
+  tags?: string[];
+  audience?: string;
+  /** Number of follow-ups (clamped to 3–5). Default 4. */
+  desiredCount?: number;
+}
+
+/** One suggested follow-up row from the model (maps to topic_followups / CuriosityFollowup). */
+export interface GeneratedFollowupItem {
   questionText: string;
-  answerText?: string;
-  difficultyLevel?: string;
+  answerSnippet: string;
+  difficultyLevel: "beginner" | "intermediate" | "advanced";
+  sortOrder: number;
+  rationale?: string;
+  tagHints?: string[];
+}
+
+/** Validated API payload: list of follow-ups. */
+export interface GeneratedFollowupContent {
+  followups: GeneratedFollowupItem[];
+}
+
+/** Map generator item → CuriosityExperience follow-up fields (answerSnippet → answerText). */
+export function followupItemToCuriosityFields(item: GeneratedFollowupItem): {
+  questionText: string;
+  answerText: string;
+  difficultyLevel: string;
+} {
+  return {
+    questionText: item.questionText,
+    answerText: item.answerSnippet,
+    difficultyLevel: item.difficultyLevel,
+  };
 }
 
 /** Generated trail recommendation before assembly. */
@@ -172,7 +206,7 @@ export interface GeneratedCuriosityExperienceDraft {
   lesson: GeneratedLessonContent;
   challenge: GeneratedChallengeContent;
   rewards: { xpAward: number; levelHint?: number };
-  followups: (GeneratedFollowupContent & { id?: string })[];
+  followups: (GeneratedFollowupItem & { id?: string })[];
   trails: GeneratedTrailContent[];
   audio?: { audioUrl?: string; transcript?: string; durationSeconds?: number };
   progressionHooks?: { suggestedBadges?: string[]; nextTrailSlugs?: string[] };
