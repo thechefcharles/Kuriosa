@@ -6,6 +6,7 @@
 |----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon (public) key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role — **server-only**; content persistence (Phase 4.9). Never expose to client. |
 | `OPENAI_API_KEY` | OpenAI API key |
 
 ## Optional Variables (Analytics & Monitoring)
@@ -62,6 +63,8 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 **Local checks**: `npm run ai:topic-ideas` (4.2), `npm run ai:lesson` (4.3), `npm run ai:challenge` (4.4), `npm run ai:followups` (4.5), `npm run ai:trails` (4.6), and `npm run ai:audio` (4.7) load `.env.local` and call OpenAI—run only on your machine, not in client bundles.
 
 **Assembly demo (no API)**: `npm run ai:assemble-draft` (4.8) builds and validates a **CuriosityExperience** from fixture inputs.
+
+**Persistence demo (4.9)**: `npm run persist:draft` writes the octopus fixture to Supabase using **`SUPABASE_SERVICE_ROLE_KEY`**.
 
 ## Auth Redirect URLs (Supabase Dashboard)
 
