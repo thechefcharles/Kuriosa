@@ -1,20 +1,17 @@
 import { PageContainer } from "@/components/shared/page-container";
 import { PageHeader } from "@/components/shared/page-header";
-import { Section } from "@/components/shared/section";
+import { ProgressDataVerificationPanel } from "@/components/progress/progress-data-verification-panel";
 
 export default function ProgressPage() {
   return (
     <PageContainer>
       <PageHeader
         title="Progress"
-        description="XP, streaks, badges, and Curiosity Score."
+        description="XP, streaks, badges, and curiosity score — data layer preview (6.4)."
       />
-      <Section className="mt-6">
-        <p className="text-sm text-muted-foreground">
-          Phase 2 infrastructure ready: app scaffold, routes, design system,
-          Supabase utilities, env setup, API foundation, observability, data layer.
-        </p>
-      </Section>
+      <div className="mt-6">
+        <ProgressDataVerificationPanel />
+      </div>
     </PageContainer>
   );
 }

@@ -1,16 +1,20 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type {
   CompleteCuriosityClientPayload,
   ProgressUpdateResult,
 } from "@/types/progress";
+import { createSupabaseBrowserClient } from "@/lib/supabase/supabase-browser-client";
+import { invalidateProgressQueries } from "@/lib/query/invalidate-progress-queries";
 
 export type RecordCuriosityCompletionResult =
   | { ok: true; data: NonNullable<Extract<ProgressUpdateResult, { ok: true }>["data"]> }
   | { ok: false; message: string };
 
 export function useRecordCuriosityCompletion() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["progress", "complete-curiosity"],
     mutationFn: async (
@@ -46,6 +50,14 @@ export function useRecordCuriosityCompletion() {
       }
 
       return { ok: true, data: parsed.data };
+    },
+    onSuccess: async (result) => {
+      if (!result.ok) return;
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      invalidateProgressQueries(queryClient, user?.id ?? null);
     },
   });
 }
