@@ -35,6 +35,8 @@ export const discoveryQueryKeys = {
   categoriesWithCounts: ["discovery", "categories", "counts"] as const,
   topicsByCategory: (slug: string) =>
     ["discovery", "category", slug] as const,
+  categoryDetail: (slug: string) =>
+    ["discovery", "category-detail", slug] as const,
   featured: ["discovery", "featured"] as const,
   recent: (userId: string) => ["discovery", "recent", userId] as const,
 } as const;

@@ -29,3 +29,9 @@ export type RecentTopicView = {
   categoryName: string;
   completedAt?: string;
 };
+
+/** Category header + browsable topics (Phase 7.3). */
+export type CategoryDetailView = {
+  category: CategoryView;
+  topics: TopicCardView[];
+};
