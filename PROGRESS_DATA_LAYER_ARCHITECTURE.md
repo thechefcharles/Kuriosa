@@ -25,12 +25,16 @@ Shared aggregation for rewarded history lives in **`read/progress-read-helpers.t
 | `useUserProgressStats` | `getUserProgressStats` | `progressQueryKeys.stats(userId)` |
 | `useUserProfileProgress` | `getUserProfileProgress` | `progressQueryKeys.profileProgress(userId)` |
 
-Guests: hooks stay **disabled** until `userId` exists; verification UI shows a sign-in prompt.
+Guests: hooks stay **disabled** until `userId` exists; **Progress** / **Profile** show a sign-in prompt.
 
 ## Cache invalidation
 
 After a successful **`POST /api/progress/complete-curiosity`** (`useRecordCuriosityCompletion` **onSuccess**), **`invalidateProgressQueries(queryClient, userId)`** runs. That refetches summary, badges, stats, and profile-progress for that user.
 
-## Next (6.5)
+## UI (6.5)
 
-Dashboard / profile layouts will reuse these hooks and types — no new read paths required unless product adds features.
+**Progress** and **Profile** consume these hooks. See **`PROGRESS_UI_ARCHITECTURE.md`**.
+
+## Next
+
+Product can add read paths only when new metrics ship.

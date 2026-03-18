@@ -1,36 +1,32 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { PageContainer } from "@/components/shared/page-container";
 import { PageHeader } from "@/components/shared/page-header";
-import { Section } from "@/components/shared/section";
 import { getCurrentProfile } from "@/lib/services/user/auth";
-import { getCategories } from "@/lib/services/categories";
-import { getBadges } from "@/lib/services/badges";
+import { ProfileProgressHub } from "@/components/profile/profile-progress-hub";
+import { ROUTES } from "@/lib/constants/routes";
 
 export default async function ProfilePage() {
-  const [profile, categories, badges] = await Promise.all([
-    getCurrentProfile(),
-    getCategories(),
-    getBadges(),
-  ]);
+  const profile = await getCurrentProfile();
 
   if (!profile) redirect("/auth/sign-in");
 
   return (
-    <PageContainer>
-      <PageHeader title="Profile" description="Account and settings." />
-      <Section className="mt-6 space-y-4">
-        <p className="text-sm text-muted-foreground">
-          Logged in. Profile and reference data loaded via RLS.
-        </p>
-        <div className="rounded-md border p-3 text-sm" data-testid="profile-verification">
-          <p><strong>Verification (dev):</strong></p>
-          <ul className="mt-1 list-inside list-disc space-y-0.5 text-muted-foreground">
-            <li>Profile ID: {profile.id.slice(0, 8)}…</li>
-            <li>Categories loaded: {categories.length}</li>
-            <li>Badges loaded: {badges.length}</li>
-          </ul>
+    <div className="min-h-[calc(100vh-8rem)] bg-gradient-to-b from-violet-50/70 via-slate-50 to-slate-50 dark:from-kuriosa-midnight-blue dark:via-slate-950 dark:to-slate-950">
+      <PageContainer className="pb-12 pt-6 sm:pt-10">
+        <PageHeader
+          title="Profile"
+          description="Who you are — and how your curiosity is growing."
+        />
+        <div className="mt-8">
+          <ProfileProgressHub />
         </div>
-      </Section>
-    </PageContainer>
+        <p className="mt-10 text-center text-xs text-muted-foreground">
+          <Link href={ROUTES.progress} className="font-medium text-kuriosa-electric-cyan hover:underline">
+            Full progress dashboard
+          </Link>
+        </p>
+      </PageContainer>
+    </div>
   );
 }

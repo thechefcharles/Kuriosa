@@ -9,6 +9,7 @@ import { useRecordCuriosityCompletion } from "@/hooks/mutations/useRecordCuriosi
 import { getTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 import { getModeUsedLabel } from "@/lib/services/progress/session-curiosity-modes";
 import { cn } from "@/lib/utils";
+import { stashCompletionCelebration } from "@/lib/progress/completion-celebration-storage";
 
 /**
  * Records completion when the user leaves the challenge for post-challenge exploration.
@@ -39,7 +40,32 @@ export function ChallengeContinueExploringButton({
         wasDailyFeature,
         wasRandomSpin,
       });
-      if (!res.ok) setSyncMissed(true);
+      if (res.ok) {
+        const d = res.data;
+        const worthCelebrating =
+          d.wasCountedAsNewCompletion ||
+          (d.unlockedBadges?.length ?? 0) > 0;
+        if (worthCelebrating) {
+          stashCompletionCelebration({
+            topicSlug: slug,
+            xpEarned: d.xpEarned,
+            wasCountedAsNewCompletion: d.wasCountedAsNewCompletion,
+            levelBefore: d.levelBefore,
+            levelAfter: d.levelAfter,
+            streakBefore: d.streakBefore,
+            streakAfter: d.streakAfter,
+            curiosityScoreBefore: d.curiosityScoreBefore,
+            curiosityScoreAfter: d.curiosityScoreAfter,
+            unlockedBadges: (d.unlockedBadges ?? []).map((b) => ({
+              slug: b.slug,
+              name: b.name,
+              description: b.description,
+            })),
+          });
+        }
+      } else {
+        setSyncMissed(true);
+      }
     } catch {
       setSyncMissed(true);
     } finally {

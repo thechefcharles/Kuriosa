@@ -9,6 +9,7 @@ import { LessonContent } from "@/components/curiosity/lesson-content";
 import { AudioPanel } from "@/components/curiosity/audio-panel";
 import { NextStepCallout } from "@/components/curiosity/next-step-callout";
 import { PostChallengeExploration } from "@/components/curiosity/post-challenge-exploration";
+import { CompletionCelebrationHost } from "@/components/curiosity/completion-celebration-host";
 import { LoadingState } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -102,7 +103,8 @@ function ExperienceView({
 
       <NextStepCallout slug={experience.identity.slug} />
 
-      <section id="whats-next" className="scroll-mt-24">
+      <section id="whats-next" className="scroll-mt-24 space-y-6">
+        <CompletionCelebrationHost topicSlug={slug} />
         <PostChallengeExploration experience={experience} />
       </section>
     </article>
