@@ -33,11 +33,21 @@ export interface CuriosityLesson {
   realWorldRelevance?: string;
 }
 
-/** Audio narration metadata. */
+/**
+ * Draft / CMS optional audio fields (URL may be set before file exists).
+ * Loader produces {@link CuriosityAudioBlock} or null on the read model.
+ */
 export interface CuriosityAudio {
   audioUrl?: string;
   transcript?: string;
   durationSeconds?: number;
+}
+
+/** Valid listenable audio attached to a loaded topic (canonical playback + metadata). */
+export interface CuriosityAudioBlock {
+  audioUrl: string;
+  durationSeconds: number | null;
+  transcript: string | null;
 }
 
 /** Single quiz option. */
@@ -139,7 +149,9 @@ export interface CuriosityExperience {
  */
 export type LoadedCuriosityExperience = Omit<
   CuriosityExperience,
-  "challenge"
+  "challenge" | "audio"
 > & {
   challenge?: CuriosityChallenge;
+  /** null = no valid audio URL; object = Listen Mode ready */
+  audio: CuriosityAudioBlock | null;
 };

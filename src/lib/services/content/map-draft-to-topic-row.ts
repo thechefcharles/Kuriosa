@@ -16,6 +16,8 @@ export interface TopicRowPayload {
   surprising_fact: string | null;
   real_world_relevance: string | null;
   audio_url: string | null;
+  audio_script: string | null;
+  audio_duration_seconds: number | null;
   is_random_featured: boolean;
   status: string;
   source_type: string | null;
@@ -52,7 +54,14 @@ export function mapDraftToTopicRow(
     lesson_text: l.lessonText,
     surprising_fact: l.surprisingFact ?? null,
     real_world_relevance: l.realWorldRelevance ?? null,
-    audio_url: experience.audio?.audioUrl ?? null,
+    audio_url: experience.audio?.audioUrl?.trim() || null,
+    audio_script: experience.audio?.transcript?.trim() || null,
+    audio_duration_seconds:
+      experience.audio?.durationSeconds != null &&
+      Number.isFinite(Number(experience.audio.durationSeconds)) &&
+      Number(experience.audio.durationSeconds) > 0
+        ? Math.round(Number(experience.audio.durationSeconds))
+        : null,
     is_random_featured: false,
     status: mapReviewStatusToTopicStatus(experience),
     source_type: experience.analytics?.sourceType ?? "ai_generated",

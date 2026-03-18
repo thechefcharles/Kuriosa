@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Inline HTML5 audio for the lesson page. Playback is driven by this element’s `src`.
+ * Phase 8.2+ can add Media Session API / shared audio context for background play without
+ * tying lifecycle to a single page mount — keep `src` as the single canonical URL from the loader.
+ */
+
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   Pause,

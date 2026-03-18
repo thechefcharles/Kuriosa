@@ -35,6 +35,7 @@ export const exampleCuriosityExperience: CuriosityExperience = {
   audio: {
     audioUrl: "https://example.com/audio/octopus-hearts.mp3",
     durationSeconds: 180,
+    transcript: "Example narration transcript for tests.",
   },
   challenge: {
     id: "quiz-octopus-1",

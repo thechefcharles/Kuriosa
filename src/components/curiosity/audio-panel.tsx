@@ -1,6 +1,6 @@
 "use client";
 
-import type { CuriosityAudio, LoadedCuriosityExperience } from "@/types/curiosity-experience";
+import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { AudioPlayer } from "@/components/curiosity/audio-player";
 import { cn } from "@/lib/utils";
 
@@ -13,10 +13,10 @@ export function AudioPanel({
   audioMode: boolean;
   className?: string;
 }) {
-  const audio: CuriosityAudio | undefined = experience.audio;
+  const audio = experience.audio;
   if (!audioMode) return null;
 
-  const hasUrl = Boolean(audio?.audioUrl?.trim());
+  const hasUrl = audio != null;
 
   return (
     <section
@@ -43,7 +43,7 @@ export function AudioPanel({
           : "Audio isn’t uploaded for this topic yet — you can still read the lesson below."}
       </p>
 
-      {hasUrl && audio?.audioUrl ? (
+      {hasUrl && audio ? (
         <div className="mt-5 rounded-xl border border-slate-200/80 bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/30">
           <AudioPlayer
             key={experience.identity.slug}
@@ -69,7 +69,7 @@ export function AudioPanel({
             {audio.transcript}
           </p>
         </div>
-      ) : hasUrl ? (
+      ) : hasUrl && audio ? (
         <p className="mt-4 text-center text-xs text-muted-foreground">
           No transcript on file — lesson text stays below for reference.
         </p>

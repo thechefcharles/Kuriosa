@@ -10,6 +10,12 @@
 | `OPENAI_API_KEY` | OpenAI API key |
 | `INTERNAL_CONTENT_WORKFLOW_ALLOWLIST_EMAILS` | Comma-separated developer emails allowed to access internal preview + publish/reject endpoints (Phase 4.10). Server-only. |
 
+## Optional — Phase 8 audio Storage
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_SUPABASE_AUDIO_BUCKET` | Supabase Storage bucket for narration files (default: `curiosity-audio`). See `AUDIO_SYSTEM_ARCHITECTURE.md`. |
+
 ## Optional Variables (Analytics & Monitoring)
 
 | Variable | Description | Client / Server |

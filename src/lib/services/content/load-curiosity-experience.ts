@@ -8,6 +8,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
+  CuriosityAudioBlock,
   CuriosityChallenge,
   CuriosityExperience,
   CuriosityFollowup,
@@ -15,6 +16,7 @@ import type {
   CuriosityTrail,
   LoadedCuriosityExperience,
 } from "@/types/curiosity-experience";
+import { getNormalizedAudioData } from "@/lib/services/audio/audio-metadata";
 
 function normalizeText(s: string): string {
   return s.replace(/\s+/g, " ").trim();
@@ -34,15 +36,6 @@ function mapTopicStatusToReviewStatus(status: string | null): CuriosityReviewSta
   return "draft";
 }
 
-function isProbablyValidHttpUrl(s: string): boolean {
-  try {
-    const u = new URL(s);
-    return u.protocol === "http:" || u.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
 type TopicRow = {
   id: string;
   title: string;
@@ -56,6 +49,8 @@ type TopicRow = {
   surprising_fact: string | null;
   real_world_relevance: string | null;
   audio_url: string | null;
+  audio_script: string | null;
+  audio_duration_seconds: number | null;
   status: string | null;
   source_type: string | null;
   created_at: string | null;
@@ -94,11 +89,20 @@ function buildExperience(
     ? String(topic.difficulty_level)
     : "beginner";
 
-  const audioUrl = topic.audio_url != null ? String(topic.audio_url).trim() : "";
-  const audio =
-    audioUrl && isProbablyValidHttpUrl(audioUrl)
-      ? { audioUrl }
-      : undefined;
+  const norm = getNormalizedAudioData({
+    audio_url: topic.audio_url,
+    audio_script: topic.audio_script,
+    audio_duration_seconds: topic.audio_duration_seconds,
+    lesson_text: topic.lesson_text,
+  });
+  const audio: CuriosityAudioBlock | null =
+    norm.isListenReady && norm.audioUrl
+      ? {
+          audioUrl: norm.audioUrl,
+          durationSeconds: norm.durationSeconds,
+          transcript: norm.transcript,
+        }
+      : null;
 
   const reviewStatus = mapTopicStatusToReviewStatus(topic.status ?? null);
 
@@ -173,7 +177,7 @@ export async function loadCuriosityExperience(
   const topicQuery = supabase
     .from("topics")
     .select(
-      "id, title, slug, category_id, subcategory, difficulty_level, estimated_minutes, hook_text, lesson_text, surprising_fact, real_world_relevance, audio_url, status, source_type, created_at, updated_at"
+      "id, title, slug, category_id, subcategory, difficulty_level, estimated_minutes, hook_text, lesson_text, surprising_fact, real_world_relevance, audio_url, audio_script, audio_duration_seconds, status, source_type, created_at, updated_at"
     );
 
   const { data: topicRaw, error: topicErr } =

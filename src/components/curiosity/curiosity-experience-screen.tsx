@@ -16,6 +16,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageContainer } from "@/components/shared/page-container";
 import { cn } from "@/lib/utils";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
+import { isAudioAvailable } from "@/lib/audio/is-audio-available";
 import {
   initCuriosityModesSession,
   markListenModeUsed,
@@ -37,7 +38,7 @@ export function CuriosityExperienceScreen({ slug }: { slug: string }) {
 
   const { data, isLoading, isError, error } = useCuriosityExperience(slug);
 
-  const hasAudio = Boolean(data?.audio?.audioUrl);
+  const hasAudio = data ? isAudioAvailable(data.audio) : false;
 
   const ui = useMemo(() => {
     if (isLoading) return <LoadingState />;
