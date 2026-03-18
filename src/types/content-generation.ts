@@ -172,12 +172,42 @@ export function followupItemToCuriosityFields(item: GeneratedFollowupItem): {
   };
 }
 
-/** Generated trail recommendation before assembly. */
-export interface GeneratedTrailContent {
-  toTopicSlug: string;
-  toTopicTitle: string;
+/** Options for `generateTrails`. */
+export interface GeneratedTrailRequestOptions {
+  currentTopicTitle: string;
+  category: string;
+  subcategory?: string;
+  difficulty?: string;
+  tags?: string[];
+  lessonSummaryOrContent: string;
+  /** Optional list of existing/planned titles to reduce repetition */
+  existingTopicLibraryContext?: string;
+  audience?: string;
+  /** Number of trails (clamped to 2–6). Default 4. */
+  desiredCount?: number;
+}
+
+/** One suggested next-topic trail from the model. */
+export interface GeneratedTrailItem {
+  title: string;
   reasonText: string;
   sortOrder: number;
+  category?: string;
+  subcategory?: string;
+  tags?: string[];
+  slugCandidate?: string;
+  relationshipType?:
+    | "same_category"
+    | "deeper_dive"
+    | "tangential"
+    | "contrast"
+    | "application";
+  confidenceHint?: "high" | "medium" | "speculative";
+}
+
+/** Validated API payload. */
+export interface GeneratedTrailContent {
+  trails: GeneratedTrailItem[];
 }
 
 /**
@@ -207,7 +237,7 @@ export interface GeneratedCuriosityExperienceDraft {
   challenge: GeneratedChallengeContent;
   rewards: { xpAward: number; levelHint?: number };
   followups: (GeneratedFollowupItem & { id?: string })[];
-  trails: GeneratedTrailContent[];
+  trails: (GeneratedTrailItem & { id?: string; toTopicId?: string })[];
   audio?: { audioUrl?: string; transcript?: string; durationSeconds?: number };
   progressionHooks?: { suggestedBadges?: string[]; nextTrailSlugs?: string[] };
   moderation?: { status?: string; notes?: string };

@@ -14,3 +14,4 @@ No prompts required.
 - Prompt 4.3 — Lesson Generation, Lesson Prompt Templates, and Structured Lesson Output Validation
 - Prompt 4.4 — Challenge Generation, Quiz Prompt Templates, and Structured Challenge Output Validation
 - Prompt 4.5 — Follow-up Generation, Follow-up Prompt Templates, and Structured Follow-up Output Validation
+- Prompt 4.6 — Trail Generation, Trail Prompt Templates, and Structured Trail Output Validation

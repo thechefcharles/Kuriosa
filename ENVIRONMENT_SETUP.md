@@ -59,7 +59,7 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 
 **Usage**: `OPENAI_API_KEY` is used **server-side only** for AI content generation (topic ideas, lessons, quizzes, etc.). Never expose it to the client. The app throws a clear error if the key is missing when AI features are invoked.
 
-**Local checks**: `npm run ai:topic-ideas` (4.2), `npm run ai:lesson` (4.3), `npm run ai:challenge` (4.4), and `npm run ai:followups` (4.5) load `.env.local` and call OpenAI—run only on your machine, not in client bundles.
+**Local checks**: `npm run ai:topic-ideas` (4.2), `npm run ai:lesson` (4.3), `npm run ai:challenge` (4.4), `npm run ai:followups` (4.5), and `npm run ai:trails` (4.6) load `.env.local` and call OpenAI—run only on your machine, not in client bundles.
 
 ## Auth Redirect URLs (Supabase Dashboard)
 
