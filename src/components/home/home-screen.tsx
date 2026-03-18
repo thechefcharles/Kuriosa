@@ -7,7 +7,8 @@ import { PageContainer } from "@/components/shared/page-container";
 import { DailyCuriosityCard } from "@/components/curiosity/daily-curiosity-card";
 import { DailyCuriosityCardSkeleton } from "@/components/curiosity/daily-curiosity-card-skeleton";
 import { HomeDailyEmpty, HomeDailyError } from "@/components/home/home-daily-states";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { FeedMyCuriosityButton } from "@/components/curiosity/feed-my-curiosity-button";
 import { ROUTES } from "@/lib/constants/routes";
 import { APP_NAME, TAGLINE } from "@/lib/constants/brand";
 import { cn } from "@/lib/utils";
@@ -65,38 +66,31 @@ export function HomeScreen() {
 
         <section
           aria-label="More ways to explore"
-          className="space-y-4 rounded-2xl border border-slate-200/80 bg-white/60 p-5 dark:border-white/10 dark:bg-slate-900/40 sm:p-6"
+          className="space-y-5 rounded-2xl border border-slate-200/80 bg-white/60 p-5 dark:border-white/10 dark:bg-slate-900/40 sm:p-6"
         >
-          <p className="text-center text-sm font-medium text-muted-foreground">
-            What&apos;s next?
-          </p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 min-h-[48px] border-kuriosa-deep-purple/25 text-kuriosa-midnight-blue dark:border-kuriosa-electric-cyan/30 dark:text-slate-100"
-              disabled
-              aria-describedby="feed-curiosity-hint"
-            >
-              Feed my curiosity
-            </Button>
+          <div>
+            <p className="mb-1 text-center text-sm font-semibold text-kuriosa-midnight-blue dark:text-slate-100">
+              Or go random
+            </p>
+            <p className="text-center text-xs text-muted-foreground">
+              Not in the mood for today&apos;s pick? Spin up a surprise.
+            </p>
+          </div>
+          <FeedMyCuriosityButton
+            dailyTopicSlug={daily.data?.experience.identity.slug ?? null}
+          />
+          <div className="flex justify-center border-t border-slate-200/60 pt-4 dark:border-white/10">
             <Link
               href={ROUTES.discover}
               className={cn(
                 buttonVariants({ variant: "default", size: "lg" }),
-                "inline-flex h-12 min-h-[48px] items-center justify-center gap-2 bg-kuriosa-midnight-blue text-white hover:bg-kuriosa-midnight-blue/90 dark:bg-kuriosa-electric-cyan dark:text-kuriosa-midnight-blue dark:hover:bg-kuriosa-electric-cyan/90"
+                "inline-flex h-11 min-h-[44px] items-center justify-center gap-2 bg-kuriosa-midnight-blue/90 text-white hover:bg-kuriosa-midnight-blue dark:bg-kuriosa-electric-cyan dark:text-kuriosa-midnight-blue dark:hover:bg-kuriosa-electric-cyan/90"
               )}
             >
               <Compass className="h-4 w-4" aria-hidden />
               Browse Discover
             </Link>
           </div>
-          <p
-            id="feed-curiosity-hint"
-            className="text-center text-xs text-muted-foreground"
-          >
-            Surprise discoveries are coming soon. For now, explore topics on Discover.
-          </p>
         </section>
       </PageContainer>
     </div>

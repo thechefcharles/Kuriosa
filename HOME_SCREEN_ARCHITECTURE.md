@@ -30,25 +30,25 @@ No database logic lives in the card—only display props.
 | **`DailyCuriosityCardSkeleton`** | Loading placeholder for the card. |
 | **`HomeDailyEmpty`** / **`HomeDailyError`** | Friendly empty and error copy for the daily block. |
 | **`DifficultyLabel`** | Small pill for difficulty level. |
+| **`FeedMyCuriosityButton`** | Random topic action + optional difficulty pills (5.3). |
 
 Supporting UI on Home:
 
-- **Feed my curiosity** — disabled button, placeholder for a future “surprise me” flow (Phase 5.3+).
+- **Feed my curiosity** — random published topic via **`FeedMyCuriosityButton`** → **`/curiosity/[slug]`** (see **`RANDOM_DISCOVERY_FLOW.md`**).
 - **Browse Discover** — link to **`/discover`**.
 
 ## What’s complete vs placeholder
 
-| Done (5.2) | Placeholder / later |
+| Done (5.2–5.3) | Placeholder / later |
 |------------|---------------------|
 | Home layout, hero, daily card, CTA to curiosity route | Full **lesson** page UI (5.x) |
 | Loading / empty / error for daily | **Challenge** UI |
-| Discover link | **Feed my curiosity** behavior (e.g. random spin) |
-| | Progress / personalization |
+| Discover link | — |
+| Random **Feed my curiosity** + difficulty scaffold | Progress / personalization |
 
-## What 5.3 will likely add
+## What 5.4+ may add
 
-- Behavior for **Feed my curiosity** (e.g. random or guided discovery).
-- Possibly richer **Discover** beyond the dev-oriented surface.
+- Richer **lesson** / **challenge** surfaces, **Discover** polish, progress—see phase docs.
 
 ## Files to read first
 
