@@ -2,6 +2,7 @@
 
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { AudioPlayer } from "@/components/curiosity/audio-player";
+import { AudioCompleteCallout } from "@/components/curiosity/audio-complete-callout";
 import { TranscriptCollapsible } from "@/components/curiosity/transcript-collapsible";
 import { cn } from "@/lib/utils";
 
@@ -12,10 +13,17 @@ import { cn } from "@/lib/utils";
 export function AudioPanel({
   experience,
   audioMode,
+  audioPlaybackFinished,
+  onAudioPlaybackEnded,
+  onAudioPlaybackBegan,
   className,
 }: {
   experience: LoadedCuriosityExperience;
   audioMode: boolean;
+  /** True after natural playback end until user plays again */
+  audioPlaybackFinished: boolean;
+  onAudioPlaybackEnded: () => void;
+  onAudioPlaybackBegan: () => void;
   className?: string;
 }) {
   const audio = experience.audio;
@@ -59,6 +67,8 @@ export function AudioPanel({
           key={experience.identity.slug}
           src={audio.audioUrl}
           title={title}
+          onPlaybackEnded={onAudioPlaybackEnded}
+          onPlaybackBegan={onAudioPlaybackBegan}
         />
         {audioMode && audio.durationSeconds != null && audio.durationSeconds > 0 ? (
           <p className="mt-4 text-center text-xs text-muted-foreground">
@@ -68,12 +78,20 @@ export function AudioPanel({
       </div>
 
       {audioMode ? (
-        <div className="mt-6">
-          <TranscriptCollapsible
-            transcript={audio.transcript}
-            emptyHint="No separate transcript on file — the written lesson below lines up with what you hear."
-          />
-        </div>
+        <>
+          <div className="mt-6">
+            <TranscriptCollapsible
+              transcript={audio.transcript}
+              emptyHint="No separate transcript on file — the written lesson below lines up with what you hear."
+            />
+          </div>
+          {audioPlaybackFinished ? (
+            <AudioCompleteCallout
+              slug={experience.identity.slug}
+              hasChallenge={Boolean(experience.challenge)}
+            />
+          ) : null}
+        </>
       ) : null}
     </section>
   );

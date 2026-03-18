@@ -54,7 +54,8 @@ Not implemented in 8.1. The player is documented so a later phase can:
 - Attach **Media Session** metadata to the same logical source.
 - Optionally move to a **shared audio context** that survives route changes, still using **`audio_url`** as the single canonical string.
 
-**Listen UX (Read / Listen, transcript):** **`LISTEN_MODE_ARCHITECTURE.md`**.
+**Listen UX (Read / Listen, transcript):** **`LISTEN_MODE_ARCHITECTURE.md`**.  
+**Generation + completion handoff:** **`AUDIO_GENERATION_AND_COMPLETION_ARCHITECTURE.md`**.
 
 ## Files to know
 

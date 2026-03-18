@@ -7,7 +7,7 @@ Beginner-friendly guide to **Read vs Listen** on the curiosity page.
 | Mode | What you see |
 |------|----------------|
 | **Read** (default) | Title, hook, lesson, challenge flow — normal reading. |
-| **Listen** | Same curiosity, but a **Listen surface** is primary: big player, optional transcript, written lesson in a **compact scrollable** block below. |
+| **Listen** | Same curiosity, but a **Listen surface** is primary: big player, optional transcript, written lesson in a **compact scrollable** block below. After narration **finishes**, a **Continue to challenge** callout appears (no XP until challenge — see **`AUDIO_GENERATION_AND_COMPLETION_ARCHITECTURE.md`**). |
 
 - **Listen** only appears as a real button when the topic has **valid audio** (`isAudioAvailable`). Otherwise you see a **friendly “no audio yet”** slot so nothing feels broken.
 - If data loads without audio while Listen was selected, the UI **snaps back to Read** (safety).

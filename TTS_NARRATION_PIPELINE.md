@@ -1,5 +1,13 @@
 # Automated narration (OpenAI or ElevenLabs)
 
+## Preferred path (Phase 8.3+)
+
+**`npm run audio:generate-example -- --slug=<slug>`** uses the centralized **`generateAudioFromScript`** service (OpenAI-first, optional ElevenLabs) and **`saveGeneratedAudioMetadata`**. See **`AUDIO_GENERATION_AND_COMPLETION_ARCHITECTURE.md`**.
+
+---
+
+## Batch path (legacy-friendly)
+
 You **don’t** need to record or manually upload MP3s for every topic. This pipeline:
 
 1. Takes text from each topic (**`audio_script`** if set, otherwise **title + lesson**).

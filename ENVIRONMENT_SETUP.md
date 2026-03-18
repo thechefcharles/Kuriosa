@@ -26,8 +26,9 @@
 | `ELEVENLABS_API_KEY` | Required if `TTS_PROVIDER=elevenlabs`. |
 | `ELEVENLABS_VOICE_ID` | Voice ID from ElevenLabs. |
 | `ELEVENLABS_MODEL` | e.g. `eleven_multilingual_v2`. |
+| `AUDIO_GENERATION_PROVIDER` | `openai` (default) or `elevenlabs` for **`generateAudioFromScript`** / **`audio:generate-example`**. |
 
-See **`TTS_NARRATION_PIPELINE.md`**.
+See **`TTS_NARRATION_PIPELINE.md`** and **`AUDIO_GENERATION_AND_COMPLETION_ARCHITECTURE.md`**.
 
 ## Optional Variables (Analytics & Monitoring)
 

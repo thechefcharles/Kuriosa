@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCuriosityExperience } from "@/hooks/queries/useCuriosityExperience";
 import type { CuriosityMode } from "@/components/curiosity/mode-toggle";
 import { ModeToggle } from "@/components/curiosity/mode-toggle";
@@ -92,6 +92,14 @@ function ExperienceView({
     if (!hasAudio && mode === "listen") setMode("read");
   }, [hasAudio, mode, setMode]);
 
+  const [audioPlaybackFinished, setAudioPlaybackFinished] = useState(false);
+  useEffect(() => {
+    setAudioPlaybackFinished(false);
+  }, [slug]);
+
+  const onAudioPlaybackEnded = useCallback(() => setAudioPlaybackFinished(true), []);
+  const onAudioPlaybackBegan = useCallback(() => setAudioPlaybackFinished(false), []);
+
   const listenMode = mode === "listen";
 
   return (
@@ -104,7 +112,13 @@ function ExperienceView({
         hasAudio={hasAudio}
       />
 
-      <AudioPanel experience={experience} audioMode={listenMode} />
+      <AudioPanel
+        experience={experience}
+        audioMode={listenMode}
+        audioPlaybackFinished={audioPlaybackFinished}
+        onAudioPlaybackEnded={onAudioPlaybackEnded}
+        onAudioPlaybackBegan={onAudioPlaybackBegan}
+      />
 
       <LessonContent experience={experience} listenMode={listenMode} />
 
