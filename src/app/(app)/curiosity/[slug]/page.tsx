@@ -1,19 +1,12 @@
-import { PageContainer } from "@/components/shared/page-container";
-import { PageHeader } from "@/components/shared/page-header";
-
 interface CuriosityPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export default async function CuriosityPage({ params }: CuriosityPageProps) {
-  const { slug } = await params;
+import { CuriosityExperienceScreen } from "@/components/curiosity/curiosity-experience-screen";
 
-  return (
-    <PageContainer>
-      <PageHeader
-        title="Curiosity"
-        description={`Topic: ${slug}`}
-      />
-    </PageContainer>
-  );
+export default async function CuriosityPage({
+  params,
+}: CuriosityPageProps) {
+  const { slug } = await params;
+  return <CuriosityExperienceScreen slug={slug} />;
 }
