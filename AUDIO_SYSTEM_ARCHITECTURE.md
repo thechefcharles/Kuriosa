@@ -34,6 +34,9 @@ So the UI never has to guess between `undefined` and “empty object”: use **`
 
 Configure Storage policies in Supabase so only trusted roles can write; the app does not embed secrets.
 
+**Step-by-step (bucket, policies, saving `audio_url`):** see **`AUDIO_STORAGE_SETUP.md`**.  
+**Automated TTS (OpenAI / ElevenLabs → Storage → `audio_url`):** **`TTS_NARRATION_PIPELINE.md`**.
+
 ## Listen Mode availability
 
 - **`isAudioAvailable(experience.audio)`** is `true` only when the loader produced a block with a valid HTTP(S) URL.

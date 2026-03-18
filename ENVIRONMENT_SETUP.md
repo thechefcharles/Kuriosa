@@ -16,6 +16,19 @@
 |----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_AUDIO_BUCKET` | Supabase Storage bucket for narration files (default: `curiosity-audio`). See `AUDIO_SYSTEM_ARCHITECTURE.md`. |
 
+## Optional — automated TTS (`npm run audio:tts-upload`)
+
+| Variable | Description |
+|----------|-------------|
+| `TTS_PROVIDER` | `openai` (default) or `elevenlabs`. |
+| `OPENAI_TTS_VOICE` | `alloy`, `echo`, `fable`, `onyx`, `nova`, `shimmer` (OpenAI). |
+| `OPENAI_TTS_MODEL` | `tts-1` or `tts-1-hd`. |
+| `ELEVENLABS_API_KEY` | Required if `TTS_PROVIDER=elevenlabs`. |
+| `ELEVENLABS_VOICE_ID` | Voice ID from ElevenLabs. |
+| `ELEVENLABS_MODEL` | e.g. `eleven_multilingual_v2`. |
+
+See **`TTS_NARRATION_PIPELINE.md`**.
+
 ## Optional Variables (Analytics & Monitoring)
 
 | Variable | Description | Client / Server |
