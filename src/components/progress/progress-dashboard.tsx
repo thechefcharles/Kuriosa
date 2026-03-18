@@ -11,6 +11,7 @@ import { BadgeGrid } from "@/components/progress/badge-grid";
 import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants/routes";
 import { cn } from "@/lib/utils";
+import { friendlyProgressLoadError } from "@/lib/ui/progress-load-error";
 
 function ProgressSkeleton() {
   return (
@@ -39,7 +40,7 @@ export function ProgressDashboard() {
           Sign in to see your progress
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          Track XP, level, streaks, and badges as you explore curiosities.
+          XP, levels, streaks, and badges — all in one place once you&apos;re signed in.
         </p>
         <Link
           href={ROUTES.signIn}
@@ -59,13 +60,16 @@ export function ProgressDashboard() {
   }
 
   if (summary.error || stats.error || badges.error) {
+    const raw =
+      summary.error?.message ??
+      stats.error?.message ??
+      badges.error?.message ??
+      "Unknown error";
     return (
       <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6 text-center">
-        <p className="font-medium text-destructive">Something went wrong</p>
+        <p className="font-medium text-destructive">Can&apos;t load progress</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          {summary.error?.message ??
-            stats.error?.message ??
-            badges.error?.message}
+          {friendlyProgressLoadError(raw)}
         </p>
       </div>
     );
@@ -77,13 +81,14 @@ export function ProgressDashboard() {
   if (!s || !st) {
     return (
       <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-        We couldn&apos;t load your progress yet. Try completing a curiosity first.
+        Progress data isn&apos;t available yet. Finish a curiosity from the challenge
+        screen, then come back here.
       </p>
     );
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="space-y-10 pb-10">
       <ProgressHeroCard summary={s} />
       <StreakCard streak={s.streak} />
       <StatGrid stats={st} />

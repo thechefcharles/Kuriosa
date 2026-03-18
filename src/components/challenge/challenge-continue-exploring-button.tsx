@@ -101,7 +101,8 @@ export function ChallengeContinueExploringButton({
       </Button>
       {syncMissed ? (
         <p className="mt-1 text-center text-xs text-muted-foreground sm:text-left" role="status">
-          Progress didn&apos;t sync — you can still explore. Try again later if it matters.
+          Couldn&apos;t save this time — you can still explore. Sign in and try again if you care
+          about XP.
         </p>
       ) : null}
     </div>

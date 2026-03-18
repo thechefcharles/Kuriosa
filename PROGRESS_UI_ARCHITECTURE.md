@@ -23,9 +23,9 @@ Server still checks auth and redirects guests. **`ProfileProgressHub`** (client)
 
 ## Completion celebration
 
-1. **`ChallengeContinueExploringButton`** — on successful API response with **new XP** and/or **new badges**, **`stashCompletionCelebration`** writes a small payload to **sessionStorage** (key `kuriosa:completionCelebration`).
+1. **`ChallengeContinueExploringButton`** — on successful API response with **new XP** and/or **new badges**, **`stashCompletionCelebration`** writes to **sessionStorage** (includes **timestamp**).
 2. User navigates to **`/curiosity/[slug]#whats-next`**.
-3. **`CompletionCelebrationHost`** mounts, **`consumeCompletionCelebration(slug)`** reads and clears storage; if it matches, **`CompletionCelebrationCard`** shows XP, level-up, streak bump, score delta, and new badge names. Dismiss clears local state.
+3. **`CompletionCelebrationHost`** runs **`consumeCompletionCelebration(slug)`**: validates shape, enforces **~15 min TTL**, clears bad data. Matching slug removes storage and shows the card. **Refresh after consume** does not replay.
 
 Repeat completions (no XP, no new badges) do not stash — no empty celebration.
 

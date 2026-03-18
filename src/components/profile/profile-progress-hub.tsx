@@ -9,6 +9,7 @@ import { Flame, Sparkles } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants/routes";
 import { cn } from "@/lib/utils";
+import { friendlyProgressLoadError } from "@/lib/ui/progress-load-error";
 
 function displayName(
   displayName: string | null,
@@ -45,9 +46,12 @@ export function ProfileProgressHub() {
 
   if (profile.error) {
     return (
-      <p className="text-sm text-destructive">
-        Couldn&apos;t load profile: {profile.error.message}
-      </p>
+      <div className="rounded-xl border border-destructive/25 bg-destructive/5 p-4 text-sm">
+        <p className="font-medium text-destructive">Couldn&apos;t load profile</p>
+        <p className="mt-1 text-muted-foreground">
+          {friendlyProgressLoadError(profile.error.message)}
+        </p>
+      </div>
     );
   }
 
@@ -118,7 +122,7 @@ export function ProfileProgressHub() {
         </div>
         {!recent.length ? (
           <p className="rounded-xl border border-dashed py-8 text-center text-sm text-muted-foreground">
-            Complete a curiosity to earn your first badge.
+            First badge is never far — finish any curiosity from start to challenge.
           </p>
         ) : (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">

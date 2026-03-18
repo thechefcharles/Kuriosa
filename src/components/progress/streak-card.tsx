@@ -12,20 +12,20 @@ export function StreakCard({ streak }: { streak: UserStreakView }) {
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-orange-900/90 dark:text-amber-200">
-            Streak
+            Daily rhythm
           </h3>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-kuriosa-midnight-blue dark:text-white">
-            {currentStreak}{" "}
-            <span className="text-base font-semibold text-muted-foreground">
-              day{currentStreak === 1 ? "" : "s"} current
+          <p className="mt-1 text-3xl font-bold tabular-nums text-kuriosa-midnight-blue dark:text-white">
+            {currentStreak}
+            <span className="ml-1.5 text-lg font-semibold text-muted-foreground">
+              day{currentStreak === 1 ? "" : "s"} in a row
             </span>
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Best streak:{" "}
+            Personal best:{" "}
             <span className="font-semibold text-foreground">
               {longestStreak} day{longestStreak === 1 ? "" : "s"}
             </span>
-            . Keep showing up — small steps build big habits.
+            . One curiosity counts — no pressure for marathons.
           </p>
         </div>
       </div>

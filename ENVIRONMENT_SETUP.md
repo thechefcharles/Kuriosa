@@ -71,6 +71,8 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 
 **Badge evaluation demo (6.3)**: `npm run progress:badges-example` with **`PHASE6_DEMO_USER_ID`**. Optional **`PHASE6_BADGE_UNLOCK=1`** persists eligible badges (service role). See **`BADGE_SYSTEM_ARCHITECTURE.md`**.
 
+**Phase 6 E2E (manual)**: Sign in → complete one curiosity (challenge → Continue) → check **`/progress`** and celebration on **`#whats-next`**. Repeat same topic: no extra XP. See **`PHASE_6_PROGRESS_SYSTEM_INVENTORY.md`**.
+
 ## Auth Redirect URLs (Supabase Dashboard)
 
 For email confirmation and OAuth (if added later), configure in **Authentication → URL Configuration**:

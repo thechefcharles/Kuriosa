@@ -21,7 +21,7 @@ export function LevelProgressBar({
       aria-valuenow={Math.round(pct)}
       aria-labelledby={labelId}
     >
-      <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200/90 dark:bg-slate-800">
+      <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200/90 dark:bg-slate-800">
         <div
           className="h-full rounded-full bg-gradient-to-r from-kuriosa-deep-purple via-violet-500 to-kuriosa-electric-cyan transition-[width] duration-500 ease-out"
           style={{ width: `${pct}%` }}

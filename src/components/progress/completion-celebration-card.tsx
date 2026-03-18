@@ -36,11 +36,25 @@ export function CompletionCelebrationCard({
         <X className="h-4 w-4" />
       </Button>
 
-      <div className="flex items-center gap-2 pr-8">
-        <Sparkles className="h-6 w-6 text-kuriosa-electric-cyan" aria-hidden />
-        <h2 className="text-lg font-bold text-kuriosa-midnight-blue dark:text-white">
-          {showXp ? "Nice work!" : "Progress updated"}
-        </h2>
+      <div className="flex gap-3 pr-10">
+        <Sparkles
+          className="mt-0.5 h-6 w-6 shrink-0 text-kuriosa-electric-cyan"
+          aria-hidden
+        />
+        <div>
+          <h2 className="text-lg font-bold leading-snug text-kuriosa-midnight-blue dark:text-white sm:text-xl">
+            {showXp
+              ? "You earned it"
+              : hasBadges
+                ? "New badge unlocked"
+                : "Saved"}
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {showXp
+              ? "Here’s what changed."
+              : "Your progress is up to date."}
+          </p>
+        </div>
       </div>
 
       <ul className="mt-4 space-y-3 text-sm">
@@ -113,7 +127,7 @@ export function CompletionCelebrationCard({
         )}
         onClick={onDismiss}
       >
-        Continue exploring
+        Got it
       </Button>
     </div>
   );

@@ -15,7 +15,7 @@ export function ProgressHeroCard({ summary }: { summary: UserProgressSummary }) 
         <div>
           <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
             <Sparkles className="h-3.5 w-3.5" aria-hidden />
-            Your journey
+            Where you stand
           </p>
           <div className="mt-3 flex flex-wrap items-baseline gap-3">
             <span className="text-4xl font-bold tabular-nums text-kuriosa-midnight-blue dark:text-white sm:text-5xl">
