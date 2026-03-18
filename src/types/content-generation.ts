@@ -14,11 +14,46 @@ export interface TopicIdeaCandidate {
   tags: string[];
 }
 
-/** Generated lesson content before assembly. */
+/** Options passed to the lesson generator (prompt inputs). */
+export interface GeneratedLessonRequestOptions {
+  topicTitle: string;
+  category: string;
+  subcategory?: string;
+  audience?: string;
+  /** e.g. beginner — informs voice depth in the prompt */
+  difficulty?: string;
+  /** Approximate total words for intro + body */
+  targetWordCount?: number;
+  tone?: string;
+  tags?: string[];
+  /** Extra hook or question framing for the model */
+  hookContext?: string;
+}
+
+/**
+ * Validated lesson output from the AI before assembly into CuriosityExperience.
+ * Maps to: identity.title, discoveryCard (hookText, shortSummary, estimatedMinutes),
+ * taxonomy (difficultyLevel, tags), lesson (concat intro+body → lessonText),
+ * rewards (xpAward, levelHint), and future audio from body+intro as script source.
+ */
 export interface GeneratedLessonContent {
-  lessonText: string;
-  surprisingFact?: string;
-  realWorldRelevance?: string;
+  title: string;
+  hookText: string;
+  shortSummary: string;
+  intro: string;
+  body: string;
+  surprisingFact: string;
+  realWorldRelevance: string;
+  difficultyLevel: "beginner" | "intermediate" | "advanced";
+  estimatedMinutes: number;
+  tags: string[];
+  xpAward: number;
+  levelHint?: number;
+}
+
+/** Concatenate intro + body for CuriosityLesson.lessonText when assembling. */
+export function composeLessonTextFromGenerated(lesson: GeneratedLessonContent): string {
+  return `${lesson.intro.trim()}\n\n${lesson.body.trim()}`;
 }
 
 /** Generated challenge content before assembly. */
@@ -44,7 +79,10 @@ export interface GeneratedTrailContent {
   sortOrder: number;
 }
 
-/** Draft assembled from AI outputs; may need validation before becoming CuriosityExperience. */
+/**
+ * Draft assembled from AI outputs; may need validation before becoming CuriosityExperience.
+ * When lesson is filled from generateLesson, map fields per CuriosityExperience sections.
+ */
 export interface GeneratedCuriosityExperienceDraft {
   identity: {
     id?: string;
@@ -63,6 +101,7 @@ export interface GeneratedCuriosityExperienceDraft {
     difficultyLevel: string;
     tags: string[];
   };
+  /** Full generated lesson blob; use composeLessonTextFromGenerated for CuriosityLesson.lessonText */
   lesson: GeneratedLessonContent;
   challenge: GeneratedChallengeContent & { id?: string };
   rewards: { xpAward: number; levelHint?: number };

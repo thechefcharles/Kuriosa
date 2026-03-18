@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "ai:topic-ideas": "npx tsx src/lib/ai/examples/run-topic-idea-generation-example.ts"
+    "ai:topic-ideas": "npx tsx src/lib/ai/examples/run-topic-idea-generation-example.ts",
+    "ai:lesson": "npx tsx src/lib/ai/examples/run-lesson-generation-example.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
