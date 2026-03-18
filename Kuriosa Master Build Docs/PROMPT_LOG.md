@@ -12,3 +12,4 @@ No prompts required.
 ## Phase 4
 - Prompt 4.2 — Topic Idea Generation, Prompt Templates, and AI Client Foundations
 - Prompt 4.3 — Lesson Generation, Lesson Prompt Templates, and Structured Lesson Output Validation
+- Prompt 4.4 — Challenge Generation, Quiz Prompt Templates, and Structured Challenge Output Validation

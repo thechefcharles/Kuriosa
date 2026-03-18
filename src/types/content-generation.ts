@@ -56,12 +56,79 @@ export function composeLessonTextFromGenerated(lesson: GeneratedLessonContent): 
   return `${lesson.intro.trim()}\n\n${lesson.body.trim()}`;
 }
 
-/** Generated challenge content before assembly. */
+/** Single MC / logic option row (ids stable for correctOptionId). */
+export interface GeneratedQuizOption {
+  id: "a" | "b" | "c" | "d";
+  optionText: string;
+}
+
+/** Primary challenge: main quiz after the lesson. */
+export type GeneratedPrimaryQuiz =
+  | {
+      quizType: "multiple_choice" | "logic";
+      questionText: string;
+      options: GeneratedQuizOption[];
+      correctOptionId: "a" | "b" | "c" | "d";
+      explanationText: string;
+    }
+  | {
+      quizType: "memory_recall";
+      questionText: string;
+      correctAnswer: string;
+      explanationText: string;
+    };
+
+/** Bonus challenge: lighter follow-on (recall or quick MC). */
+export type GeneratedBonusQuestion =
+  | {
+      quizType: "memory_recall";
+      questionText: string;
+      acceptedAnswers: string[];
+      explanationText: string;
+    }
+  | {
+      quizType: "multiple_choice" | "logic";
+      questionText: string;
+      options: GeneratedQuizOption[];
+      correctOptionId: "a" | "b" | "c" | "d";
+      explanationText: string;
+    };
+
+/** Inputs for `generateChallenge`. */
+export interface GeneratedChallengeRequestOptions {
+  topicTitle: string;
+  category: string;
+  difficulty?: string;
+  /** Lesson summary or full lesson text the quiz must align with */
+  lessonSummaryOrContent: string;
+  /** Hint which modalities to use (e.g. primary multiple_choice + bonus memory_recall) */
+  desiredChallengeTypes?: Array<"multiple_choice" | "memory_recall" | "logic">;
+  tags?: string[];
+  audience?: string;
+}
+
+/** Validated challenge pack from the model. */
 export interface GeneratedChallengeContent {
-  questionText: string;
-  quizType: string;
-  options: { optionText: string; isCorrect: boolean }[];
-  explanationText?: string;
+  primary: GeneratedPrimaryQuiz;
+  bonus: GeneratedBonusQuestion;
+  /** Suggested XP for primary challenge (rewards assembly later) */
+  primaryXpAward?: number;
+  bonusXpAward?: number;
+}
+
+/**
+ * Map primary quiz to CuriosityExperience-style options (empty for memory_recall until assembly adds UX).
+ */
+export function primaryQuizToCuriosityOptions(
+  primary: GeneratedPrimaryQuiz
+): { optionText: string; isCorrect: boolean }[] {
+  if (primary.quizType === "memory_recall") {
+    return [];
+  }
+  return primary.options.map((o) => ({
+    optionText: o.optionText,
+    isCorrect: o.id === primary.correctOptionId,
+  }));
 }
 
 /** Generated follow-up Q&A before assembly. */
@@ -103,7 +170,7 @@ export interface GeneratedCuriosityExperienceDraft {
   };
   /** Full generated lesson blob; use composeLessonTextFromGenerated for CuriosityLesson.lessonText */
   lesson: GeneratedLessonContent;
-  challenge: GeneratedChallengeContent & { id?: string };
+  challenge: GeneratedChallengeContent;
   rewards: { xpAward: number; levelHint?: number };
   followups: (GeneratedFollowupContent & { id?: string })[];
   trails: GeneratedTrailContent[];
