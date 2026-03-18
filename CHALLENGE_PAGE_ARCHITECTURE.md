@@ -42,7 +42,7 @@ Logic is treated like multiple choice in the UI; the **type label** still says â
 
 ## Continue after the challenge
 
-**Continue** links to **`/curiosity/[slug]#whats-next`**, where the lesson page exposes a **`#whats-next`** section (next-step CTA + short copy about follow-ups/trails coming later).
+**Continue** links to **`/curiosity/[slug]#whats-next`**, where the lesson page shows **follow-up questions** (tap to reveal answers) and **trail cards** to related topics. See **`POST_CHALLENGE_EXPLORATION_ARCHITECTURE.md`**.
 
 ## Not built yet (5.7+)
 

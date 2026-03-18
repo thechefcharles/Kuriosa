@@ -8,6 +8,7 @@ import { CuriosityHeader } from "@/components/curiosity/curiosity-header";
 import { LessonContent } from "@/components/curiosity/lesson-content";
 import { AudioPanel } from "@/components/curiosity/audio-panel";
 import { NextStepCallout } from "@/components/curiosity/next-step-callout";
+import { PostChallengeExploration } from "@/components/curiosity/post-challenge-exploration";
 import { LoadingState } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -79,11 +80,10 @@ function ExperienceView({
 
       <LessonContent experience={experience} />
 
-      <section id="whats-next" className="scroll-mt-24 space-y-4">
-        <NextStepCallout slug={experience.identity.slug} />
-        <p className="text-center text-xs text-muted-foreground">
-          Follow-up questions &amp; related trails — coming in the next step of the loop.
-        </p>
+      <NextStepCallout slug={experience.identity.slug} />
+
+      <section id="whats-next" className="scroll-mt-24">
+        <PostChallengeExploration experience={experience} />
       </section>
     </article>
   );
