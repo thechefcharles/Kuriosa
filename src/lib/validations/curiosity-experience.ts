@@ -79,7 +79,7 @@ export const curiosityModerationSchema = z.object({
   status: z.enum(["pending", "approved", "flagged"]).optional(),
   notes: z.string().optional(),
   reviewStatus: z
-    .enum(["draft", "reviewed", "published", "archived"])
+    .enum(["draft", "reviewed", "published", "rejected", "archived"])
     .optional(),
   safetyFlags: z.array(z.string()).optional(),
 });

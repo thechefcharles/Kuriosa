@@ -18,3 +18,4 @@ No prompts required.
 - Prompt 4.7 — Audio Script Generation, Audio Prompt Templates, and Structured Audio Output Validation
 - Prompt 4.8 — CuriosityExperience Draft Assembly, Slugging, Moderation Scaffolding, and Assembly Validation
 - Prompt 4.9 — CuriosityExperience Draft Persistence to Supabase (Normalized Tables)
+- Prompt 4.10 — Internal Content Workflow: Preview, Review/Publish Transitions, and Safe Tooling

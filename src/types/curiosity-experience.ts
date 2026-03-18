@@ -89,6 +89,7 @@ export type CuriosityReviewStatus =
   | "draft"
   | "reviewed"
   | "published"
+  | "rejected"
   | "archived";
 
 /** Provenance of assembled content. */

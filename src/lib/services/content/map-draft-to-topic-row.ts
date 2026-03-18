@@ -27,6 +27,7 @@ function mapReviewStatusToTopicStatus(
 ): string {
   const rs = experience.moderation?.reviewStatus;
   if (rs === "published") return "published";
+  if (rs === "rejected") return "rejected";
   if (rs === "archived") return "archived";
   if (rs === "reviewed") return "reviewed";
   return "draft";
