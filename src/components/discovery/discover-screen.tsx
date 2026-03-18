@@ -1,11 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Compass, History, Sparkles, Shuffle } from "lucide-react";
+import {
+  Compass,
+  History,
+  Search,
+  Sparkles,
+  Shuffle,
+  X,
+} from "lucide-react";
 import { PageContainer } from "@/components/shared/page-container";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useCategories } from "@/hooks/queries/useCategories";
 import { useFeaturedTopics } from "@/hooks/queries/useFeaturedTopics";
 import { useRecentTopics } from "@/hooks/queries/useRecentTopics";
+import { useSearchTopics } from "@/hooks/queries/useSearchTopics";
+import { useSuggestedTopics } from "@/hooks/queries/useSuggestedTopics";
 import { CategoryCard } from "@/components/discovery/category-card";
 import { TopicCard } from "@/components/discovery/topic-card";
 import { DiscoverySection } from "@/components/discovery/discovery-section";
@@ -21,17 +33,21 @@ import { FeedMyCuriosityButton } from "@/components/curiosity/feed-my-curiosity-
 import { cn } from "@/lib/utils";
 
 const FEATURED_LIMIT = 6;
-const EXPLORE_MORE_START = 6;
-const EXPLORE_MORE_END = 12;
 
 export function DiscoverScreen() {
+  const [searchInput, setSearchInput] = useState("");
+  const trimmedSearch = searchInput.trim();
+  const searchActive = trimmedSearch.length >= 2;
+
   const categories = useCategories({ withTopicCounts: true });
   const featured = useFeaturedTopics();
   const recent = useRecentTopics();
+  const search = useSearchTopics(searchInput);
+  const suggested = useSuggestedTopics();
 
   const featuredList = featured.data ?? [];
   const featuredPrimary = featuredList.slice(0, FEATURED_LIMIT);
-  const exploreMore = featuredList.slice(EXPLORE_MORE_START, EXPLORE_MORE_END);
+  const suggestedList = suggested.data ?? [];
 
   return (
     <div
@@ -41,7 +57,7 @@ export function DiscoverScreen() {
       )}
     >
       <PageContainer className="pb-16 pt-6 sm:pt-10">
-        <header className="mb-10 text-center sm:mb-12">
+        <header className="mb-8 text-center sm:mb-10">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-kuriosa-electric-cyan/25 bg-white/60 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-kuriosa-deep-purple dark:bg-white/5 dark:text-kuriosa-electric-cyan">
             <Compass className="h-3.5 w-3.5" aria-hidden />
             Explore
@@ -50,12 +66,81 @@ export function DiscoverScreen() {
             Discover
           </h1>
           <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground sm:text-base">
-            A map of rabbit holes — categories, hand-picked curiosities, and where you left off.
+            A map of rabbit holes — search, categories, hand-picked curiosities, and where you
+            left off.
           </p>
         </header>
 
+        {/* Search */}
+        <DiscoverySection className="mb-10">
+          <label htmlFor="discover-search" className="sr-only">
+            Search topics
+          </label>
+          <div className="relative mx-auto max-w-xl">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              id="discover-search"
+              type="search"
+              placeholder="Search by title, tag, or category…"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="h-11 border-slate-200/90 bg-white/90 pl-10 pr-10 dark:border-white/10 dark:bg-slate-900/60"
+              autoComplete="off"
+            />
+            {searchInput ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0.5 top-1/2 h-9 w-9 -translate-y-1/2 shrink-0 text-muted-foreground"
+                onClick={() => setSearchInput("")}
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            ) : null}
+          </div>
+          {trimmedSearch.length === 1 ? (
+            <p className="mt-2 text-center text-xs text-muted-foreground">
+              Type at least two characters to search published topics.
+            </p>
+          ) : null}
+
+          {searchActive ? (
+            <div className="mt-8">
+              <DiscoverySectionHeader
+                title="Search results"
+                description={`Matches for “${trimmedSearch}” in titles, tags, and categories.`}
+              />
+              {search.isPending ? (
+                <DiscoverySectionSkeleton rows={2} />
+              ) : search.isError ? (
+                <DiscoverySectionError message="Search didn’t load. Try again in a moment." />
+              ) : !search.data?.length ? (
+                <DiscoverySectionEmpty
+                  title="No matches"
+                  description="Try another word, browse categories below, or use Jump in / Surprise me."
+                />
+              ) : (
+                <DiscoveryCardGrid>
+                  {search.data.map((t) => (
+                    <li key={t.id}>
+                      <TopicCard topic={t} />
+                    </li>
+                  ))}
+                </DiscoveryCardGrid>
+              )}
+            </div>
+          ) : null}
+        </DiscoverySection>
+
         {/* Categories */}
-        <DiscoverySection className="mb-14">
+        <DiscoverySection
+          className={cn("mb-14 transition-opacity", searchActive && "opacity-75")}
+        >
           <DiscoverySectionHeader
             title="Browse by category"
             description="Each lane leads to a pocket of the universe worth poking at."
@@ -89,7 +174,7 @@ export function DiscoverScreen() {
         </DiscoverySection>
 
         {/* Featured */}
-        <DiscoverySection className="mb-14">
+        <DiscoverySection className={cn("mb-14", searchActive && "opacity-90")}>
           <DiscoverySectionHeader
             title="Jump in here"
             description="Short curiosities worth your next coffee break."
@@ -115,16 +200,26 @@ export function DiscoverScreen() {
         </DiscoverySection>
 
         {/* Recent */}
-        <DiscoverySection className="mb-14">
+        <DiscoverySection className={cn("mb-14", searchActive && "opacity-90")}>
           <DiscoverySectionHeader
-            title="Pick up where you left off"
-            description="Recently finished curiosities — tap to revisit the lesson or trails."
+            title="Recently explored"
+            description="Curiosities you’ve finished — jump back in anytime."
           />
           {!recent.isAuthenticated ? (
-            <DiscoverySectionEmpty
-              title="Sign in to see history"
-              description="Your last explorations will appear here after you complete a curiosity while signed in."
-            />
+            <div className="rounded-xl border border-dashed border-slate-200/90 bg-white/50 px-4 py-6 text-center dark:border-white/15 dark:bg-slate-900/40">
+              <p className="text-sm font-medium text-kuriosa-midnight-blue dark:text-white">
+                Sign in to keep a trail
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Complete a curiosity while signed in and it’ll appear here so you can revisit.
+              </p>
+              <Link
+                href={ROUTES.signIn}
+                className="mt-3 inline-block text-sm font-semibold text-kuriosa-electric-cyan hover:underline"
+              >
+                Sign in
+              </Link>
+            </div>
           ) : recent.isPending ? (
             <div className="space-y-3" aria-busy="true">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -136,7 +231,7 @@ export function DiscoverScreen() {
           ) : !recent.data.length ? (
             <DiscoverySectionEmpty
               title="No finishes yet"
-              description="Complete any curiosity end-to-end and it’ll show up here. Start with Jump in above or spin random below."
+              description="Finish a curiosity end-to-end and it’ll land here. Try Jump in above or Surprise me below."
             />
           ) : (
             <ul className="space-y-2">
@@ -168,20 +263,30 @@ export function DiscoverScreen() {
           )}
         </DiscoverySection>
 
-        {/* Explore more — deterministic second slice of featured; hidden if pool is small */}
-        {exploreMore.length > 0 ? (
-          <DiscoverySection className="mb-14">
+        {/* Suggested — deterministic, not personalized AI */}
+        {suggested.isPending || suggested.isError || suggestedList.length > 0 ? (
+          <DiscoverySection className={cn("mb-14", searchActive && "opacity-90")}>
             <DiscoverySectionHeader
-              title="Explore more"
-              description="Same catalog, different corner — no algorithm, just the next batch of published picks."
+              title="More to explore"
+              description={
+                recent.isAuthenticated && recent.data.length > 0
+                  ? "Related lanes and a fresh angle — simple rules, not a recommendation engine."
+                  : "A small rotating set from the catalog — dip in anywhere."
+              }
             />
-            <DiscoveryCardGrid>
-              {exploreMore.map((t) => (
-                <li key={t.id}>
-                  <TopicCard topic={t} />
-                </li>
-              ))}
-            </DiscoveryCardGrid>
+            {suggested.isPending ? (
+              <DiscoverySectionSkeleton rows={2} />
+            ) : suggested.isError ? (
+              <DiscoverySectionError message="Couldn’t load suggestions. Everything else on this page still works." />
+            ) : (
+              <DiscoveryCardGrid>
+                {suggestedList.map((t) => (
+                  <li key={t.id}>
+                    <TopicCard topic={t} />
+                  </li>
+                ))}
+              </DiscoveryCardGrid>
+            )}
           </DiscoverySection>
         ) : null}
 
