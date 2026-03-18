@@ -3,6 +3,11 @@
  * Represents raw or partial outputs before assembly into CuriosityExperience.
  */
 
+import type {
+  CuriosityContentSourceType,
+  CuriosityReviewStatus,
+} from "@/types/curiosity-experience";
+
 /** Raw topic idea from discovery/generation. */
 export interface TopicIdeaCandidate {
   title: string;
@@ -251,9 +256,29 @@ export interface GeneratedTrailContent {
   trails: GeneratedTrailItem[];
 }
 
+/** Full generator outputs passed into `buildCuriosityExperienceDraft`. */
+export interface GeneratedCuriosityExperienceDraftInput {
+  topicIdea: TopicIdeaCandidate;
+  lesson: GeneratedLessonContent;
+  challenge: GeneratedChallengeContent;
+  followups: GeneratedFollowupItem[];
+  trails: GeneratedTrailItem[];
+  audio?: GeneratedAudioScript;
+  assemblyOptions?: {
+    slugOverride?: string;
+    reviewStatus?: CuriosityReviewStatus;
+    sourceType?: CuriosityContentSourceType;
+    safetyFlags?: string[];
+    contentVersion?: number;
+    suggestedBadges?: string[];
+    assemblyNotes?: string;
+  };
+}
+
 /**
  * Draft assembled from AI outputs; may need validation before becoming CuriosityExperience.
  * When lesson is filled from generateLesson, map fields per CuriosityExperience sections.
+ * @deprecated Prefer canonical `CuriosityExperience` from `buildCuriosityExperienceDraft`.
  */
 export interface GeneratedCuriosityExperienceDraft {
   identity: {

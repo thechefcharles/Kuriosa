@@ -61,6 +61,8 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 
 **Local checks**: `npm run ai:topic-ideas` (4.2), `npm run ai:lesson` (4.3), `npm run ai:challenge` (4.4), `npm run ai:followups` (4.5), `npm run ai:trails` (4.6), and `npm run ai:audio` (4.7) load `.env.local` and call OpenAI—run only on your machine, not in client bundles.
 
+**Assembly demo (no API)**: `npm run ai:assemble-draft` (4.8) builds and validates a **CuriosityExperience** from fixture inputs.
+
 ## Auth Redirect URLs (Supabase Dashboard)
 
 For email confirmation and OAuth (if added later), configure in **Authentication → URL Configuration**:

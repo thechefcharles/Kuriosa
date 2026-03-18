@@ -84,16 +84,34 @@ export interface CuriosityProgressionHooks {
   nextTrailSlugs?: string[];
 }
 
+/** Editorial / lifecycle status for drafts and published content. */
+export type CuriosityReviewStatus =
+  | "draft"
+  | "reviewed"
+  | "published"
+  | "archived";
+
+/** Provenance of assembled content. */
+export type CuriosityContentSourceType =
+  | "ai_generated"
+  | "ai_generated_editor_reviewed"
+  | "manual";
+
 /** Moderation metadata. */
 export interface CuriosityModeration {
   reviewedAt?: string;
+  /** Legacy review gate */
   status?: "pending" | "approved" | "flagged";
   notes?: string;
+  /** Pipeline / CMS lifecycle */
+  reviewStatus?: CuriosityReviewStatus;
+  /** e.g. ["needs-fact-check"]; empty when clean */
+  safetyFlags?: string[];
 }
 
 /** Analytics and source metadata. */
 export interface CuriosityAnalyticsMetadata {
-  sourceType?: string;
+  sourceType?: CuriosityContentSourceType | string;
   generatedAt?: string;
   version?: number;
 }

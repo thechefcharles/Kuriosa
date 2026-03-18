@@ -78,10 +78,21 @@ export const curiosityModerationSchema = z.object({
   reviewedAt: z.string().optional(),
   status: z.enum(["pending", "approved", "flagged"]).optional(),
   notes: z.string().optional(),
+  reviewStatus: z
+    .enum(["draft", "reviewed", "published", "archived"])
+    .optional(),
+  safetyFlags: z.array(z.string()).optional(),
 });
 
 export const curiosityAnalyticsMetadataSchema = z.object({
-  sourceType: z.string().optional(),
+  sourceType: z
+    .enum([
+      "ai_generated",
+      "ai_generated_editor_reviewed",
+      "manual",
+    ])
+    .or(z.string())
+    .optional(),
   generatedAt: z.string().optional(),
   version: z.number().optional(),
 });
