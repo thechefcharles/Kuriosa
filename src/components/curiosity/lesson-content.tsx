@@ -15,20 +15,43 @@ function splitIntoParagraphs(text: string): string[] {
 export function LessonContent({
   experience,
   className,
+  listenMode = false,
 }: {
   experience: LoadedCuriosityExperience;
   className?: string;
+  listenMode?: boolean;
 }) {
   const lessonParagraphs = splitIntoParagraphs(experience.lesson.lessonText);
 
   return (
-    <div className={cn("space-y-6", className)}>
-      <div className="space-y-3">
+    <div
+      className={cn(
+        "space-y-6",
+        listenMode &&
+          "rounded-2xl border border-slate-200/60 bg-white/40 p-4 dark:border-white/10 dark:bg-slate-900/25 sm:p-5",
+        className
+      )}
+    >
+      {listenMode ? (
+        <h2 className="text-xs font-bold uppercase tracking-widest text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
+          Written lesson
+        </h2>
+      ) : null}
+      <div
+        className={cn(
+          "space-y-3",
+          listenMode &&
+            "max-h-[min(50vh,20rem)] overflow-y-auto pr-1 sm:max-h-[min(45vh,24rem)]"
+        )}
+      >
         {lessonParagraphs.length ? (
           lessonParagraphs.map((p, i) => (
             <p
               key={`${i}-${p.slice(0, 12)}`}
-              className="text-[15px] leading-7 text-slate-800 dark:text-slate-200"
+              className={cn(
+                "text-slate-800 dark:text-slate-200",
+                listenMode ? "text-sm leading-6" : "text-[15px] leading-7"
+              )}
             >
               {p}
             </p>

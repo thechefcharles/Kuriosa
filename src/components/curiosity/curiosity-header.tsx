@@ -8,9 +8,12 @@ import { cn } from "@/lib/utils";
 export function CuriosityHeader({
   experience,
   className,
+  /** Slightly tighter hook when Listen is primary */
+  compactHook = false,
 }: {
   experience: LoadedCuriosityExperience;
   className?: string;
+  compactHook?: boolean;
 }) {
   const minutes = experience.discoveryCard.estimatedMinutes;
 
@@ -35,7 +38,12 @@ export function CuriosityHeader({
         </span>
       </div>
 
-      <p className="rounded-xl border border-slate-200/80 bg-white/60 px-4 py-3 text-sm leading-relaxed text-slate-700 dark:border-white/10 dark:bg-slate-900/40 dark:text-slate-200">
+      <p
+        className={cn(
+          "rounded-xl border border-slate-200/80 bg-white/60 text-sm leading-relaxed text-slate-700 dark:border-white/10 dark:bg-slate-900/40 dark:text-slate-200",
+          compactHook ? "px-3 py-2.5 text-sm" : "px-4 py-3"
+        )}
+      >
         <span className="font-semibold text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
           Hook:
         </span>{" "}

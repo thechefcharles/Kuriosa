@@ -88,9 +88,15 @@ function ExperienceView({
     if (mode === "listen") markListenModeUsed(slug);
   }, [mode, slug]);
 
+  useEffect(() => {
+    if (!hasAudio && mode === "listen") setMode("read");
+  }, [hasAudio, mode, setMode]);
+
+  const listenMode = mode === "listen";
+
   return (
-    <article className="space-y-5">
-      <CuriosityHeader experience={experience} />
+    <article className={cn("space-y-5", listenMode && "space-y-6")}>
+      <CuriosityHeader experience={experience} compactHook={listenMode} />
 
       <ModeToggle
         mode={mode}
@@ -98,9 +104,9 @@ function ExperienceView({
         hasAudio={hasAudio}
       />
 
-      <AudioPanel experience={experience} audioMode={mode === "listen"} />
+      <AudioPanel experience={experience} audioMode={listenMode} />
 
-      <LessonContent experience={experience} />
+      <LessonContent experience={experience} listenMode={listenMode} />
 
       <NextStepCallout slug={experience.identity.slug} />
 
