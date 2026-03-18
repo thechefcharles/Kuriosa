@@ -2,6 +2,7 @@ export const ROUTES = {
   landing: "/",
   home: "/home",
   discover: "/discover",
+  discoverCategory: (slug: string) => `/discover/category/${slug}`,
   progress: "/progress",
   profile: "/profile",
   signIn: "/auth/sign-in",

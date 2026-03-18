@@ -43,7 +43,7 @@ export function CategoryCard({
     "rounded-xl border border-slate-200/90 bg-white/90 p-4 shadow-sm transition-all",
     "dark:border-white/10 dark:bg-slate-900/60",
     href &&
-      "cursor-pointer hover:border-kuriosa-deep-purple/35 hover:shadow-md active:scale-[0.99] dark:hover:border-kuriosa-electric-cyan/25",
+      "cursor-pointer ring-offset-background hover:border-kuriosa-deep-purple/40 hover:shadow-md hover:ring-1 hover:ring-kuriosa-electric-cyan/30 active:scale-[0.99] dark:hover:border-kuriosa-electric-cyan/30",
     className
   );
 

@@ -54,8 +54,8 @@ export function TopicCard({
     <Link
       href={to}
       className={cn(
-        "block min-h-[180px] rounded-xl border border-slate-200/90 bg-white/90 p-4 shadow-sm transition-all",
-        "hover:border-kuriosa-electric-cyan/40 hover:shadow-md active:scale-[0.99]",
+        "block min-h-[176px] rounded-xl border border-slate-200/90 bg-white/90 p-4 shadow-sm ring-offset-background transition-all",
+        "hover:border-kuriosa-electric-cyan/45 hover:shadow-md hover:ring-1 hover:ring-kuriosa-electric-cyan/25 active:scale-[0.99]",
         "dark:border-white/10 dark:bg-slate-900/60 dark:hover:border-kuriosa-electric-cyan/30",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kuriosa-electric-cyan",
         className
