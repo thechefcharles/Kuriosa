@@ -12,8 +12,8 @@ export function NextStepCallout({ slug }: { slug: string }) {
       className="mt-8 rounded-2xl border border-kuriosa-electric-cyan/25 bg-kuriosa-electric-cyan/10 p-5 dark:border-kuriosa-electric-cyan/15"
       aria-label="Next step"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <div className="text-xs font-semibold uppercase tracking-wide text-kuriosa-electric-cyan dark:text-kuriosa-electric-cyan/90">
             Next
           </div>
@@ -21,7 +21,7 @@ export function NextStepCallout({ slug }: { slug: string }) {
             Ready for the challenge?
           </h2>
           <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
-            Test what you just learned — a quick quiz is coming next.
+            One quick question to lock in what you read.
           </p>
         </div>
 
@@ -29,10 +29,10 @@ export function NextStepCallout({ slug }: { slug: string }) {
           href={ROUTES.challenge(slug)}
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
-            "inline-flex items-center justify-center gap-2 whitespace-nowrap"
+            "inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap sm:w-auto"
           )}
         >
-          Go to challenge
+          Take the challenge
           <ArrowRight className="h-4 w-4" aria-hidden />
         </Link>
       </div>

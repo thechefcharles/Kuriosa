@@ -79,7 +79,12 @@ function ExperienceView({
 
       <LessonContent experience={experience} />
 
-      <NextStepCallout slug={experience.identity.slug} />
+      <section id="whats-next" className="scroll-mt-24 space-y-4">
+        <NextStepCallout slug={experience.identity.slug} />
+        <p className="text-center text-xs text-muted-foreground">
+          Follow-up questions &amp; related trails — coming in the next step of the loop.
+        </p>
+      </section>
     </article>
   );
 }
