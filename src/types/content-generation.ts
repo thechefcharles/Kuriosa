@@ -56,6 +56,47 @@ export function composeLessonTextFromGenerated(lesson: GeneratedLessonContent): 
   return `${lesson.intro.trim()}\n\n${lesson.body.trim()}`;
 }
 
+/** Inputs for `generateAudioScript`. */
+export interface GeneratedAudioRequestOptions {
+  topicTitle: string;
+  category: string;
+  difficulty?: string;
+  /** Plain lesson text when no structured lesson object */
+  lessonText?: string;
+  /** Prefer this over lessonText when both exist */
+  generatedLesson?: GeneratedLessonContent;
+  targetDurationSeconds?: number;
+  targetWordCount?: number;
+  audience?: string;
+  tone?: string;
+}
+
+/** Validated narration payload (maps to CuriosityAudio transcript + duration; audioUrl later). */
+export interface GeneratedAudioScript {
+  audioScript: string;
+  transcriptText: string;
+  durationSecondsEstimate: number;
+  estimatedWordCount: number;
+  titleIntroLine?: string;
+  closingLine?: string;
+  voiceStyleHint?: string;
+}
+
+export interface GeneratedAudioContent {
+  audio: GeneratedAudioScript;
+}
+
+/** Map generator output to CuriosityExperience audio fields (no URL until TTS). */
+export function generatedAudioToCuriosityFields(script: GeneratedAudioScript): {
+  transcript: string;
+  durationSeconds: number;
+} {
+  return {
+    transcript: script.transcriptText,
+    durationSeconds: script.durationSecondsEstimate,
+  };
+}
+
 /** Single MC / logic option row (ids stable for correctOptionId). */
 export interface GeneratedQuizOption {
   id: "a" | "b" | "c" | "d";

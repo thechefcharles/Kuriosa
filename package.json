@@ -11,7 +11,8 @@
     "ai:lesson": "npx tsx src/lib/ai/examples/run-lesson-generation-example.ts",
     "ai:challenge": "npx tsx src/lib/ai/examples/run-challenge-generation-example.ts",
     "ai:followups": "npx tsx src/lib/ai/examples/run-followup-generation-example.ts",
-    "ai:trails": "npx tsx src/lib/ai/examples/run-trail-generation-example.ts"
+    "ai:trails": "npx tsx src/lib/ai/examples/run-trail-generation-example.ts",
+    "ai:audio": "npx tsx src/lib/ai/examples/run-audio-generation-example.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
