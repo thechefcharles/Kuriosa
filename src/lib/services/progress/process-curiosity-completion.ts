@@ -18,6 +18,7 @@ import { calculateRewards } from "@/lib/progress/calculate-rewards";
 import { getLevelFromXP } from "@/lib/progress/level-config";
 import { calculateCuriosityScore } from "@/lib/progress/curiosity-score";
 import { calculateNextStreak } from "@/lib/progress/streak-utils";
+import { applyCompletionBadgeUnlocks } from "@/lib/services/progress/apply-completion-badges";
 
 function mergeModeUsed(
   previous: string | null | undefined,
@@ -123,6 +124,8 @@ function emptySuccessBase(
     historyUpdated: true,
     breakdown: null,
     warnings,
+    unlockedBadges: [],
+    badgeEvaluationRan: false,
   };
 }
 
@@ -341,6 +344,8 @@ export async function processCuriosityCompletion(
     };
   }
 
+  const badgeOutcome = await applyCompletionBadgeUnlocks(supabase, userId);
+
   const data: ProgressUpdateSuccess = {
     xpEarned: rewards.xpEarned,
     wasCountedAsNewCompletion: true,
@@ -353,7 +358,9 @@ export async function processCuriosityCompletion(
     profileUpdated: true,
     historyUpdated: true,
     breakdown: rewards.breakdown,
-    warnings: [],
+    warnings: badgeOutcome.warnings,
+    unlockedBadges: badgeOutcome.unlockedBadges,
+    badgeEvaluationRan: true,
   };
 
   return { ok: true, data };

@@ -69,6 +69,8 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 
 **Progress engine demo (6.2)**: `npm run progress:complete-example` runs `processCuriosityCompletion` against real data. Set **`PHASE6_DEMO_USER_ID`**, **`PHASE6_DEMO_TOPIC_ID`**, **`PHASE6_DEMO_TOPIC_SLUG`** (must match the topic row). Requires migration `20260319130000_phase62_rewards_granted.sql`. Mutates DB — use a test user. See **`COMPLETION_PROGRESS_PROCESSOR.md`**.
 
+**Badge evaluation demo (6.3)**: `npm run progress:badges-example` with **`PHASE6_DEMO_USER_ID`**. Optional **`PHASE6_BADGE_UNLOCK=1`** persists eligible badges (service role). See **`BADGE_SYSTEM_ARCHITECTURE.md`**.
+
 ## Auth Redirect URLs (Supabase Dashboard)
 
 For email confirmation and OAuth (if added later), configure in **Authentication → URL Configuration**:

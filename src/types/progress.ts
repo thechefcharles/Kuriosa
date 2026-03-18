@@ -85,6 +85,15 @@ export type CuriosityScoreInput = {
   streakLength: number;
 };
 
+/** Single badge unlocked in this completion (for future celebration UI). */
+export type UnlockedBadgeResult = {
+  badgeId: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  earnedAt: string;
+};
+
 export type ProgressUpdateSuccess = {
   xpEarned: number;
   wasCountedAsNewCompletion: boolean;
@@ -98,8 +107,15 @@ export type ProgressUpdateSuccess = {
   historyUpdated: boolean;
   breakdown: RewardBreakdown | null;
   warnings: string[];
+  /** Badges unlocked during this completion (empty if none or evaluation skipped). */
+  unlockedBadges: UnlockedBadgeResult[];
+  /** True when a new rewarded completion triggered badge evaluation. */
+  badgeEvaluationRan: boolean;
 };
 
 export type ProgressUpdateResult =
   | { ok: true; data: ProgressUpdateSuccess }
   | { ok: false; message: string };
+
+/** Eligibility snapshot (server); re-exported for API consumers. */
+export type { BadgeEligibilityResult } from "@/lib/services/progress/evaluate-badge-eligibility";

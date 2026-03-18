@@ -17,3 +17,11 @@ export {
   parseUtcDateOnly,
 } from "@/lib/progress/streak-utils";
 export { calculateRewards } from "@/lib/progress/calculate-rewards";
+export {
+  isBadgeEligible,
+  isSupportedCriteriaType,
+  parseCategoryCompletionsCriteria,
+  type BadgeCriteriaType,
+  type BadgeDefinitionRow,
+  type BadgeEvaluationContext,
+} from "@/lib/progress/badge-rules";

@@ -41,9 +41,9 @@ Repeat visits to an already-rewarded topic do **not** change these profile field
 
 Rows that already had `completed_at` when migration `20260319130000_phase62_rewards_granted.sql` ran were marked **`rewards_granted = true`**. Those users do **not** get a retroactive XP lump when they hit Continue again.
 
-## What Phase 6.3 will add
+## Badges (Phase 6.3)
 
-- **Badges** — evaluated after a successful completion (not part of this processor yet).
+After a **new** XP grant, the processor runs **`applyCompletionBadgeUnlocks`** → eligible badges are inserted into **`user_badges`**. The JSON response includes **`unlockedBadges`** and **`badgeEvaluationRan`**. Repeat completions skip badge evaluation. See **`BADGE_SYSTEM_ARCHITECTURE.md`**.
 
 ## Key code
 
