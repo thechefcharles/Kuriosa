@@ -8,11 +8,7 @@ The Curiosity Experience page is the user-facing lesson screen at:
 
 It loads a curiosity topic by `slug`, then renders a premium “article-like” reading surface with a **Read** vs **Listen** mode toggle.
 
-At this stage (Phase 5.4), the page is focused on content display and audio-ready scaffolding:
-
-- Read Mode is fully implemented for lesson text + facts.
-- Listen Mode has the correct layout and “audio-ready” section, but it does **not** implement a full audio player yet.
-- Challenge UI and completion tracking are not implemented yet.
+The page focuses on lesson display plus Listen mode with a **real in-page audio player** (Phase 5.5). Challenge UI and completion tracking are not implemented yet.
 
 ## Route entry point
 
@@ -41,15 +37,11 @@ No database logic exists in the page UI components.
   - category + estimated time
   - difficulty label
 
-- `mode-toggle.tsx`
-  - two buttons: **Read** and **Listen**
-  - Listen is disabled when the loaded curiosity has no `audioUrl`
+- `mode-toggle.tsx` — **Read** / **Listen**
 
-- `audio-panel.tsx` (Listen scaffold)
-  - when Listen mode is active:
-    - shows a simple “audio is ready” card if `audio.audioUrl` exists
-    - otherwise shows “Audio isn’t available…”
-  - no transport controls are implemented yet
+- `audio-panel.tsx` + `audio-player.tsx` (Listen mode)
+  - full play/pause, seek ±10s, scrubber, elapsed/total time
+  - see **`AUDIO_PLAYER_ARCHITECTURE.md`**
 
 - `lesson-content.tsx`
   - renders lesson text with paragraph splitting for readability

@@ -1,6 +1,7 @@
 "use client";
 
 import type { CuriosityAudio, LoadedCuriosityExperience } from "@/types/curiosity-experience";
+import { AudioPlayer } from "@/components/curiosity/audio-player";
 import { cn } from "@/lib/utils";
 
 export function AudioPanel({
@@ -15,41 +16,64 @@ export function AudioPanel({
   const audio: CuriosityAudio | undefined = experience.audio;
   if (!audioMode) return null;
 
+  const hasUrl = Boolean(audio?.audioUrl?.trim());
+
   return (
     <section
       className={cn(
-        "rounded-2xl border border-slate-200/80 bg-white/60 p-5 dark:border-white/10 dark:bg-slate-900/40",
+        "rounded-2xl border border-kuriosa-electric-cyan/20 bg-gradient-to-br from-white via-violet-50/40 to-cyan-50/30 p-5 shadow-sm dark:border-kuriosa-electric-cyan/15 dark:from-slate-900 dark:via-kuriosa-deep-purple/10 dark:to-slate-900/80 sm:p-6",
         className
       )}
-      aria-label="Audio section"
+      aria-label="Listen to this curiosity"
     >
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-kuriosa-electric-cyan dark:text-kuriosa-electric-cyan/90">
-        Audio mode
+      <div className="mb-1 flex items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-kuriosa-electric-cyan dark:text-kuriosa-electric-cyan/90">
+          Listen
+        </span>
+        <span className="rounded-full bg-kuriosa-midnight-blue/10 px-2 py-0.5 text-[10px] font-medium text-kuriosa-midnight-blue dark:bg-white/10 dark:text-slate-200">
+          Narration
+        </span>
       </div>
+      <h2 className="text-lg font-bold text-kuriosa-midnight-blue dark:text-slate-50">
+        Listen to this curiosity
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {hasUrl
+          ? "Press play and use the bar to jump around. Transcript below if available."
+          : "Audio isn’t uploaded for this topic yet — you can still read the lesson below."}
+      </p>
 
-      {audio?.audioUrl ? (
-        <>
-          <p className="text-sm text-slate-700 dark:text-slate-200">
-            Audio isn&apos;t fully controlled yet, but your narration source is ready.
-          </p>
-          <p className="mt-2 break-all text-xs text-muted-foreground">
-            {audio.audioUrl}
-          </p>
-          {audio.transcript ? (
-            <div className="mt-4 rounded-xl border border-slate-200/70 bg-slate-50/60 p-4 dark:border-white/10 dark:bg-slate-950/20">
-              <div className="text-xs font-semibold text-foreground">Transcript</div>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {audio.transcript}
-              </p>
-            </div>
+      {hasUrl && audio?.audioUrl ? (
+        <div className="mt-5 rounded-xl border border-slate-200/80 bg-white/80 p-4 dark:border-white/10 dark:bg-slate-950/30">
+          <AudioPlayer
+            key={experience.identity.slug}
+            src={audio.audioUrl}
+            title={experience.identity.title}
+          />
+          {audio.durationSeconds != null && audio.durationSeconds > 0 ? (
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              About {Math.round(audio.durationSeconds / 60)} min narration
+            </p>
           ) : null}
-        </>
+        </div>
       ) : (
-        <p className="text-sm text-muted-foreground">
+        <p className="mt-4 rounded-lg border border-dashed border-muted-foreground/25 bg-muted/20 px-4 py-6 text-center text-sm text-muted-foreground">
           Audio isn&apos;t available for this curiosity yet.
         </p>
       )}
+
+      {audio?.transcript ? (
+        <div className="mt-5 rounded-xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-white/10 dark:bg-slate-950/25">
+          <div className="text-xs font-semibold text-foreground">Transcript</div>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {audio.transcript}
+          </p>
+        </div>
+      ) : hasUrl ? (
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          No transcript on file — lesson text stays below for reference.
+        </p>
+      ) : null}
     </section>
   );
 }
-
