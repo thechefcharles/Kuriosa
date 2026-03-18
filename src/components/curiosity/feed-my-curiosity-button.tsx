@@ -9,6 +9,7 @@ import {
   useFeedRandomCuriosity,
   writeLastRandomSlug,
 } from "@/hooks/mutations/useFeedRandomCuriosity";
+import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 import { cn } from "@/lib/utils";
 
 const DIFFICULTY_OPTIONS = [
@@ -53,6 +54,10 @@ export function FeedMyCuriosityButton({
         return;
       }
       writeLastRandomSlug(exp.identity.slug);
+      setTopicDiscoveryContext(exp.identity.slug, {
+        wasDailyFeature: false,
+        wasRandomSpin: true,
+      });
       router.push(ROUTES.curiosity(exp.identity.slug));
     } catch {
       setEmptyMessage(null);

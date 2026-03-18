@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Compass } from "lucide-react";
 import { ROUTES } from "@/lib/constants/routes";
+import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 import type { CuriosityTrail } from "@/types/curiosity-experience";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,12 @@ export function TrailCard({ trail }: { trail: CuriosityTrail }) {
   return (
     <Link
       href={href}
+      onClick={() =>
+        setTopicDiscoveryContext(trail.toTopicSlug, {
+          wasDailyFeature: false,
+          wasRandomSpin: false,
+        })
+      }
       className={cn(
         "group flex min-h-[72px] flex-col gap-1 rounded-xl border border-slate-200/90 bg-gradient-to-br from-white to-cyan-50/40 p-4 shadow-sm transition-all",
         "hover:border-kuriosa-electric-cyan/50 hover:shadow-md dark:border-white/10 dark:from-slate-900 dark:to-kuriosa-deep-purple/15 dark:hover:border-kuriosa-electric-cyan/30"

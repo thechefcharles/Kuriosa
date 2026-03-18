@@ -1,18 +1,19 @@
 "use client";
 
-import Link from "next/link";
-import { CheckCircle2, Sparkles, XCircle } from "lucide-react";
-import { ROUTES } from "@/lib/constants/routes";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { CheckCircle2, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { ChallengeValidationResult } from "@/lib/services/challenge/validate-challenge-answer";
+import { ChallengeContinueExploringButton } from "@/components/challenge/challenge-continue-exploring-button";
 import { cn } from "@/lib/utils";
 
 export function ChallengeFeedback({
   slug,
+  topicId,
   result,
   onRetry,
 }: {
   slug: string;
+  topicId: string;
   result: ChallengeValidationResult;
   onRetry: () => void;
 }) {
@@ -69,19 +70,14 @@ export function ChallengeFeedback({
         >
           Try again
         </Button>
-        <Link
-          href={`${ROUTES.curiosity(slug)}#whats-next`}
-          className={cn(
-            buttonVariants({ variant: "default", size: "lg" }),
-            "inline-flex min-h-12 w-full items-center justify-center gap-2 sm:w-auto"
-          )}
-        >
-          <Sparkles className="h-4 w-4" aria-hidden />
-          Continue
-        </Link>
+        <ChallengeContinueExploringButton
+          slug={slug}
+          topicId={topicId}
+          challengeCorrect={ok}
+        />
       </div>
       <p className="mt-3 text-center text-xs text-muted-foreground">
-        Follow-ups and trails are coming next — for now, revisit the lesson or explore more.
+        Continue saves your visit (no XP yet) and opens follow-ups &amp; trails on the lesson page.
       </p>
     </div>
   );

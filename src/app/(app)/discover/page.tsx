@@ -12,9 +12,13 @@ import { PageHeader } from "@/components/shared/page-header";
 import { LoadingState } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { curiosityQueryKeys } from "@/lib/query/query-keys";
+import Link from "next/link";
+import { ROUTES } from "@/lib/constants/routes";
+import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
+import { cn } from "@/lib/utils";
 
 export default function DiscoverPage() {
   const queryClient = useQueryClient();
@@ -34,8 +38,9 @@ export default function DiscoverPage() {
         description="Feed your curiosity — explore topics and trails."
       />
 
-      <div className="mb-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-900 dark:text-amber-100">
-        Dev only (5.1): data layer verification. Not final UI.
+      <div className="mb-2 rounded-md border border-violet-200/80 bg-violet-50/80 px-3 py-2 text-xs text-violet-900 dark:border-violet-900/40 dark:bg-violet-950/30 dark:text-violet-100">
+        Discover preview — open a topic below to run the full loop (lesson → challenge →
+        exploration).
       </div>
 
       <section className="mt-6 space-y-4">
@@ -124,6 +129,21 @@ function DebugExperience({
       {extra ? (
         <div className="mt-1 text-xs text-muted-foreground">{extra}</div>
       ) : null}
+      <Link
+        href={ROUTES.curiosity(slug)}
+        onClick={() =>
+          setTopicDiscoveryContext(slug, {
+            wasDailyFeature: false,
+            wasRandomSpin: false,
+          })
+        }
+        className={cn(
+          buttonVariants({ variant: "outline", size: "sm" }),
+          "mt-3 w-full sm:w-auto"
+        )}
+      >
+        Open curiosity
+      </Link>
     </div>
   );
 }

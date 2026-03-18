@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Clock, Sparkles } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -5,6 +7,7 @@ import { ROUTES } from "@/lib/constants/routes";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { DifficultyLabel } from "@/components/curiosity/difficulty-label";
 import { cn } from "@/lib/utils";
+import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 
 export type DailyCuriosityCardProps = {
   experience: LoadedCuriosityExperience;
@@ -71,6 +74,12 @@ export function DailyCuriosityCard({
       <div className="relative">
         <Link
           href={href}
+          onClick={() =>
+            setTopicDiscoveryContext(slug, {
+              wasDailyFeature: true,
+              wasRandomSpin: false,
+            })
+          }
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
             "inline-flex h-12 min-h-[48px] w-full items-center justify-center text-base font-semibold shadow-lg shadow-kuriosa-deep-purple/15 dark:shadow-kuriosa-electric-cyan/10 sm:h-14 sm:text-lg"

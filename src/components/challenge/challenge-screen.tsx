@@ -155,7 +155,12 @@ export function ChallengeScreen({ slug }: { slug: string }) {
       </form>
 
       {result ? (
-        <ChallengeFeedback slug={slug} result={result} onRetry={handleRetry} />
+        <ChallengeFeedback
+          slug={slug}
+          topicId={data.identity.id}
+          result={result}
+          onRetry={handleRetry}
+        />
       ) : null}
     </div>
   );

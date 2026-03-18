@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCuriosityExperience } from "@/hooks/queries/useCuriosityExperience";
 import type { CuriosityMode } from "@/components/curiosity/mode-toggle";
 import { ModeToggle } from "@/components/curiosity/mode-toggle";
@@ -15,6 +15,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { PageContainer } from "@/components/shared/page-container";
 import { cn } from "@/lib/utils";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
+import {
+  initCuriosityModesSession,
+  markListenModeUsed,
+} from "@/lib/services/progress/session-curiosity-modes";
 
 function CuriosityEmpty() {
   return (
@@ -39,7 +43,13 @@ export function CuriosityExperienceScreen({ slug }: { slug: string }) {
     if (isError) return <ErrorState message={error.message} />;
     if (!data) return <CuriosityEmpty />;
     return (
-      <ExperienceView experience={data} mode={mode} setMode={setMode} hasAudio={hasAudio} />
+      <ExperienceView
+        experience={data}
+        mode={mode}
+        setMode={setMode}
+        hasAudio={hasAudio}
+        slug={slug}
+      />
     );
   }, [data, error, hasAudio, isError, isLoading, mode]);
 
@@ -60,12 +70,22 @@ function ExperienceView({
   mode,
   setMode,
   hasAudio,
+  slug,
 }: {
   experience: LoadedCuriosityExperience;
   mode: CuriosityMode;
   setMode: (next: CuriosityMode) => void;
   hasAudio: boolean;
+  slug: string;
 }) {
+  useEffect(() => {
+    initCuriosityModesSession(slug);
+  }, [slug]);
+
+  useEffect(() => {
+    if (mode === "listen") markListenModeUsed(slug);
+  }, [mode, slug]);
+
   return (
     <article className="space-y-5">
       <CuriosityHeader experience={experience} />

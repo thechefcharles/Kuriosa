@@ -33,7 +33,8 @@ export function PostChallengeExploration({
           Curious about more?
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Challenge done — keep pulling the thread with follow-ups and related topics.
+          You&apos;ve wrapped the challenge — dig deeper with follow-ups, then hop to a related
+          curiosity.
         </p>
       </div>
 
