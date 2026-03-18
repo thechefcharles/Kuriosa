@@ -37,10 +37,9 @@ This is **not** machine learning and **not** “because we tracked you across th
 - **Signed in:** lists curiosities you **completed** (rewarded completions in `user_topic_history`), most recent first. Tap to reopen that topic.
 - **Signed out:** we show a short note and a link to **sign in** so you know why the list is empty — it’s not broken.
 
-## What Phase 7.5 will polish next
+## Phase 7.5 updates
 
-- Possible **deduping** between “Jump in here” and “More to explore.”
-- **Debounce** or tuning for search (if needed).
-- **Copy and layout** tweaks, empty states, and maybe **query key invalidation** when you finish a topic so suggestions refresh naturally.
+- **“More to explore”** no longer repeats topics that already appear in **Jump in here** (client-side dedupe).
+- After you **complete a curiosity** (signed in), **recent** and **suggested** discovery queries **refetch** so lists stay in sync.
 
-No new recommendation engine is required for 7.5 unless the spec says otherwise.
+Further polish (debounce on search, etc.) can wait for Phase 8+ if needed.

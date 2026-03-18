@@ -77,7 +77,8 @@ export function ChallengeFeedback({
         />
       </div>
       <p className="mt-3 text-center text-xs text-muted-foreground">
-        Continue saves your visit (no XP yet) and opens follow-ups &amp; trails on the lesson page.
+        Saves your visit (no XP yet) and scrolls to <strong>What&apos;s next</strong> — follow-ups
+        and next curiosities on the lesson page.
       </p>
     </div>
   );

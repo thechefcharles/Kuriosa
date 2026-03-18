@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { progressQueryKeys } from "@/lib/query/query-keys";
+import { discoveryQueryKeys, progressQueryKeys } from "@/lib/query/query-keys";
 
 /**
  * Refetch progress-related queries after completion, badge unlock, etc.
@@ -25,5 +25,11 @@ export function invalidateProgressQueries(
   });
   void queryClient.invalidateQueries({
     queryKey: progressQueryKeys.profileProgress(id),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: discoveryQueryKeys.recent(id),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: discoveryQueryKeys.suggestedTopics(id),
   });
 }

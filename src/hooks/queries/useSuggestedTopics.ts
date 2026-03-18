@@ -16,6 +16,7 @@ export function useSuggestedTopics() {
     queryKey: discoveryQueryKeys.suggestedTopics(keyUser ?? undefined),
     queryFn: () => getSuggestedTopics(supabase, keyUser),
     enabled: !authPending,
+    staleTime: 90_000,
   });
 
   return {

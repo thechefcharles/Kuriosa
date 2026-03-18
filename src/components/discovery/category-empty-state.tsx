@@ -15,12 +15,23 @@ export function CategoryEmptyState({ categoryName }: { categoryName: string }) {
         {categoryName} doesn&apos;t have live curiosities right now. Try another category on
         Discover, or spin a random topic from home.
       </p>
-      <Link
-        href={ROUTES.discover}
-        className={cn(buttonVariants(), "mt-6 bg-kuriosa-deep-purple hover:bg-kuriosa-deep-purple/90")}
-      >
-        Back to Discover
-      </Link>
+      <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <Link
+          href={ROUTES.discover}
+          className={cn(
+            buttonVariants(),
+            "w-full bg-kuriosa-deep-purple hover:bg-kuriosa-deep-purple/90 sm:w-auto"
+          )}
+        >
+          Back to Discover
+        </Link>
+        <Link
+          href={ROUTES.home}
+          className={cn(buttonVariants({ variant: "outline" }), "w-full sm:w-auto")}
+        >
+          Home
+        </Link>
+      </div>
     </div>
   );
 }

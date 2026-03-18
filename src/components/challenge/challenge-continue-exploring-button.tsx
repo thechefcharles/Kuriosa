@@ -95,7 +95,7 @@ export function ChallengeContinueExploringButton({
         ) : (
           <>
             <Sparkles className="h-4 w-4" aria-hidden />
-            Continue exploring
+            See what&apos;s next
           </>
         )}
       </Button>

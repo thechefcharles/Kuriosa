@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Compass,
@@ -30,6 +30,7 @@ import {
 } from "@/components/discovery/discovery-section-body";
 import { ROUTES } from "@/lib/constants/routes";
 import { FeedMyCuriosityButton } from "@/components/curiosity/feed-my-curiosity-button";
+import { dedupeSuggestedAgainstFeatured } from "@/lib/services/discovery/dedupe-discover-topics";
 import { cn } from "@/lib/utils";
 
 const FEATURED_LIMIT = 6;
@@ -48,6 +49,10 @@ export function DiscoverScreen() {
   const featuredList = featured.data ?? [];
   const featuredPrimary = featuredList.slice(0, FEATURED_LIMIT);
   const suggestedList = suggested.data ?? [];
+  const suggestedVisible = useMemo(
+    () => dedupeSuggestedAgainstFeatured(suggestedList, featuredPrimary),
+    [suggestedList, featuredPrimary]
+  );
 
   return (
     <div
@@ -264,14 +269,16 @@ export function DiscoverScreen() {
         </DiscoverySection>
 
         {/* Suggested — deterministic, not personalized AI */}
-        {suggested.isPending || suggested.isError || suggestedList.length > 0 ? (
+        {suggested.isPending ||
+        suggested.isError ||
+        suggestedVisible.length > 0 ? (
           <DiscoverySection className={cn("mb-14", searchActive && "opacity-90")}>
             <DiscoverySectionHeader
               title="More to explore"
               description={
                 recent.isAuthenticated && recent.data.length > 0
-                  ? "Related lanes and a fresh angle — simple rules, not a recommendation engine."
-                  : "A small rotating set from the catalog — dip in anywhere."
+                  ? "Beyond the row above — same simple rules, no fancy algorithm."
+                  : "Topics you may not have opened from Jump in — still hand-picked from the catalog."
               }
             />
             {suggested.isPending ? (
@@ -280,7 +287,7 @@ export function DiscoverScreen() {
               <DiscoverySectionError message="Couldn’t load suggestions. Everything else on this page still works." />
             ) : (
               <DiscoveryCardGrid>
-                {suggestedList.map((t) => (
+                {suggestedVisible.map((t) => (
                   <li key={t.id}>
                     <TopicCard topic={t} />
                   </li>

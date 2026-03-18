@@ -1,26 +1,55 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { MessageCircleQuestion } from "lucide-react";
 import type { CuriosityFollowup } from "@/types/curiosity-experience";
 import { FollowupCard } from "@/components/curiosity/followup-card";
+import { ROUTES } from "@/lib/constants/routes";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const MAX_FOLLOWUPS = 5;
 
-export function FollowupSection({ followups }: { followups: CuriosityFollowup[] }) {
+export function FollowupSection({
+  followups,
+  rawFollowupCount,
+}: {
+  followups: CuriosityFollowup[];
+  /** Total before filtering empty questions — for clearer empty state */
+  rawFollowupCount?: number;
+}) {
   const [openId, setOpenId] = useState<string | null>(null);
   const list = followups.slice(0, MAX_FOLLOWUPS);
+  const raw = rawFollowupCount ?? followups.length;
 
   if (list.length === 0) {
+    const awaitingContent = raw > 0;
     return (
-      <div className="rounded-xl border border-dashed border-muted-foreground/25 bg-muted/20 px-4 py-6 text-center">
+      <div className="rounded-xl border border-dashed border-muted-foreground/25 bg-muted/15 px-4 py-7 text-center sm:px-6">
         <MessageCircleQuestion
-          className="mx-auto mb-2 h-8 w-8 text-muted-foreground/70"
+          className="mx-auto mb-3 h-9 w-9 text-muted-foreground/70"
           aria-hidden
         />
-        <p className="text-sm text-muted-foreground">
-          No follow-up questions yet — check back as this curiosity grows.
+        <p className="text-sm font-medium text-kuriosa-midnight-blue dark:text-slate-200">
+          {awaitingContent
+            ? "Follow-up questions aren’t ready to show yet"
+            : "No bonus questions here yet"}
         </p>
+        <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+          {awaitingContent
+            ? "They’ll appear here once the lesson is fully wired. Skip down to the next curiosities, or browse Discover."
+            : "Check back later — or open another topic from Discover."}
+        </p>
+        <Link
+          href={ROUTES.discover}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "sm" }),
+            "mt-5 border-kuriosa-electric-cyan/40"
+          )}
+        >
+          Browse Discover
+        </Link>
       </div>
     );
   }
