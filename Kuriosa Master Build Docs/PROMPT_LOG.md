@@ -8,3 +8,6 @@ No prompts required.
 - Prompt 2.2 — Core Dependencies and UI System Setup
 - Prompt 2.3 — Supabase Integration and Environment Configuration
 - ...
+
+## Phase 4
+- Prompt 4.2 — Topic Idea Generation, Prompt Templates, and AI Client Foundations

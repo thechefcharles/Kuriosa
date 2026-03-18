@@ -9,7 +9,9 @@ export interface TopicIdeaCandidate {
   hookQuestion: string;
   category: string;
   subcategory?: string;
-  tags?: string[];
+  difficultyLevel: "beginner" | "intermediate" | "advanced";
+  estimatedMinutes: number;
+  tags: string[];
 }
 
 /** Generated lesson content before assembly. */

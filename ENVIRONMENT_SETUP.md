@@ -57,6 +57,8 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 2. **API keys** → Create new secret key
 3. Copy the key → `OPENAI_API_KEY`
 
+**Usage**: `OPENAI_API_KEY` is used **server-side only** for AI content generation (topic ideas, lessons, quizzes, etc.). Never expose it to the client. The app throws a clear error if the key is missing when AI features are invoked.
+
 ## Auth Redirect URLs (Supabase Dashboard)
 
 For email confirmation and OAuth (if added later), configure in **Authentication → URL Configuration**:
