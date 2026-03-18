@@ -1,5 +1,6 @@
 /**
- * Default XP / level hints for assembled drafts. Tune constants in one place.
+ * Default XP / level hints for assembled *content drafts* (editorial).
+ * User-facing XP grants use `src/lib/progress/xp-config.ts` + `calculateRewards`.
  */
 
 import type { CuriosityRewards } from "@/types/curiosity-experience";
