@@ -30,6 +30,11 @@
 
 See **`TTS_NARRATION_PIPELINE.md`** and **`AUDIO_GENERATION_AND_COMPLETION_ARCHITECTURE.md`**.
 
+### Developer: one topic → Listen Mode
+
+1. **Generate + persist (recommended):** `npm run audio:generate-example` (or `audio:tts-upload` for a slug) with API keys set → script uploads to Storage and can call `saveGeneratedAudioMetadata` so `topics.audio_url` is set. See **`PHASE_8_AUDIO_SYSTEM_INVENTORY.md`** § Workflow.
+2. **Verify:** Open `/curiosity/<slug>` → toggle **Listen** → audio should play; **Read** remains the primary fallback if URL is missing or fails.
+
 ## Optional Variables (Analytics & Monitoring)
 
 | Variable | Description | Client / Server |

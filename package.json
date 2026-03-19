@@ -14,6 +14,7 @@
     "ai:trails": "npx tsx src/lib/ai/examples/run-trail-generation-example.ts",
     "ai:audio": "npx tsx src/lib/ai/examples/run-audio-generation-example.ts",
     "audio:tts-upload": "npx tsx src/lib/services/audio/examples/run-tts-upload-topics.ts",
+    "audio:tts-backfill-all": "npx tsx src/lib/services/audio/examples/run-tts-upload-topics.ts -- --all",
     "audio:generate-example": "npx tsx src/lib/services/audio/examples/run-generate-audio-example.ts",
     "ai:assemble-draft": "npx tsx src/lib/ai/examples/run-curiosity-draft-assembly-example.ts",
     "persist:draft": "npx tsx src/lib/ai/examples/run-persist-curiosity-draft-example.ts",

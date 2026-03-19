@@ -71,7 +71,7 @@ export function ModeToggle({
               Listen
             </span>
             <span className="mt-0.5 text-[10px] leading-tight text-muted-foreground/90">
-              No audio yet · read below
+              Read works great · audio optional
             </span>
           </div>
         )}

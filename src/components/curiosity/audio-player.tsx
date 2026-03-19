@@ -45,6 +45,9 @@ export function AudioPlayer({
   endedRef.current = onPlaybackEnded;
   beganRef.current = onPlaybackBegan;
   const [firstPlayAttempted, setFirstPlayAttempted] = useState(false);
+  /** Increment to re-run load pipeline after a failed URL (same src). */
+  const [reloadNonce, setReloadNonce] = useState(0);
+  const lastEndedAtRef = useRef(0);
 
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -75,6 +78,7 @@ export function AudioPlayer({
     setScrubValue(0);
     setBuffering(true);
     setFirstPlayAttempted(false);
+    lastEndedAtRef.current = 0;
     el.load();
 
     const onLoadedMetadata = () => {
@@ -94,6 +98,9 @@ export function AudioPlayer({
     const onWaiting = () => setBuffering(true);
     const onCanPlay = () => setBuffering(false);
     const onEnded = () => {
+      const now = Date.now();
+      if (now - lastEndedAtRef.current < 450) return;
+      lastEndedAtRef.current = now;
       endedRef.current?.();
       setPlaying(false);
       setCurrentTime(0);
@@ -101,7 +108,9 @@ export function AudioPlayer({
     };
 
     const onError = () => {
-      setError("We couldn’t play this audio. The file may be missing or blocked.");
+      setError(
+        "This audio link didn’t load — the file may be missing, expired, or blocked by the network."
+      );
       setMetaReady(true);
       setPlaying(false);
       setBuffering(false);
@@ -127,23 +136,30 @@ export function AudioPlayer({
       el.removeEventListener("ended", onEnded);
       el.removeEventListener("error", onError);
     };
-  }, [src, syncFromAudio]);
+  }, [src, reloadNonce, syncFromAudio]);
+
+  const retryLoad = useCallback(() => {
+    setError(null);
+    setMetaReady(false);
+    setReloadNonce((n) => n + 1);
+  }, []);
 
   const togglePlay = async () => {
     const el = audioRef.current;
-    if (!el || error) return;
+    if (!el) return;
     setFirstPlayAttempted(true);
     try {
       if (playing) {
         el.pause();
       } else {
         setBuffering(true);
+        setError(null);
         await el.play();
       }
     } catch {
       setBuffering(false);
       setError(
-        "Tap play again — your browser may need a direct tap to start audio (especially on mobile)."
+        "Playback didn’t start — tap play once more (browsers often need a direct tap for audio)."
       );
     }
   };
@@ -194,9 +210,23 @@ export function AudioPlayer({
       />
 
       {error ? (
-        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {error}
-        </p>
+        <div
+          className="space-y-3 rounded-xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-sm text-slate-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-slate-100"
+          role="alert"
+        >
+          <p>{error}</p>
+          <p className="text-muted-foreground dark:text-slate-400">
+            The curiosity isn&apos;t broken — switch to <strong>Read</strong> anytime. Listen is
+            optional.
+          </p>
+          <button
+            type="button"
+            onClick={() => retryLoad()}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-kuriosa-midnight-blue shadow-sm hover:bg-slate-50 dark:border-white/15 dark:bg-slate-900 dark:text-kuriosa-electric-cyan dark:hover:bg-slate-800"
+          >
+            Try loading audio again
+          </button>
+        </div>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-3">
@@ -213,7 +243,7 @@ export function AudioPlayer({
         <button
           type="button"
           onClick={() => void togglePlay()}
-          disabled={!!error}
+          disabled={false}
           aria-label={playing ? "Pause" : "Play"}
           aria-pressed={playing}
           className="inline-flex h-[3.75rem] w-[3.75rem] shrink-0 items-center justify-center rounded-full bg-kuriosa-deep-purple text-white shadow-md shadow-kuriosa-deep-purple/25 active:scale-[0.98] disabled:opacity-40 dark:bg-kuriosa-electric-cyan dark:text-kuriosa-midnight-blue sm:h-14 sm:w-14"
@@ -262,7 +292,9 @@ export function AudioPlayer({
             <span>{formatAudioTime(displayTime)}</span>
             <span className="inline-flex items-center gap-1">
               <Volume2 className="h-3.5 w-3.5" aria-hidden />
-              {formatAudioTime(effectiveDuration)}
+              {metaReady && effectiveDuration <= 0 && !error
+                ? "—"
+                : formatAudioTime(effectiveDuration)}
             </span>
           </div>
         </div>
@@ -270,7 +302,7 @@ export function AudioPlayer({
 
       {!metaReady && !error ? (
         <p className="text-center text-xs text-muted-foreground">
-          Loading audio… On slow networks the first play may take a moment.
+          Preparing audio… First play may take a moment on slower connections.
         </p>
       ) : null}
       {metaReady && !playing && !error && firstPlayAttempted && buffering ? (

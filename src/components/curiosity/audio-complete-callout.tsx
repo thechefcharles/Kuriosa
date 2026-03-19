@@ -29,10 +29,10 @@ export function AudioCompleteCallout({
         aria-live="polite"
       >
         <p className="text-sm font-medium text-kuriosa-midnight-blue dark:text-slate-100">
-          You&apos;ve heard the whole narration.
+          That was the full narration — nice work sticking with it.
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
-          Switch to Read for the written lesson, or scroll down for more on this curiosity.
+          Read mode has the same story in text, or keep exploring below.
         </p>
       </div>
     );
@@ -57,10 +57,11 @@ export function AudioCompleteCallout({
               Narration complete
             </p>
             <p className="mt-1 text-base font-semibold text-kuriosa-midnight-blue dark:text-slate-50">
-              Continue to the challenge
+              Ready for a quick check-in?
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Answer one question to lock in what you heard — same as after reading the lesson.
+              One short question — same challenge you&apos;d see after reading. Optional but
+              satisfying.
             </p>
           </div>
         </div>

@@ -43,6 +43,12 @@ OPENAI_TTS_MODEL=tts-1
 ## Run
 
 ```bash
+# ALL published topics missing audio — loops until none left (cost = #topics × TTS price)
+npm run audio:tts-backfill-all
+
+# Tune batching / rate limits (optional .env)
+# TTS_BACKFILL_BATCH=8 TTS_BACKFILL_DELAY_MS=500 npm run audio:tts-backfill-all
+
 # First 5 published topics that don’t have audio_url yet
 npm run audio:tts-upload -- --limit=5
 
@@ -55,6 +61,16 @@ npm run audio:tts-upload -- --slug=my-slug --force
 # See which would run (no API calls)
 npm run audio:tts-upload -- --dry-run --limit=10
 ```
+
+## Existing catalog + new topics going forward
+
+| Situation | What to run |
+|-----------|--------------|
+| **Backfill everything** | `npm run audio:tts-backfill-all` once (may take a while; costs scale with topic count). |
+| **One new topic after publish** | `npm run audio:generate-example -- --slug=new-slug` or `audio:tts-upload -- --slug=new-slug`. |
+| **Regular catch-up** | Schedule **`audio:tts-backfill-all`** nightly or after bulk imports — it only processes rows with **no `audio_url`**. |
+
+There is **no in-app “auto-TTS on publish”** yet: add narration **after** topics exist (CLI or a future admin job). Same env + bucket as above.
 
 ## Limits & cost
 

@@ -51,8 +51,8 @@ export function AudioPanel({
             {title}
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Press play when you&apos;re ready. You can switch back to Read anytime — playback
-            keeps going on this page until you pause or leave.
+            Press play when you&apos;re ready. Switch to Read anytime — the written lesson is always
+            there. Playback pauses if you leave this page.
           </p>
         </header>
       ) : null}
@@ -81,8 +81,14 @@ export function AudioPanel({
         <>
           <div className="mt-6">
             <TranscriptCollapsible
-              transcript={audio.transcript}
-              emptyHint="No separate transcript on file — the written lesson below lines up with what you hear."
+              transcript={
+                audio.transcript?.trim()
+                  ? audio.transcript
+                  : experience.lesson.lessonText?.trim()
+                    ? experience.lesson.lessonText
+                    : null
+              }
+              emptyHint="We don’t have a separate transcript for this one — scroll to the written lesson below; it matches what you’d hear when audio works."
             />
           </div>
           {audioPlaybackFinished ? (
