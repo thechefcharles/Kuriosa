@@ -27,8 +27,8 @@ export function BottomNavigation() {
               className={cn(
                 "flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
                 isActive
-                  ? "text-blue-600"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               {label}

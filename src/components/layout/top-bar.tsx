@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { APP_NAME } from "@/lib/constants/brand";
 import { ROUTES } from "@/lib/constants/routes";
+import { AuthStatus } from "@/components/shared/auth-status";
 
 export function TopBar() {
   return (
@@ -12,6 +13,7 @@ export function TopBar() {
         >
           {APP_NAME}
         </Link>
+        <AuthStatus />
       </div>
     </header>
   );
