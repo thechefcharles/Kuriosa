@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles } from "lucide-react";
 import { ROUTES } from "@/lib/constants/routes";
 import { Button } from "@/components/ui/button";
 import { useRecordCuriosityCompletion } from "@/hooks/mutations/useRecordCuriosityCompletion";
@@ -20,14 +19,11 @@ export function ChallengeContinueExploringButton({
   slug,
   topicId,
   challengeCorrect,
-  bonusCorrect,
   firstTryCorrect = false,
 }: {
   slug: string;
   topicId: string;
   challengeCorrect: boolean;
-  /** True when user attempted bonus question and got it right. */
-  bonusCorrect?: boolean;
   /** True when main challenge correct on first try (no retry). */
   firstTryCorrect?: boolean;
 }) {
@@ -44,7 +40,6 @@ export function ChallengeContinueExploringButton({
         slug,
         modeUsed: getModeUsedLabel(slug),
         challengeCorrect,
-        bonusCorrect,
         firstTryCorrect,
         wasDailyFeature,
         wasRandomSpin,
@@ -107,10 +102,7 @@ export function ChallengeContinueExploringButton({
             Saving…
           </span>
         ) : (
-          <>
-            <Sparkles className="h-4 w-4" aria-hidden />
-            See what&apos;s next
-          </>
+          <>Claim your XP</>
         )}
       </Button>
       {syncMissed ? (

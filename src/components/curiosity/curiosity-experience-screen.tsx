@@ -8,7 +8,6 @@ import { LessonContent } from "@/components/curiosity/lesson-content";
 import { AudioPlayer } from "@/components/curiosity/audio-player";
 import { NextStepCallout } from "@/components/curiosity/next-step-callout";
 import { InlineChallengeBlock } from "@/components/challenge/inline-challenge-block";
-import { PostChallengeExploration } from "@/components/curiosity/post-challenge-exploration";
 import { ShareTopicButton } from "@/components/social/share-topic-button";
 import { CompletionCelebrationHost } from "@/components/curiosity/completion-celebration-host";
 import { LoadingState } from "@/components/shared/loading-state";
@@ -154,10 +153,6 @@ function ExperienceView({
               key={completionCheckKey}
               topicSlug={slug}
               onConsumed={handleConsumed}
-            />
-            <PostChallengeExploration
-              experience={experience}
-              hasCompletedChallenge={hasCompletedChallenge}
             />
           </section>
         </div>

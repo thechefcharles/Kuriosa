@@ -20,10 +20,7 @@ export function ChallengeFeedback({
   result,
   onRetry,
   lessonText,
-  showBonusOffer,
-  bonusCorrect,
   firstTryCorrect = false,
-  onContinueSlot,
   inlineContinue,
 }: {
   slug: string;
@@ -32,14 +29,8 @@ export function ChallengeFeedback({
   onRetry: () => void;
   /** When wrong, show "From the lesson" snippet to reinforce learning */
   lessonText?: string;
-  /** When true, parent renders bonus offer; we omit our action buttons */
-  showBonusOffer?: boolean;
-  /** When showing post-bonus feedback, pass bonus result for completion */
-  bonusCorrect?: boolean;
   /** True when main challenge correct on first try (no retry) */
   firstTryCorrect?: boolean;
-  /** Slot for Continue button when showBonusOffer (parent renders it) */
-  onContinueSlot?: React.ReactNode;
   /** When provided, use this instead of ChallengeContinueExploringButton (e.g. inline on curiosity page) */
   inlineContinue?: React.ReactNode;
 }) {
@@ -72,13 +63,9 @@ export function ChallengeFeedback({
           <p className="text-base font-semibold text-foreground">
             {ok ? "Nice — you've got it." : "Not quite — here's the idea."}
           </p>
-          {ok && bonusCorrect ? (
-            <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-              Bonus complete — +10 XP
-            </p>
-          ) : ok && !bonusCorrect ? (
+          {ok ? (
             <p className="text-xs text-muted-foreground">
-              Earn XP when you see what&apos;s next
+              Tap below to claim your XP and see your progress
             </p>
           ) : null}
           {!ok && result.correctAnswerDisplay && result.correctAnswerDisplay !== "—" ? (
@@ -106,39 +93,27 @@ export function ChallengeFeedback({
         </div>
       </div>
 
-      {!showBonusOffer ? (
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          {!ok ? (
-            <Button
-              type="button"
-              size="lg"
-              className="min-h-12 w-full sm:w-auto"
-              onClick={onRetry}
-            >
-              Try again
-            </Button>
-          ) : null}
-          {inlineContinue ?? (
-            <ChallengeContinueExploringButton
-              slug={slug}
-              topicId={topicId}
-              challengeCorrect={ok}
-              bonusCorrect={bonusCorrect}
-              firstTryCorrect={firstTryCorrect}
-            />
-          )}
-        </div>
-      ) : null}
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        {!ok ? (
+          <Button
+            type="button"
+            size="lg"
+            className="min-h-12 w-full sm:w-auto"
+            onClick={onRetry}
+          >
+            Try again
+          </Button>
+        ) : null}
+        {inlineContinue ?? (
+          <ChallengeContinueExploringButton
+            slug={slug}
+            topicId={topicId}
+            challengeCorrect={ok}
+            firstTryCorrect={firstTryCorrect}
+          />
+        )}
+      </div>
 
-      {onContinueSlot ? (
-        <div className="mt-6">{onContinueSlot}</div>
-      ) : null}
-
-      {!showBonusOffer && !onContinueSlot ? (
-        <p className="mt-3 text-center text-xs text-muted-foreground">
-          Takes you back to your next paths.
-        </p>
-      ) : null}
     </div>
   );
 }

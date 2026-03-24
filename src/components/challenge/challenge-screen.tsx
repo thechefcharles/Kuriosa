@@ -13,7 +13,6 @@ import { ChallengeEmptyState } from "@/components/challenge/challenge-empty-stat
 import { ChallengeCard } from "@/components/challenge/challenge-card";
 import { ChallengeOptionList } from "@/components/challenge/challenge-option-list";
 import { ChallengeFeedback } from "@/components/challenge/challenge-feedback";
-import { ChallengeBonusOffer } from "@/components/challenge/challenge-bonus-offer";
 import { ChallengeContinueExploringButton } from "@/components/challenge/challenge-continue-exploring-button";
 import {
   isMemoryRecallChallenge,
@@ -27,13 +26,9 @@ export function ChallengeScreen({ slug }: { slug: string }) {
   const { data, isLoading, isError, error } = useCuriosityExperience(slug);
 
   const challenge = data?.challenge;
-  const bonusChallenge = data?.bonusChallenge;
   const lessonText = data?.lesson?.lessonText ?? "";
 
-  const [currentQuestion, setCurrentQuestion] = useState<0 | 1>(0);
-  const activeChallenge = currentQuestion === 0 ? challenge : bonusChallenge ?? challenge;
-  const isBonus = currentQuestion === 1;
-  const recall = activeChallenge ? isMemoryRecallChallenge(activeChallenge) : false;
+  const recall = challenge ? isMemoryRecallChallenge(challenge) : false;
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [recallText, setRecallText] = useState("");
@@ -41,30 +36,30 @@ export function ChallengeScreen({ slug }: { slug: string }) {
   const [hasRetried, setHasRetried] = useState(false);
 
   const canSubmit = useMemo(() => {
-    if (!activeChallenge) return false;
+    if (!challenge) return false;
     if (recall) return recallText.trim().length > 0;
     return selectedIndex !== null;
-  }, [activeChallenge, recall, recallText, selectedIndex]);
+  }, [challenge, recall, recallText, selectedIndex]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (!activeChallenge) return;
+      if (!challenge) return;
       if (recall) {
         setResult(
-          validateChallengeAnswer(activeChallenge, { kind: "recall", text: recallText })
+          validateChallengeAnswer(challenge, { kind: "recall", text: recallText })
         );
         return;
       }
       if (selectedIndex === null) return;
       setResult(
-        validateChallengeAnswer(activeChallenge, {
+        validateChallengeAnswer(challenge, {
           kind: "choice",
           selectedIndex,
         })
       );
     },
-    [activeChallenge, recall, recallText, selectedIndex]
+    [challenge, recall, recallText, selectedIndex]
   );
 
   const handleRetry = useCallback(() => {
@@ -73,18 +68,6 @@ export function ChallengeScreen({ slug }: { slug: string }) {
     setSelectedIndex(null);
     setRecallText("");
   }, []);
-
-  const handleTryBonus = useCallback(() => {
-    setCurrentQuestion(1);
-    setResult(null);
-    setSelectedIndex(null);
-    setRecallText("");
-  }, []);
-
-  const showBonusOffer =
-    currentQuestion === 0 &&
-    result?.isCorrect === true &&
-    bonusChallenge != null;
 
   if (isLoading) {
     return (
@@ -106,7 +89,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
     return <ChallengeEmptyState slug={slug} />;
   }
 
-  if (!recall && challenge.options.length === 0 && currentQuestion === 0) {
+  if (!recall && challenge.options.length === 0) {
     return <ChallengeEmptyState slug={slug} />;
   }
 
@@ -127,20 +110,18 @@ export function ChallengeScreen({ slug }: { slug: string }) {
 
       <header>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {isBonus ? "Step 3" : "Step 2 of 3"} · {data.identity.title}
+          Step 2 of 3 · {data.identity.title}
         </p>
         <h1 className="mt-1 text-2xl font-bold text-kuriosa-midnight-blue dark:text-slate-50">
-          {isBonus ? "Bonus question" : "Quick challenge"}
+          Quick challenge
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {isBonus
-            ? "One more — optional +10 XP if you get it."
-            : "One question — then we&apos;ll show you what&apos;s next."}
+          One question — then claim your XP.
         </p>
       </header>
 
       <form id={formId} onSubmit={handleSubmit}>
-        <ChallengeCard challenge={activeChallenge!}>
+        <ChallengeCard challenge={challenge!}>
           {recall ? (
             <label className="block">
               <span className="sr-only">Your answer</span>
@@ -155,11 +136,11 @@ export function ChallengeScreen({ slug }: { slug: string }) {
             </label>
           ) : (
             <ChallengeOptionList
-              options={activeChallenge!.options}
+              options={challenge!.options}
               selectedIndex={selectedIndex}
               onSelect={setSelectedIndex}
               disabled={result !== null}
-              name={`challenge-${activeChallenge!.id}`}
+              name={`challenge-${challenge!.id}`}
             />
           )}
 
@@ -178,44 +159,14 @@ export function ChallengeScreen({ slug }: { slug: string }) {
         </ChallengeCard>
       </form>
 
-      {result && currentQuestion === 0 ? (
-        <>
-          <ChallengeFeedback
-            slug={slug}
-            topicId={data.identity.id}
-            result={result}
-            onRetry={handleRetry}
-            lessonText={lessonText}
-            showBonusOffer={showBonusOffer}
-            firstTryCorrect={result.isCorrect && !hasRetried}
-            onContinueSlot={
-              showBonusOffer ? (
-                <ChallengeBonusOffer
-                  onTryBonus={handleTryBonus}
-                  onContinue={
-                    <ChallengeContinueExploringButton
-                      slug={slug}
-                      topicId={data.identity.id}
-                      challengeCorrect={true}
-                      firstTryCorrect
-                    />
-                  }
-                />
-              ) : undefined
-            }
-          />
-        </>
-      ) : null}
-
-      {result && currentQuestion === 1 ? (
+      {result ? (
         <ChallengeFeedback
           slug={slug}
           topicId={data.identity.id}
           result={result}
           onRetry={handleRetry}
           lessonText={lessonText}
-          bonusCorrect={result.isCorrect}
-          firstTryCorrect={false}
+          firstTryCorrect={result.isCorrect && !hasRetried}
         />
       ) : null}
     </div>

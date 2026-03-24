@@ -1,11 +1,50 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import confetti from "canvas-confetti";
 import type {
   CompletionCelebrationPayload,
   RewardBreakdownPayload,
 } from "@/lib/progress/completion-celebration-storage";
 import { getCompletionMattersLine } from "@/lib/progress/completion-matters-line";
-import { X, Sparkles, TrendingUp, Flame, Award } from "lucide-react";
+import {
+  xpRequiredToAdvanceFromLevel,
+  cumulativeXpForLevel,
+} from "@/lib/progress/level-config";
+import { X, Sparkles, TrendingUp, Flame, Award, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/lib/constants/routes";
+import { useFeedRandomCuriosity, writeLastRandomSlug } from "@/hooks/mutations/useFeedRandomCuriosity";
+import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 import { cn } from "@/lib/utils";
+
+function fireConfetti() {
+  const count = 120;
+  const defaults = {
+    origin: { y: 0.7 },
+    spread: 100,
+    startVelocity: 35,
+    zIndex: 9999,
+  };
+  confetti({
+    ...defaults,
+    particleCount: count,
+    colors: ["#8B5CF6", "#06B6D4", "#F59E0B", "#10B981", "#EC4899"],
+  });
+  confetti({
+    ...defaults,
+    particleCount: Math.floor(count * 0.25),
+    spread: 120,
+    origin: { x: 0.2, y: 0.6 },
+  });
+  confetti({
+    ...defaults,
+    particleCount: Math.floor(count * 0.25),
+    spread: 120,
+    origin: { x: 0.8, y: 0.6 },
+  });
+}
 
 function xpBreakdownLines(b: RewardBreakdownPayload) {
   const lines: { label: string; xp: number }[] = [];
@@ -30,6 +69,17 @@ export function CompletionCelebrationCard({
   /** Curiosities completed this session (today); for "You're on a roll" arc */
   sessionCompletionCount?: number;
 }) {
+  const router = useRouter();
+  const { mutateAsync: fetchRandom, isPending: isRandomPending } = useFeedRandomCuriosity();
+  const confettiFired = useRef(false);
+
+  useEffect(() => {
+    if (!confettiFired.current) {
+      confettiFired.current = true;
+      fireConfetti();
+    }
+  }, []);
+
   const leveledUp = payload.levelAfter > payload.levelBefore;
   const streakUp = payload.streakAfter > payload.streakBefore;
   const scoreUp = payload.curiosityScoreAfter > payload.curiosityScoreBefore;
@@ -54,6 +104,11 @@ export function CompletionCelebrationCard({
     payload.xpToNextLevel > 0 &&
     payload.xpToNextLevel <= 50;
   const breakdownLines = payload.breakdown ? xpBreakdownLines(payload.breakdown) : [];
+  const xpRequired = xpRequiredToAdvanceFromLevel(payload.levelAfter);
+  const xpToNext = payload.xpToNextLevel ?? xpRequired;
+  const xpIntoLevel = Math.max(0, xpRequired - xpToNext);
+  const totalXp = cumulativeXpForLevel(payload.levelAfter) + xpIntoLevel;
+  const progressPercent = xpRequired > 0 ? Math.min(100, (xpIntoLevel / xpRequired) * 100) : 0;
   const hasBonusXp =
     payload.breakdown &&
     (payload.breakdown.perfectBonusXp > 0 ||
@@ -62,6 +117,34 @@ export function CompletionCelebrationCard({
       payload.breakdown.dailyBonusXp > 0 ||
       payload.breakdown.randomBonusXp > 0 ||
       payload.breakdown.listenBonusXp > 0);
+
+  const handleDiscover = () => {
+    onDismiss();
+    router.push(ROUTES.discover);
+  };
+
+  const handleNextCuriosity = async () => {
+    try {
+      const exp = await fetchRandom({
+        dailyTopicSlug: payload.topicSlug,
+      });
+      if (exp) {
+        writeLastRandomSlug(exp.identity.slug);
+        setTopicDiscoveryContext(exp.identity.slug, {
+          wasDailyFeature: false,
+          wasRandomSpin: true,
+        });
+        onDismiss();
+        router.push(ROUTES.curiosity(exp.identity.slug));
+      } else {
+        onDismiss();
+        router.push(ROUTES.discover);
+      }
+    } catch {
+      onDismiss();
+      router.push(ROUTES.discover);
+    }
+  };
 
   return (
     <div
@@ -82,6 +165,41 @@ export function CompletionCelebrationCard({
       >
         <X className="h-4 w-4" />
       </Button>
+
+      {/* XP hero when earned */}
+      {showXp && (
+        <div className="mb-4 text-center">
+          <p className="text-sm font-medium uppercase tracking-wider text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
+            You earned
+          </p>
+          <p className="mt-1 text-3xl font-bold tabular-nums text-kuriosa-midnight-blue dark:text-white sm:text-4xl">
+            +{payload.xpEarned} XP
+          </p>
+          {leveledUp && (
+            <p className="mt-2 font-semibold text-emerald-600 dark:text-emerald-400">
+              Level up! Now level {payload.levelAfter}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Progress bar */}
+      {showXp && (
+        <div className="mb-4">
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span>{totalXp.toLocaleString()} total XP · Level {payload.levelAfter}</span>
+            {payload.xpToNextLevel != null && payload.xpToNextLevel > 0 && (
+              <span>{payload.xpToNextLevel} to next</span>
+            )}
+          </div>
+          <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-kuriosa-deep-purple to-kuriosa-electric-cyan transition-all duration-700 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-3 pr-10">
         <Sparkles
@@ -207,16 +325,43 @@ export function CompletionCelebrationCard({
         ) : null}
       </ul>
 
-      <Button
-        type="button"
-        className={cn(
-          "mt-4 min-h-11 w-full sm:w-auto",
-          "bg-kuriosa-deep-purple hover:bg-kuriosa-deep-purple/90"
-        )}
-        onClick={onDismiss}
-      >
-        Got it
-      </Button>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="min-h-11 flex-1 gap-2"
+          onClick={handleDiscover}
+        >
+          <Map className="h-4 w-4" aria-hidden />
+          Back to Discover
+        </Button>
+        <Button
+          type="button"
+          size="lg"
+          disabled={isRandomPending}
+          className={cn(
+            "min-h-11 flex-1 gap-2",
+            "bg-kuriosa-deep-purple hover:bg-kuriosa-deep-purple/90"
+          )}
+          onClick={() => void handleNextCuriosity()}
+        >
+          {isRandomPending ? (
+            <span className="inline-flex gap-2">
+              <span
+                className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                aria-hidden
+              />
+              Finding…
+            </span>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" aria-hidden />
+              Next curiosity
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
