@@ -37,6 +37,9 @@ export function invalidateProgressQueries(
     queryKey: progressQueryKeys.profileProgress(id),
   });
   void queryClient.invalidateQueries({
+    queryKey: [...progressQueryKeys.all, "category-progress"],
+  });
+  void queryClient.invalidateQueries({
     queryKey: discoveryQueryKeys.recent(id),
   });
   void queryClient.invalidateQueries({

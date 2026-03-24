@@ -34,7 +34,7 @@ export function CategoryXpSection() {
           return (
             <li key={entry.categoryId}>
               <Link
-                href={ROUTES.discoverCategory(entry.categorySlug)}
+                href={ROUTES.progressCategory(entry.categorySlug)}
                 className={cn(
                   "flex items-center gap-3 rounded-xl border p-4 shadow-sm transition-colors",
                   theme.card,

@@ -1,7 +1,9 @@
 /**
  * Pure XP calculation for a completion event.
- * Quiz-first model: XP from main quiz outcome + optional bonus question.
- * See XP_BADGES_AND_DAILY_MULTIPLIER_OVERHAUL.md.
+ * Quiz-first model: XP from main quiz outcome.
+ * - Wrong: no XP (must retry)
+ * - Correct first try: base XP × daily multiplier
+ * - Correct after retry: 5 XP only
  */
 
 import type {
@@ -19,35 +21,50 @@ function roundXp(n: number): number {
 
 /**
  * Calculate rewards for a completion event.
- * - Correct main quiz: base XP (by difficulty) × daily multiplier, capped
- * - Wrong main quiz: 5 XP participation
- * - Bonus question correct: +10 flat (no multiplier)
+ * - Wrong: 0 XP (caller should not grant; user must retry)
+ * - Correct first try: base XP (by difficulty) × daily multiplier, capped
+ * - Correct after retry: 5 XP only (no bonus)
  */
 export function calculateRewards(
   event: CompletionEventInput
 ): RewardCalculationResult {
+  if (!event.challengeCorrect) {
+    return {
+      xpEarned: 0,
+      breakdown: { mainQuizXp: 0, bonusQuestionXp: 0 },
+      isPerfect: false,
+    };
+  }
+
+  const firstTryCorrect = event.firstTryCorrect !== false;
+
+  if (!firstTryCorrect) {
+    return {
+      xpEarned: XP_CONFIG.WRONG_ANSWER_XP,
+      breakdown: {
+        mainQuizXp: XP_CONFIG.WRONG_ANSWER_XP,
+        bonusQuestionXp: 0,
+      },
+      isPerfect: false,
+    };
+  }
+
   const dailyMult =
     event.wasDailyFeature && event.dailyMultiplier != null
       ? event.dailyMultiplier
       : XP_CONFIG.DEFAULT_DAILY_MULTIPLIER;
 
-  let mainQuizXp: number;
-  if (event.challengeCorrect) {
-    const base = getBaseXpFromDifficulty(event.difficultyLevel);
-    mainQuizXp = roundXp(base * dailyMult);
-    mainQuizXp = Math.min(mainQuizXp, XP_CONFIG.MAX_XP_PER_COMPLETION);
-  } else {
-    mainQuizXp = XP_CONFIG.WRONG_ANSWER_XP;
-  }
-
+  const base = getBaseXpFromDifficulty(event.difficultyLevel);
+  const mainQuizXp = Math.min(
+    roundXp(base * dailyMult),
+    XP_CONFIG.MAX_XP_PER_COMPLETION
+  );
   const bonusQuestionXp = event.bonusCorrect
     ? XP_CONFIG.BONUS_QUESTION_XP
     : 0;
 
-  const xpEarned = mainQuizXp + bonusQuestionXp;
-
   return {
-    xpEarned,
+    xpEarned: mainQuizXp + bonusQuestionXp,
     breakdown: {
       mainQuizXp,
       bonusQuestionXp,

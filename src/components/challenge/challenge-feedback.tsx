@@ -6,6 +6,9 @@ import { CheckCircle2, XCircle, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ChallengeValidationResult } from "@/lib/services/challenge/validate-challenge-answer";
 import { ChallengeContinueExploringButton } from "@/components/challenge/challenge-continue-exploring-button";
+import { useRecordCuriosityCompletion } from "@/hooks/mutations/useRecordCuriosityCompletion";
+import { getTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
+import { getModeUsedLabel } from "@/lib/services/progress/session-curiosity-modes";
 import { cn } from "@/lib/utils";
 
 function fireConfetti() {
@@ -62,6 +65,8 @@ export function ChallengeFeedback({
 }) {
   const ok = result.isCorrect;
   const confettiFired = useRef(false);
+  const wrongRecorded = useRef(false);
+  const { mutateAsync: recordCompletion } = useRecordCuriosityCompletion();
 
   useEffect(() => {
     if (ok && !confettiFired.current) {
@@ -69,6 +74,21 @@ export function ChallengeFeedback({
       fireConfetti();
     }
   }, [ok]);
+
+  useEffect(() => {
+    if (!ok && !wrongRecorded.current && topicId && slug) {
+      wrongRecorded.current = true;
+      const { wasDailyFeature, wasRandomSpin } = getTopicDiscoveryContext(slug);
+      void recordCompletion({
+        topicId,
+        slug,
+        modeUsed: getModeUsedLabel(slug),
+        challengeCorrect: false,
+        wasDailyFeature,
+        wasRandomSpin,
+      });
+    }
+  }, [ok, topicId, slug, recordCompletion]);
 
   return (
     <div
@@ -132,14 +152,15 @@ export function ChallengeFeedback({
           >
             Try again
           </Button>
-        ) : null}
-        {inlineContinue ?? (
-          <ChallengeContinueExploringButton
-            slug={slug}
-            topicId={topicId}
-            challengeCorrect={ok}
-            jackpot={ok}
-          />
+        ) : (
+          inlineContinue ?? (
+            <ChallengeContinueExploringButton
+              slug={slug}
+              topicId={topicId}
+              challengeCorrect={ok}
+              jackpot={ok}
+            />
+          )
         )}
       </div>
 

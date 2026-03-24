@@ -32,6 +32,8 @@ export const progressQueryKeys = {
     [...progressQueryKeys.all, "categoryXp", userId] as const,
   profileProgress: (userId: string) =>
     [...progressQueryKeys.all, "profile-progress", userId] as const,
+  categoryProgress: (slug: string, userId: string) =>
+    [...progressQueryKeys.all, "category-progress", slug, userId] as const,
 } as const;
 
 export const discoveryQueryKeys = {

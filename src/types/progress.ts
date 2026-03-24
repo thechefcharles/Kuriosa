@@ -7,6 +7,8 @@ export type CompletionEventInput = {
   lessonCompleted: boolean;
   challengeAttempted: boolean;
   challengeCorrect: boolean;
+  /** False when user got it wrong first, then correct on retry → 5 XP only */
+  firstTryCorrect?: boolean;
   /** True when bonus question was attempted and answered correctly. */
   bonusCorrect?: boolean;
   wasDailyFeature: boolean;

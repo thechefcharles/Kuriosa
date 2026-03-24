@@ -75,11 +75,12 @@ export function DailyChallengeCard({
       />
     ) : undefined;
 
+  const isRetry = xpEarned === 5;
   const completedState =
     hasCompletedChallenge &&
     (challengeCorrect === true || challengeCorrect === false) &&
     xpEarned != null
-      ? { correct: challengeCorrect, xpEarned }
+      ? { correct: !isRetry, xpEarned }
       : undefined;
 
   const baseXp = Math.round(
@@ -138,14 +139,14 @@ export function DailyChallengeCard({
                   <span className="text-lg font-semibold uppercase tracking-wide">
                     Complete
                   </span>
-                  {challengeCorrect === true ? (
-                    <CheckCircle2
-                      className="h-16 w-16 text-emerald-500"
-                      aria-hidden
-                    />
-                  ) : challengeCorrect === false ? (
+                  {isRetry ? (
                     <XCircle
                       className="h-16 w-16 text-red-500"
+                      aria-hidden
+                    />
+                  ) : challengeCorrect === true ? (
+                    <CheckCircle2
+                      className="h-16 w-16 text-emerald-500"
                       aria-hidden
                     />
                   ) : (

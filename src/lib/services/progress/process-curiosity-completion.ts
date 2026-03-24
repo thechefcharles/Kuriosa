@@ -52,7 +52,8 @@ async function toRewardEvent(
   supabase: SupabaseClient,
   p: CuriosityCompletionPayload,
   topicDifficultyLevel: string | null | undefined,
-  completedAtIso: string
+  completedAtIso: string,
+  firstTryCorrect: boolean
 ): Promise<CompletionEventInput> {
   let dailyMultiplier: number | undefined;
   if (p.wasDailyFeature) {
@@ -62,6 +63,7 @@ async function toRewardEvent(
     lessonCompleted: p.lessonCompleted,
     challengeAttempted: p.challengeAttempted,
     challengeCorrect: p.challengeCorrect,
+    firstTryCorrect,
     bonusCorrect: p.bonusCorrect,
     wasDailyFeature: p.wasDailyFeature,
     wasRandomSpin: p.wasRandomSpin,
@@ -198,7 +200,7 @@ export async function processCuriosityCompletion(
   const { data: histRows } = await supabase
     .from("user_topic_history")
     .select(
-      "id, rewards_granted, started_at, mode_used, was_daily_feature, was_random_spin"
+      "id, rewards_granted, challenge_correct, started_at, mode_used, was_daily_feature, was_random_spin"
     )
     .eq("user_id", userId)
     .eq("topic_id", topicId)
@@ -208,6 +210,7 @@ export async function processCuriosityCompletion(
     | {
         id: string;
         rewards_granted: boolean;
+        challenge_correct: boolean | null;
         started_at: string | null;
         mode_used: string | null;
         was_daily_feature: boolean;
@@ -248,6 +251,55 @@ export async function processCuriosityCompletion(
     };
   }
 
+  if (!payload.challengeCorrect) {
+    if (!existing) {
+      const { error: insErr } = await supabase.from("user_topic_history").insert({
+        user_id: userId,
+        topic_id: topicId,
+        rewards_granted: false,
+        started_at: completedAtIso,
+        completed_at: completedAtIso,
+        mode_used: mode_used ?? undefined,
+        was_daily_feature: was_daily,
+        was_random_spin: was_random,
+        quiz_score: 0,
+        challenge_correct: false,
+        xp_earned: 0,
+      });
+      if (insErr) {
+        if (insErr.code === "23505") {
+          const { data: dup } = await supabase
+            .from("user_topic_history")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("topic_id", topicId)
+            .maybeSingle();
+          if (dup) {
+            await supabase
+              .from("user_topic_history")
+              .update({ ...historyPatch, completed_at: completedAtIso })
+              .eq("id", (dup as { id: string }).id);
+          }
+        } else {
+          return { ok: false, message: insErr.message };
+        }
+      }
+    } else {
+      const { error: upErr } = await supabase
+        .from("user_topic_history")
+        .update({
+          ...historyPatch,
+          completed_at: completedAtIso,
+        })
+        .eq("id", existing.id);
+      if (upErr) return { ok: false, message: upErr.message };
+    }
+    return {
+      ok: true,
+      data: emptySuccessBase(p, ["Wrong answer — try again to claim XP."]),
+    };
+  }
+
   if (!existing) {
     const { error: insErr } = await supabase.from("user_topic_history").insert({
       user_id: userId,
@@ -269,11 +321,13 @@ export async function processCuriosityCompletion(
   }
 
   const topicDifficulty = (topic as { difficulty_level?: string | null })?.difficulty_level;
+  const hadPreviousWrongAttempt = existing?.challenge_correct === false;
   const rewardEvent = await toRewardEvent(
     supabase,
     payload,
     topicDifficulty,
-    completedAtIso
+    completedAtIso,
+    !hadPreviousWrongAttempt
   );
   const rewards = calculateRewards(rewardEvent);
 
