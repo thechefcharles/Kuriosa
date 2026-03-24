@@ -51,6 +51,7 @@ export async function getTopicsByCategory(
 
   const out: TopicCardView[] = [];
   for (const row of rows) {
+    if (completedSet.has(String(row.id))) continue;
     const mapped = mapTopicToTopicCardView(
       row as {
         id: string;
@@ -63,7 +64,7 @@ export async function getTopicsByCategory(
       {
         categoryName,
         categorySlug: catSlug,
-        isCompleted: completedSet.has(String(row.id)),
+        isCompleted: false,
       }
     );
     if (mapped) out.push(mapped);

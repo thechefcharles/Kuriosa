@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getSupabaseServiceRoleClient } from "@/lib/supabase/supabase-service-client";
 import { processCuriosityCompletion } from "@/lib/services/progress/process-curiosity-completion";
 import type { CompleteCuriosityClientPayload } from "@/types/progress";
 
@@ -48,10 +49,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = await createSupabaseServerClient();
+  const authClient = await createSupabaseServerClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await authClient.auth.getUser();
 
   if (!user?.id) {
     return NextResponse.json(
@@ -63,6 +64,7 @@ export async function POST(request: Request) {
   const usedListenMode =
     body.modeUsed === "listen" || body.modeUsed === "read_listen";
 
+  const supabase = getSupabaseServiceRoleClient();
   const result = await processCuriosityCompletion(supabase, {
     userId: user.id,
     topicId: body.topicId.trim(),

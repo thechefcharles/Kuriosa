@@ -7,6 +7,7 @@ import { useUserBadges } from "@/hooks/queries/useUserBadges";
 import { ProgressHeroCard } from "@/components/progress/progress-hero-card";
 import { StreakCard } from "@/components/progress/streak-card";
 import { StatGrid } from "@/components/progress/stat-grid";
+import { CategoryXpSection } from "@/components/progress/category-xp-section";
 import { BadgeGrid } from "@/components/progress/badge-grid";
 import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants/routes";
@@ -92,6 +93,7 @@ export function ProgressDashboard() {
       <ProgressHeroCard summary={s} />
       <StreakCard streak={s.streak} />
       <StatGrid stats={st} />
+      <CategoryXpSection />
       <BadgeGrid badges={badges.data} />
     </div>
   );

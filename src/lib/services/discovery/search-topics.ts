@@ -61,12 +61,12 @@ async function topicsToCardViews(
       estimated_minutes?: number | null;
       category_id: string;
     } | undefined;
-    if (!row) continue;
+    if (!row || completedSet.has(String(row.id))) continue;
     const c = catMap.get(String(row.category_id));
     const v = mapTopicToTopicCardView(row, {
       categoryName: c?.name,
       categorySlug: c?.slug,
-      isCompleted: completedSet.has(String(row.id)),
+      isCompleted: false,
     });
     if (v) out.push(v);
   }

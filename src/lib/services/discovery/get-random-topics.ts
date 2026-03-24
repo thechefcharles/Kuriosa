@@ -83,16 +83,17 @@ export async function getRandomTopicCards(
   const { data: rows, error } = await q.limit(100);
   if (error || !rows?.length) return [];
 
-  const shuffled = shuffle(rows as TopicRow[]);
-  const selected = shuffled.slice(0, limit);
-
-  const catIds = [...new Set(selected.map((r) => String(r.category_id)))];
-  const catMap = await loadCategoryMap(supabase, catIds);
-
   const completedIds = options.userId?.trim()
     ? await getCompletedTopicIds(supabase, options.userId)
     : [];
   const completedSet = new Set(completedIds);
+
+  const shuffled = shuffle(rows as TopicRow[]);
+  const available = shuffled.filter((r) => !completedSet.has(String(r.id)));
+  const selected = available.slice(0, limit);
+
+  const catIds = [...new Set(selected.map((r) => String(r.category_id)))];
+  const catMap = await loadCategoryMap(supabase, catIds);
 
   const out: TopicCardView[] = [];
   for (const row of selected) {
@@ -100,7 +101,7 @@ export async function getRandomTopicCards(
     const mapped = mapTopicToTopicCardView(row, {
       categoryName: c?.name,
       categorySlug: c?.slug,
-      isCompleted: completedSet.has(String(row.id)),
+      isCompleted: false,
     });
     if (mapped) out.push(mapped);
   }

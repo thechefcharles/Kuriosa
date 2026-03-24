@@ -31,6 +31,9 @@ export function invalidateProgressQueries(
     queryKey: progressQueryKeys.stats(id),
   });
   void queryClient.invalidateQueries({
+    queryKey: progressQueryKeys.categoryXp(id),
+  });
+  void queryClient.invalidateQueries({
     queryKey: progressQueryKeys.profileProgress(id),
   });
   void queryClient.invalidateQueries({
@@ -41,5 +44,9 @@ export function invalidateProgressQueries(
   });
   void queryClient.invalidateQueries({
     queryKey: curiosityQueryKeys.daily(),
+  });
+  // Refetch discover topic lists so completed cards are hidden
+  void queryClient.invalidateQueries({
+    queryKey: ["discovery"],
   });
 }

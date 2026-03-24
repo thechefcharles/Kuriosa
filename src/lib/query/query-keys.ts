@@ -28,6 +28,8 @@ export const progressQueryKeys = {
     [...progressQueryKeys.all, "badges", userId] as const,
   stats: (userId: string) =>
     [...progressQueryKeys.all, "stats", userId] as const,
+  categoryXp: (userId: string) =>
+    [...progressQueryKeys.all, "categoryXp", userId] as const,
   profileProgress: (userId: string) =>
     [...progressQueryKeys.all, "profile-progress", userId] as const,
 } as const;

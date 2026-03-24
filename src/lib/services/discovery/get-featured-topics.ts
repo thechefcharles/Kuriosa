@@ -79,11 +79,12 @@ export async function getFeaturedTopics(
 
   const out: TopicCardView[] = [];
   for (const row of rows) {
+    if (completedSet.has(String(row.id))) continue;
     const c = catMap.get(String(row.category_id));
     const mapped = mapTopicToTopicCardView(row, {
       categoryName: c?.name,
       categorySlug: c?.slug,
-      isCompleted: completedSet.has(String(row.id)),
+      isCompleted: false,
     });
     if (mapped) out.push(mapped);
   }
