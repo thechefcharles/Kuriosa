@@ -1,16 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Compass, Sparkles } from "lucide-react";
 import { useDailyCuriosity } from "@/hooks/queries/useDailyCuriosity";
 import { PageContainer } from "@/components/shared/page-container";
 import { DailyCuriosityCard } from "@/components/curiosity/daily-curiosity-card";
 import { DailyCuriosityCardSkeleton } from "@/components/curiosity/daily-curiosity-card-skeleton";
 import { HomeDailyEmpty, HomeDailyError } from "@/components/home/home-daily-states";
-import { buttonVariants } from "@/components/ui/button";
 import { FeedMyCuriosityButton } from "@/components/curiosity/feed-my-curiosity-button";
 import { ROUTES } from "@/lib/constants/routes";
-import { APP_NAME, TAGLINE } from "@/lib/constants/brand";
 import { cn } from "@/lib/utils";
 
 export function HomeScreen() {
@@ -23,33 +20,22 @@ export function HomeScreen() {
         "dark:from-kuriosa-midnight-blue dark:via-slate-950 dark:to-slate-950"
       )}
     >
-      <PageContainer className="pb-10 pt-6 sm:pt-10">
-        <header className="mb-10 text-center sm:mb-12">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
-            {APP_NAME}
+      <PageContainer className="max-w-md pb-10 pt-5 sm:pt-6">
+        {/* 1. Compact header */}
+        <header className="mb-4" aria-labelledby="home-daily-heading">
+          <p
+            id="home-daily-heading"
+            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+          >
+            Today&apos;s curiosity
           </p>
-          <h1 className="bg-gradient-to-r from-kuriosa-midnight-blue via-kuriosa-deep-purple to-kuriosa-electric-cyan bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
-            {TAGLINE}
+          <h1 className="mt-1 text-xl font-semibold tracking-tight text-kuriosa-midnight-blue dark:text-slate-100">
+            Start with today&apos;s pick.
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
-            Open the app and discover something fascinating — starting with today&apos;s pick.
-          </p>
         </header>
 
-        <section aria-labelledby="home-daily-heading" className="mb-10">
-          <div className="mb-4 flex items-center gap-2 sm:mb-5">
-            <Sparkles
-              className="h-5 w-5 text-kuriosa-electric-cyan"
-              aria-hidden
-            />
-            <h2
-              id="home-daily-heading"
-              className="text-lg font-semibold text-kuriosa-midnight-blue dark:text-slate-100"
-            >
-              Today&apos;s curiosity
-            </h2>
-          </div>
-
+        {/* 2. Hero curiosity card */}
+        <section className="mb-4">
           {daily.isLoading ? (
             <DailyCuriosityCardSkeleton />
           ) : daily.isError ? (
@@ -59,40 +45,34 @@ export function HomeScreen() {
           ) : (
             <DailyCuriosityCard
               experience={daily.data.experience}
-              themeLabel={daily.data.theme}
               isCompleted={daily.data.isCompleted}
             />
           )}
         </section>
 
+        {/* 3. Secondary: random strip */}
         <section
-          aria-label="More ways to explore"
-          className="space-y-5 rounded-2xl border border-slate-200/80 bg-white/60 p-5 dark:border-white/10 dark:bg-slate-900/40 sm:p-6"
+          className="rounded-2xl border border-slate-200/70 bg-white/60 px-4 py-4 dark:border-white/10 dark:bg-slate-900/40"
+          aria-label="Random curiosity"
         >
-          <div>
-            <p className="mb-1 text-center text-sm font-semibold text-kuriosa-midnight-blue dark:text-slate-100">
-              Or go random
-            </p>
-            <p className="text-center text-xs text-muted-foreground">
-              Not in the mood for today&apos;s pick? Spin up a surprise.
-            </p>
-          </div>
+          <p className="mb-3 text-sm font-medium text-muted-foreground">
+            Prefer a surprise?
+          </p>
           <FeedMyCuriosityButton
             dailyTopicSlug={daily.data?.experience.identity.slug ?? null}
+            compact
           />
-          <div className="flex justify-center border-t border-slate-200/60 pt-4 dark:border-white/10">
-            <Link
-              href={ROUTES.discover}
-              className={cn(
-                buttonVariants({ variant: "default", size: "lg" }),
-                "inline-flex h-11 min-h-[44px] items-center justify-center gap-2 bg-kuriosa-midnight-blue/90 text-white hover:bg-kuriosa-midnight-blue dark:bg-kuriosa-electric-cyan dark:text-kuriosa-midnight-blue dark:hover:bg-kuriosa-electric-cyan/90"
-              )}
-            >
-              <Compass className="h-4 w-4" aria-hidden />
-              Browse Discover
-            </Link>
-          </div>
         </section>
+
+        {/* 4. Tertiary: Browse link */}
+        <div className="mt-3 text-center">
+          <Link
+            href={ROUTES.discover}
+            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+          >
+            Browse all topics
+          </Link>
+        </div>
       </PageContainer>
     </div>
   );

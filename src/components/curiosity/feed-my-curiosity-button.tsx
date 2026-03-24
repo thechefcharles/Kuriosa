@@ -22,11 +22,14 @@ const DIFFICULTY_OPTIONS = [
 export type FeedMyCuriosityButtonProps = {
   /** When set, first random spin in the session avoids this slug (e.g. daily topic). */
   dailyTopicSlug?: string | null;
+  /** Compact mode: hide long hint, lighter layout */
+  compact?: boolean;
   className?: string;
 };
 
 export function FeedMyCuriosityButton({
   dailyTopicSlug,
+  compact = false,
   className,
 }: FeedMyCuriosityButtonProps) {
   const router = useRouter();
@@ -98,7 +101,7 @@ export function FeedMyCuriosityButton({
         size="lg"
         disabled={isLoading}
         aria-busy={isLoading}
-        aria-describedby={`${hintId} ${statusId}`}
+        aria-describedby={compact ? statusId : `${hintId} ${statusId}`}
         className={cn(
           "h-12 min-h-[48px] w-full border-kuriosa-deep-purple/35 bg-gradient-to-r from-violet-50/90 to-cyan-50/50 font-semibold text-kuriosa-midnight-blue shadow-sm dark:border-kuriosa-electric-cyan/35 dark:from-kuriosa-deep-purple/20 dark:to-kuriosa-midnight-blue/40 dark:text-slate-100 sm:max-w-sm sm:self-center"
         )}
@@ -120,10 +123,11 @@ export function FeedMyCuriosityButton({
         )}
       </Button>
 
-      <p id={hintId} className="text-center text-xs text-muted-foreground">
-        Pick a random published curiosity — different from your last surprise
-        when possible.
-      </p>
+      {!compact && (
+        <p id={hintId} className="text-center text-xs text-muted-foreground">
+          We&apos;ll pick something new.
+        </p>
+      )}
 
       <div
         id={statusId}
