@@ -143,7 +143,9 @@ function ExperienceView({
 
       <LessonContent experience={experience} listenMode={listenMode} />
 
-      <NextStepCallout slug={experience.identity.slug} />
+      {!hasCompletedChallenge && (
+        <NextStepCallout slug={experience.identity.slug} />
+      )}
 
       <section id="whats-next" className="scroll-mt-24 space-y-6">
         <CompletionCelebrationHost
