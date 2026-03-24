@@ -30,6 +30,7 @@ export function DailyChallengeCard({
   challengeCorrect,
   xpEarned,
   dailyMultiplier = 1.5,
+  boostRevealed = false,
   className,
 }: {
   experience: LoadedCuriosityExperience;
@@ -41,6 +42,8 @@ export function DailyChallengeCard({
   xpEarned?: number;
   /** Daily multiplier for today (1.2–2.5). Used for XP display when not completed. */
   dailyMultiplier?: number;
+  /** True when user has spun to reveal today's boost (shows boosted XP and badge) */
+  boostRevealed?: boolean;
   className?: string;
 }) {
   const slug = experience.identity.slug;
@@ -102,12 +105,14 @@ export function DailyChallengeCard({
       <CuriosityHeader
         experience={experience}
         isDailyChallenge
-        dailyMultiplier={dailyMultiplier}
+        dailyMultiplier={boostRevealed ? dailyMultiplier : 1}
         completedState={
           hasCompletedChallenge && completedState
             ? { correct: completedState.correct, xpEarned: displayXpEarned }
             : undefined
         }
+        boostRevealed={boostRevealed}
+        boostMultiplier={dailyMultiplier}
       />
 
       <div className="space-y-6 p-5 sm:p-6">

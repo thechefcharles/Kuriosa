@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useDailyCuriosity } from "@/hooks/queries/useDailyCuriosity";
 import { PageContainer } from "@/components/shared/page-container";
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export function HomeScreen() {
   const daily = useDailyCuriosity();
+  const [boostRevealed, setBoostRevealed] = useState(false);
 
   return (
     <div
@@ -31,6 +33,8 @@ export function HomeScreen() {
           {daily.data && (
             <DailyMultiplierSpinner
               multiplier={daily.data.dailyMultiplier ?? 1.5}
+              hasSpun={boostRevealed}
+              onSpin={() => setBoostRevealed(true)}
               className="shrink-0"
             />
           )}
@@ -50,6 +54,7 @@ export function HomeScreen() {
               challengeCorrect={daily.data.challengeCorrect}
               xpEarned={daily.data.xpEarned}
               dailyMultiplier={daily.data.dailyMultiplier}
+              boostRevealed={boostRevealed}
             />
           )}
         </section>

@@ -16,6 +16,8 @@ export function CuriosityHeader({
   isDailyChallenge,
   dailyMultiplier = 1.5,
   completedState,
+  boostRevealed,
+  boostMultiplier,
 }: {
   experience: LoadedCuriosityExperience;
   className?: string;
@@ -25,6 +27,10 @@ export function CuriosityHeader({
   dailyMultiplier?: number;
   /** When set, show completion XP styling (gold shimmer if correct, red if wrong) */
   completedState?: { correct: boolean; xpEarned: number };
+  /** When true, show "X× boost applied" badge (daily challenge only) */
+  boostRevealed?: boolean;
+  /** Multiplier value for boost badge (e.g. 1.5) */
+  boostMultiplier?: number;
 }) {
   const theme = getCategoryTheme(experience.taxonomy.categorySlug);
   const Icon = theme.icon;
@@ -55,14 +61,24 @@ export function CuriosityHeader({
             <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
             {experience.taxonomy.category}
           </span>
-          <span
-            className={cn(
-              "rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
-              xpBadgeClass
+          <div className="flex flex-col items-end gap-0.5">
+            {isDailyChallenge && boostRevealed && boostMultiplier != null && !completedState && (
+              <span className="rounded-md bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-950">
+                {boostMultiplier}× boost applied
+              </span>
             )}
-          >
-            +{displayXp} XP
-          </span>
+            {isDailyChallenge && !boostRevealed && !completedState && (
+              <span className="text-[10px] text-white/80">Spin to reveal</span>
+            )}
+            <span
+              className={cn(
+                "rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+                xpBadgeClass
+              )}
+            >
+              +{displayXp} XP
+            </span>
+          </div>
         </div>
       </div>
       {/* Title + difficulty */}
