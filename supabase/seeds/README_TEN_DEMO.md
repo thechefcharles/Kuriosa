@@ -27,6 +27,8 @@
 
 Re-running the script is safe: existing slugs are skipped (`ON CONFLICT` / `NOT EXISTS`).
 
+**Then set today's daily pick:** `npm run seed:daily` (or run `supabase/seeds/seed-daily-curiosity.sql` in SQL Editor).
+
 ## Optional: set today’s daily curiosity
 
 After the seed, pick one topic for **Home → Today’s curiosity** (UTC date):

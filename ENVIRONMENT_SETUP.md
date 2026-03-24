@@ -98,6 +98,8 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 
 **Phase 6 E2E (manual)**: Sign in → complete one curiosity (challenge → Continue) → check **`/progress`** and celebration on **`#whats-next`**. Repeat same topic: no extra XP. See **`PHASE_6_PROGRESS_SYSTEM_INVENTORY.md`**.
 
+**Phase 9 AI (curiosity engine)**: `npm run ai:curiosity-followups` — generates follow-up questions for a sample topic. Requires migration `20260325120000_phase91_ai_engine.sql`. See **`AI_CURIOSITY_ENGINE_ARCHITECTURE.md`**.
+
 ## Auth Redirect URLs (Supabase Dashboard)
 
 For email confirmation and OAuth (if added later), configure in **Authentication → URL Configuration**:
@@ -113,3 +115,65 @@ For email confirmation and OAuth (if added later), configure in **Authentication
    ```
 2. Edit `.env.local` and replace placeholders with your values
 3. Restart the dev server after changes
+
+---
+
+## Quick Start — Full App Verification
+
+Get Kuriosa running end-to-end in under 5 minutes.
+
+### 1. Prerequisites
+
+- Supabase project (migrations applied: `supabase db push`)
+- `.env.local` with `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`
+
+### 2. Seed topics
+
+**Option A — Ten demo topics (fast, no API):**  
+Open Supabase Dashboard → SQL Editor → paste and run `supabase/seeds/ten-demo-curiosities.sql`
+
+**Option B — AI-generated content:**  
+```bash
+npm run seed:phase4
+```
+
+### 3. Set today's daily curiosity
+
+```bash
+npm run seed:daily
+```
+
+Or run `supabase/seeds/seed-daily-curiosity.sql` in the SQL Editor.
+
+### 4. (Optional) Generate audio for Listen Mode
+
+```bash
+npm run audio:generate-example -- --slug=why-sky-blue
+```
+
+Requires `OPENAI_API_KEY`. Listen Mode depends on `topics.audio_url` being set.
+
+### 5. Run the app
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3005`. Sign in → Home → Today's curiosity → full loop.
+
+### 6. Verify key routes
+
+- `/` → Enter Kuriosa → sign in
+- `/home` → daily curiosity card
+- `/curiosity/<slug>` → lesson, Read/Listen toggle, challenge
+- `/challenge/<slug>` → answer → See what's next
+- `/progress` → XP, level, streak
+- `/discover` → categories, search, featured
+
+### Build issues
+
+If `npx tsc --noEmit` fails with `.next` type errors:
+
+```bash
+rm -rf .next && npm run build
+```
