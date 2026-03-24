@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Check } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants/routes";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
@@ -64,9 +62,13 @@ export function DailyCuriosityCard({
   const Icon = theme.icon;
 
   return (
-    <article
+    <Link
+      href={href}
+      onClick={() => setTopicDiscoveryContext(slug, discoverySource)}
       className={cn(
-        "relative overflow-hidden rounded-xl border shadow-lg",
+        "block rounded-xl border shadow-lg transition-all",
+        "hover:shadow-xl active:scale-[0.99]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kuriosa-electric-cyan",
         cardStyle,
         className
       )}
@@ -74,29 +76,15 @@ export function DailyCuriosityCard({
       {/* Boardwalk-style category banner at top */}
       <div
         className={cn(
-          "flex items-center justify-between gap-2 px-4 py-3",
+          "flex items-center justify-center gap-2 px-4 py-3",
           theme.bar,
           "text-white"
         )}
       >
-        <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
-          <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
-          <span className="text-sm font-bold uppercase tracking-wide truncate">
-            {experience.taxonomy.category}
-          </span>
-        </div>
-        {isCompleted ? (
-          <span
-            className="flex shrink-0 items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-semibold"
-            aria-label="Complete"
-          >
-            <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
-            Complete
-            {xpEarned != null && xpEarned > 0 ? (
-              <span className="opacity-95">+{xpEarned} XP</span>
-            ) : null}
-          </span>
-        ) : null}
+        <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
+        <span className="text-sm font-bold uppercase tracking-wide truncate">
+          {experience.taxonomy.category}
+        </span>
       </div>
       {/* Line underneath the category (Monopoly-style) */}
       <div className={cn("h-1 w-full shrink-0", theme.bar)} aria-hidden />
@@ -122,20 +110,26 @@ export function DailyCuriosityCard({
             {experience.discoveryCard.hookQuestion}
           </p>
 
-          <Link
-            href={href}
-            onClick={() =>
-              setTopicDiscoveryContext(slug, discoverySource)
-            }
+          {/* CTA area: green when not completed, gray with green text when completed */}
+          <div
             className={cn(
-              buttonVariants({ variant: "default", size: "lg" }),
-              "w-full min-h-[48px] items-center justify-center text-base font-semibold shadow-md"
+              "flex w-full min-h-[48px] items-center justify-center rounded-xl text-base font-semibold",
+              isCompleted
+                ? "bg-slate-200/80 dark:bg-slate-700/80"
+                : "bg-emerald-500 text-white shadow-md dark:bg-emerald-600"
             )}
           >
-            {isCompleted ? "Review" : startLabel}
-          </Link>
+            {isCompleted ? (
+              <span className="text-emerald-700 dark:text-emerald-300">
+                Complete
+                {xpEarned != null && xpEarned > 0 ? ` +${xpEarned} XP` : ""}
+              </span>
+            ) : (
+              startLabel
+            )}
+          </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
