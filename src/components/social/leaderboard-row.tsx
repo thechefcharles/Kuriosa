@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import type { LeaderboardEntryView } from "@/types/leaderboard";
+import { ROUTES } from "@/lib/constants/routes";
 import { cn } from "@/lib/utils";
 
 interface LeaderboardRowProps {
@@ -14,11 +16,13 @@ function displayLabel(entry: LeaderboardEntryView): string {
 export function LeaderboardRow({ entry }: LeaderboardRowProps) {
   const label = displayLabel(entry);
   const isYou = entry.isCurrentUser;
+  const profileHref = ROUTES.profilePublic(entry.userId);
 
   return (
-    <div
+    <Link
+      href={profileHref}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-4 py-3",
+        "flex items-center gap-3 rounded-lg px-4 py-3 transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40",
         isYou && "bg-violet-50/80 ring-1 ring-violet-200/60 dark:bg-violet-950/40 dark:ring-violet-800/50"
       )}
     >
@@ -54,6 +58,6 @@ export function LeaderboardRow({ entry }: LeaderboardRowProps) {
       <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
         {entry.score}
       </span>
-    </div>
+    </Link>
   );
 }

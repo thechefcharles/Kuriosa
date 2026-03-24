@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { formatActivityEventLine } from "@/lib/services/social/format-activity-event";
+import { formatActivityEventParts } from "@/lib/services/social/format-activity-event";
 import type { ActivityFeedItemView } from "@/types/activity-feed";
 import { ROUTES } from "@/lib/constants/routes";
-import { cn } from "@/lib/utils";
 
 function formatRelativeTime(iso: string): string {
   const date = new Date(iso);
@@ -22,23 +21,38 @@ interface ActivityFeedItemProps {
 }
 
 export function ActivityFeedItem({ item }: ActivityFeedItemProps) {
-  const line = formatActivityEventLine(item);
-  const href =
-    item.topicSlug && (item.type === "topic_completed" || item.type === "topic_shared")
+  const { name, beforeTopic, topicTitle, afterTopic } =
+    formatActivityEventParts(item);
+  const profileHref = ROUTES.profilePublic(item.userId);
+  const topicHref =
+    item.topicSlug &&
+    (item.type === "topic_completed" || item.type === "topic_shared")
       ? ROUTES.curiosity(item.topicSlug)
       : null;
 
-  const content = (
-    <div className="flex items-start gap-3 py-3">
+  return (
+    <div className="flex items-start gap-3 py-3 -mx-2 rounded-lg px-2 transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-900/40">
       <div className="h-2 w-2 shrink-0 rounded-full bg-violet-400/70 mt-1.5 dark:bg-violet-500/80" />
       <div className="min-w-0 flex-1">
-        <p
-          className={cn(
-            "text-sm text-foreground",
-            href && "hover:text-violet-600 dark:hover:text-violet-400"
-          )}
-        >
-          {line}
+        <p className="text-sm text-foreground">
+          <Link
+            href={profileHref}
+            className="font-medium hover:text-violet-600 dark:hover:text-violet-400 hover:underline"
+          >
+            {name}
+          </Link>
+          {beforeTopic}
+          {topicHref && topicTitle ? (
+            <Link
+              href={topicHref}
+              className="hover:text-violet-600 dark:hover:text-violet-400 hover:underline"
+            >
+              {topicTitle}
+            </Link>
+          ) : topicTitle ? (
+            topicTitle
+          ) : null}
+          {afterTopic}
         </p>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {formatRelativeTime(item.createdAt)}
@@ -46,14 +60,4 @@ export function ActivityFeedItem({ item }: ActivityFeedItemProps) {
       </div>
     </div>
   );
-
-  if (href) {
-    return (
-      <Link href={href} className="block -mx-2 rounded-lg px-2 transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-900/40">
-        {content}
-      </Link>
-    );
-  }
-
-  return <div>{content}</div>;
 }

@@ -6,6 +6,8 @@ export const ROUTES = {
   progress: "/progress",
   leaderboard: "/leaderboard",
   profile: "/profile",
+  profilePublic: (userId: string) => `/profile/${userId}`,
+  settingsSocial: "/settings/social",
   signIn: "/auth/sign-in",
   signUp: "/auth/sign-up",
   curiosity: (slug: string) => `/curiosity/${slug}`,

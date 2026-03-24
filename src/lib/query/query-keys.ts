@@ -45,6 +45,18 @@ export const discoveryQueryKeys = {
     ["discovery", "suggested", userId ?? "guest"] as const,
 } as const;
 
+/** Phase 10.5 — Public profile. */
+export const publicProfileQueryKeys = {
+  all: ["public-profile"] as const,
+  byUserId: (userId: string) =>
+    [...publicProfileQueryKeys.all, userId] as const,
+} as const;
+
+/** Phase 10.5 — Privacy settings. */
+export const privacySettingsQueryKeys = {
+  all: ["privacy-settings"] as const,
+} as const;
+
 /** Phase 10.4 — Activity feed. */
 export const activityFeedQueryKeys = {
   all: ["activity-feed"] as const,
