@@ -10,6 +10,12 @@
 | `OPENAI_API_KEY` | OpenAI API key |
 | `INTERNAL_CONTENT_WORKFLOW_ALLOWLIST_EMAILS` | Comma-separated developer emails allowed to access internal preview + publish/reject endpoints (Phase 4.10). Server-only. |
 
+## Optional — Share links (Phase 10.2)
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_APP_URL` | App base URL for share links (e.g. `https://yourdomain.com`). Falls back to `localhost:3005` in dev. |
+
 ## Optional — Phase 8 audio Storage
 
 | Variable | Description |

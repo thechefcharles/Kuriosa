@@ -9,6 +9,8 @@ import { LessonContent } from "@/components/curiosity/lesson-content";
 import { AudioPanel } from "@/components/curiosity/audio-panel";
 import { NextStepCallout } from "@/components/curiosity/next-step-callout";
 import { PostChallengeExploration } from "@/components/curiosity/post-challenge-exploration";
+import { ShareTopicButton } from "@/components/social/share-topic-button";
+import { ShareTopicCard } from "@/components/social/share-topic-card";
 import { CompletionCelebrationHost } from "@/components/curiosity/completion-celebration-host";
 import { LoadingState } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
@@ -104,7 +106,19 @@ function ExperienceView({
 
   return (
     <article className={cn("space-y-5", listenMode && "space-y-6")}>
-      <CuriosityHeader experience={experience} compactHook={listenMode} />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <CuriosityHeader experience={experience} compactHook={listenMode} className="min-w-0 flex-1" />
+        <ShareTopicButton
+          topicId={experience.identity.id}
+          slug={slug}
+          title={experience.identity.title}
+          hookQuestion={experience.discoveryCard.hookQuestion}
+          shortSummary={experience.discoveryCard.shortSummary}
+          variant="outline"
+          size="sm"
+          className="shrink-0"
+        />
+      </div>
 
       <ModeToggle
         mode={mode}
@@ -126,6 +140,13 @@ function ExperienceView({
 
       <section id="whats-next" className="scroll-mt-24 space-y-6">
         <CompletionCelebrationHost topicSlug={slug} />
+        <ShareTopicCard
+          topicId={experience.identity.id}
+          slug={slug}
+          title={experience.identity.title}
+          hookQuestion={experience.discoveryCard.hookQuestion}
+          shortSummary={experience.discoveryCard.shortSummary}
+        />
         <PostChallengeExploration experience={experience} />
       </section>
     </article>
