@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useGuidedTopicExploration } from "@/hooks/queries/useGuidedTopicExploration";
 import { useAskManualQuestion } from "@/hooks/mutations/useAskManualQuestion";
@@ -40,6 +41,7 @@ export function AIExplorationBlock({
     setManualAnswer(null);
   }, [slug, topicId]);
 
+  const router = useRouter();
   const requireAuth = !userId;
   const handleAuthRequired = () => {
     const redirect = `${window.location.pathname}${window.location.hash || "#whats-next"}`;
@@ -59,6 +61,10 @@ export function AIExplorationBlock({
   };
 
   const onRabbitHoleSelect = (item: TopicRabbitHoleItem) => {
+    if (item.topicSlug) {
+      router.push(ROUTES.curiosity(item.topicSlug));
+      return;
+    }
     setManualAnswer(null);
     const questionText = item.title;
     askQuestion.mutate(

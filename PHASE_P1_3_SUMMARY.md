@@ -2,7 +2,7 @@
 
 ## Overview
 
-Content inventory expansion, difficulty calibration, and trail seeding to make Kuriosa feel richer, smarter, and more alive.
+Content inventory expansion, difficulty calibration, trail seeding, and a refinement pass to make Kuriosa feel richer, smarter, and more alive.
 
 ---
 
@@ -14,25 +14,29 @@ Content inventory expansion, difficulty calibration, and trail seeding to make K
 - Spread across Science, History, Technology, Nature/Biology, Space, Psychology, Philosophy, Culture
 - Each with lesson, hook, surprising fact, real-world relevance, quiz, and difficulty
 
-### Difficulty Calibration
+### Difficulty Calibration (Refinement Pass)
 
-- **Beginner (13):** 4–5 min, simple concepts, clear payoff
-- **Intermediate (6):** 5–6 min, richer nuance, trickier distractors
-- **Advanced (1):** 7 min, denser concepts (e.g., black hole event horizon)
+- **~50% beginner (15):** 3–5 min, simple concepts, clear payoff
+- **~35% intermediate (10):** 5–6 min, richer nuance, trickier distractors
+- **~15% advanced (5):** 6–8 min, denser concepts
 
 ### Trail Seeding
 
-- **14+ trail links** between topics
-- Themed chains: sky/light, lightning, tech, honey, history, space, culture
+- **Every topic has 1+ outgoing trail** — no dead ends
+- 30+ trail links; multi-step chains (e.g., sky → sunset → rainbow → sky)
 - "What's next?" feels intentional
 
-### Bonus Questions
+### Bonus Questions (Refinement Pass)
 
-- 4 topics now have a bonus (sort_order = 1) quiz: why-sky-blue, what-is-qr-code, lightning-hotter-than-sun, how-bees-make-honey
+- **19 topics** (50–70% coverage) have a bonus quiz
+- Bonus questions extend learning, not trivial repeats
+- +10 XP when correct
 
-### Followups
+### Rabbit-Hole Alignment (Refinement Pass)
 
-- 5 ten-demo topics received their first followups for discovery and AI exploration
+- AI suggestions prefer real topic titles when relevant
+- Post-processing matches suggestions to topics
+- When matched, tapping opens the topic (no AI call)
 
 ---
 
@@ -41,10 +45,10 @@ Content inventory expansion, difficulty calibration, and trail seeding to make K
 | Before     | After            |
 |-----------|------------------|
 | 10 topics | 30 topics        |
-| All beginner | Beginner, intermediate, advanced |
-| No trails | 14+ trail links  |
+| All beginner | ~50% beginner, ~35% intermediate, ~15% advanced |
+| No trails | 30+ trail links; every topic has 1+ outgoing |
 | No followups (ten-demo) | Followups on 5 demo topics |
-| No bonus questions | 4 topics with bonus |
+| No bonus questions | 19 topics with bonus (50–70%) |
 
 ---
 
@@ -75,12 +79,17 @@ Estimated minutes: 4 (beginner) → 5–6 (intermediate) → 7 (advanced).
 ### Created
 
 - `supabase/migrations/20260328120000_content_expansion_trails.sql` — topics, quizzes, options, followups, trails
+- `supabase/migrations/20260328130000_content_refinement_pass.sql` — difficulty rebalance, bonus expansion, trail density
 - `CONTENT_EXPANSION_AND_TRAILS_ARCHITECTURE.md`
 - `PHASE_P1_3_SUMMARY.md`
 
 ### Modified
 
-- `supabase/seeds/README_TEN_DEMO.md` — note about content expansion migration (see below)
+- `supabase/seeds/README_TEN_DEMO.md` — note about content expansion migration
+- `src/types/ai.ts` — `topicSlug` on `TopicRabbitHoleItem`; `availableTopicTitles` on rabbit-hole input
+- `src/lib/ai/prompts/rabbit-hole-prompt.ts` — include available topics when provided
+- `src/lib/services/ai/get-topic-rabbit-holes.ts` — fetch topics, pass to prompt, match suggestions
+- `src/components/ai/ai-exploration-block.tsx` — navigate to topic when `topicSlug` present
 
 ---
 
@@ -115,11 +124,11 @@ Estimated minutes: 4 (beginner) → 5–6 (intermediate) → 7 (advanced).
 ## 9. Suggested Git Commit Message
 
 ```
-feat: content expansion, difficulty calibration, and trail seeding
+feat: content refinement — difficulty rebalance, bonus coverage, trail density, rabbit-hole alignment
 
-- 20 new topics across Science, History, Tech, Nature, Space, Psychology, Philosophy, Culture
-- Difficulty spread: beginner, intermediate, advanced
-- 14+ topic trails for intentional exploration
-- Bonus questions on 4 topics
-- Followups for ten-demo topics
+- ~50/35/15% beginner/intermediate/advanced
+- 19 topics with bonus questions (50–70% coverage)
+- Every topic has 1+ outgoing trail
+- Rabbit holes aligned with real topics (prompt + matching + link)
+- estimatedMinutes: 3–5 / 5–6 / 6–8
 ```

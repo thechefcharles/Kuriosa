@@ -30,6 +30,8 @@ export type TopicFollowupResult =
 export type TopicRabbitHoleItem = {
   title: string;
   reasonText?: string;
+  /** When set, link to this topic instead of asking AI */
+  topicSlug?: string;
 };
 
 /** Result of get-topic-rabbit-holes */
@@ -159,4 +161,6 @@ export type RabbitHoleGenerationInput = {
   topicTitle: string;
   questionText?: string;
   lessonExcerpt?: string;
+  /** Available topic titles to prefer (aligns rabbit holes with real content) */
+  availableTopicTitles?: string[];
 };

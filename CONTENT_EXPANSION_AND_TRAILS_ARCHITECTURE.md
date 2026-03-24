@@ -35,25 +35,31 @@ Phase P1.3 — Content inventory, difficulty calibration, and trail seeding.
 
 ## Difficulty Calibration
 
-### Rules
+### Rules (Post-Refinement)
 
-- **Beginner:** Simple, accessible, obvious payoff. 4–5 min. Straightforward quiz.
+- **Beginner:** Simple, accessible, obvious payoff. 3–5 min. Straightforward quiz.
 - **Intermediate:** Richer or more nuanced. 5–6 min. Trickier distractors.
-- **Advanced:** Denser or conceptually tricky. 6–7 min.
+- **Advanced:** Denser or conceptually tricky. 6–8 min.
 
-### Distribution in New Topics
+### Distribution (Refinement Target: ~50% / ~35% / ~15%)
 
 | Difficulty  | Count | Example |
 |-------------|-------|---------|
-| Beginner    | 13    | why-sunset-red, how-rainbows-form, why-ice-floats, how-barcodes-work, software-bug-origin |
-| Intermediate| 6     | lightning-hotter-than-sun, roman-concrete-lasts, why-computers-binary, how-gps-works |
-| Advanced    | 1     | black-hole-event-horizon |
+| Beginner    | 15    | why-sky-blue, why-sunset-red, how-rainbows-form, why-ice-floats, do-trees-sleep |
+| Intermediate| 10    | great-pyramid-age, lightning-hotter-than-sun, library-alexandria, how-gps-works |
+| Advanced    | 5     | black-hole-event-horizon, roman-concrete-lasts, how-trees-communicate |
 
 ### Lesson Depth by Difficulty
 
 - Beginner: ~150–220 words, one clear idea
 - Intermediate: ~220–300 words, nuance or multiple angles
 - Advanced: ~250–350 words, denser concepts
+
+### estimatedMinutes Ranges
+
+- Beginner: 3–5
+- Intermediate: 5–6
+- Advanced: 6–8
 
 ---
 
@@ -64,6 +70,10 @@ Phase P1.3 — Content inventory, difficulty calibration, and trail seeding.
 - **Meaningful connections:** Trails link related concepts, not random topics
 - **Multi-step chains:** Some paths form sequences (e.g., sky → sunset → rainbow)
 - **Bidirectional where useful:** e.g., why-sunset-red ↔ why-sky-blue
+
+### Trail Density
+
+**Every topic has at least 1 outgoing trail** — no dead ends. Most have 2+.
 
 ### Trail Chains
 
@@ -129,14 +139,19 @@ Phase P1.3 — Content inventory, difficulty calibration, and trail seeding.
 
 ## Bonus Questions
 
+**Coverage:** 50–70% of topics (19 of 30 after refinement).
+
 Topics with a **bonus quiz** (sort_order = 1):
 
-- why-sky-blue
-- what-is-qr-code
-- lightning-hotter-than-sun
-- how-bees-make-honey
+- why-sky-blue, why-sunset-red, how-rainbows-form, why-ice-floats
+- what-is-qr-code, how-barcodes-work, software-bug-origin
+- lightning-hotter-than-sun, what-is-ball-lightning
+- great-pyramid-age, do-trees-sleep, how-caffeine-works, printing-press-gutenberg
+- why-cats-purr, cloud-computing-simple, honey-lasts-forever
+- how-bees-make-honey, how-spiders-walk-walls
+- dark-side-moon, why-yawn-contagious, why-cant-tickle-self
 
-Bonus questions grant +10 XP when answered correctly (see `CORE_LOOP_UPGRADE_ARCHITECTURE.md`).
+Bonus questions extend learning (not trivial repeats) and grant +10 XP when correct.
 
 ---
 
@@ -151,6 +166,19 @@ Followups were added for ten-demo topics that had none:
 - break-a-leg-theatre
 
 These support the “What’s next?” section and AI-guided exploration.
+
+---
+
+## Rabbit-Hole Alignment
+
+AI rabbit-hole suggestions (Phase 9) are aligned with real topics:
+
+1. **Prompt:** Available Kuriosa topic titles are passed to the AI; it prefers suggesting these when relevant.
+2. **Post-processing:** Suggestion titles are matched to topics (normalized string comparison).
+3. **UI:** When a match exists, `topicSlug` is set; tapping opens `/curiosity/{slug}` instead of asking the AI.
+
+**Result:** Rabbit holes lead to actual content when possible, not only to AI-generated answers.
+**Cache:** Existing cached suggestions still get post-processing; new generations benefit from the prompt hint.
 
 ---
 

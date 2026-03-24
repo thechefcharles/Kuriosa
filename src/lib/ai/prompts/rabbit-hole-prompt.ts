@@ -17,12 +17,21 @@ Rules:
 - Output ONLY a valid JSON array of strings, e.g. ["First rabbit hole", "Second rabbit hole"]`;
 
 export function buildRabbitHolePrompt(input: RabbitHoleGenerationInput): string {
-  const { topicTitle, questionText, lessonExcerpt } = input;
+  const { topicTitle, questionText, lessonExcerpt, availableTopicTitles } = input;
   let context = `Topic: ${topicTitle}`;
   if (questionText) context += `\nUser's question: ${questionText}`;
   if (lessonExcerpt) context += `\n\nLesson excerpt:\n${lessonExcerpt.slice(0, 500)}`;
 
+  const alignmentHint =
+    availableTopicTitles && availableTopicTitles.length > 0
+      ? `
+
+Available Kuriosa topics (prefer these exact titles when relevant — learners can explore real content):
+${availableTopicTitles.slice(0, 40).join("\n")}`
+      : "";
+
   return `${SYSTEM_INSTRUCTIONS}
+${alignmentHint}
 
 ${context}
 
