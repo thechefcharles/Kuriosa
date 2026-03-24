@@ -54,11 +54,15 @@ export function DiscoverHeroZone({
 }: DiscoverHeroZoneProps) {
   const [page, setPage] = useState(0);
 
-  const topicList = suggestedTopics.data ?? [];
+  const topicList = useMemo(
+    () => suggestedTopics.data ?? [],
+    [suggestedTopics.data]
+  );
   const useRandomMode = randomCards != null && !searchActive;
-  const displayTopics = useRandomMode
-    ? randomCards ?? []
-    : topicList;
+  const displayTopics = useMemo(
+    () => (useRandomMode ? randomCards ?? [] : topicList),
+    [useRandomMode, randomCards, topicList]
+  );
   const filteredByDifficulty = useMemo(() => {
     if (useRandomMode) return displayTopics;
     if (!difficultyFilter.trim()) return topicList;

@@ -42,7 +42,7 @@ export function DiscoverScreen() {
       },
       { onSuccess: (data) => setRandomCards(data) }
     );
-  }, [selectedCategorySlug, selectedDifficulty]);
+  }, [selectedCategorySlug, selectedDifficulty, randomMutation]);
 
   useEffect(() => {
     setRandomCards(null);

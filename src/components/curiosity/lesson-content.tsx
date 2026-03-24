@@ -66,7 +66,7 @@ export function LessonContent({
               ))
             ) : (
               <p className={cn("text-[15px] leading-7", textClassName)}>
-                Lesson content isn't available yet.
+                Lesson content isn&apos;t available yet.
               </p>
             )}
           </div>

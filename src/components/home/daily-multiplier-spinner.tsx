@@ -23,7 +23,7 @@ export function DailyMultiplierSpinner({
   onSpin: () => void;
   className?: string;
 }) {
-  const index = MULTIPLIERS.indexOf(multiplier);
+  const index = (MULTIPLIERS as readonly number[]).indexOf(multiplier);
   const resolvedIndex = index >= 0 ? index : 1;
   const finalIndex = SPIN_REVOLUTIONS * MULTIPLIERS.length + resolvedIndex;
   const startIndex = finalIndex + 3;

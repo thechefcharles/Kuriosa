@@ -19,9 +19,16 @@ export type FeedRandomCuriosityInput = {
    * no prior random exists this session, so the first surprise isn’t the same card.
    */
   dailyTopicSlug?: string | null;
+  /** Slug to exclude from the random pick (e.g. current topic when skipping) */
+  excludeSlug?: string | null;
 };
 
-function readExcludeSlug(dailyTopicSlug?: string | null): string | undefined {
+function readExcludeSlug(
+  dailyTopicSlug?: string | null,
+  explicitExclude?: string | null
+): string | undefined {
+  const explicit = explicitExclude?.trim();
+  if (explicit) return explicit;
   if (typeof window === "undefined") return undefined;
   const last = sessionStorage.getItem(KURIOSA_LAST_RANDOM_SLUG_KEY)?.trim();
   if (last) return last;
@@ -50,7 +57,10 @@ export function useFeedRandomCuriosity() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      const excludeSlug = readExcludeSlug(input.dailyTopicSlug);
+      const excludeSlug = readExcludeSlug(
+        input.dailyTopicSlug,
+        input.excludeSlug
+      );
       const excludeTopicIds = user?.id
         ? await getCompletedTopicIds(supabase, user.id)
         : [];
