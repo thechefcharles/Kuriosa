@@ -1,25 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCuriosityExperience } from "@/hooks/queries/useCuriosityExperience";
 import { useCompletedTopicIds } from "@/hooks/queries/useCompletedTopicIds";
 import { useTopicCompletionDetails } from "@/hooks/queries/useTopicCompletionDetails";
+import { useFeedRandomCuriosity, writeLastRandomSlug } from "@/hooks/mutations/useFeedRandomCuriosity";
 import { CuriosityHeader } from "@/components/curiosity/curiosity-header";
 import { LessonContent } from "@/components/curiosity/lesson-content";
 import { AudioPlayer } from "@/components/curiosity/audio-player";
 import { NextStepCallout } from "@/components/curiosity/next-step-callout";
 import { InlineChallengeBlock } from "@/components/challenge/inline-challenge-block";
-import { ShareTopicButton } from "@/components/social/share-topic-button";
 import { CompletionCelebrationHost } from "@/components/curiosity/completion-celebration-host";
 import { LoadingState } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageContainer } from "@/components/shared/page-container";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { isAudioAvailable } from "@/lib/audio/is-audio-available";
 import { initCuriosityModesSession } from "@/lib/services/progress/session-curiosity-modes";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { CARD_BASE } from "@/lib/constants/card-styles";
 import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
@@ -38,7 +41,13 @@ function CuriosityEmpty() {
   );
 }
 
-export function CuriosityExperienceScreen({ slug }: { slug: string }) {
+export function CuriosityExperienceScreen({
+  slug,
+  fromDiscover = false,
+}: {
+  slug: string;
+  fromDiscover?: boolean;
+}) {
   const { data, isLoading, isError, error } = useCuriosityExperience(slug);
 
   const hasAudio = data ? isAudioAvailable(data.audio) : false;
@@ -52,9 +61,10 @@ export function CuriosityExperienceScreen({ slug }: { slug: string }) {
         experience={data}
         hasAudio={hasAudio}
         slug={slug}
+        fromDiscover={fromDiscover}
       />
     );
-  }, [data, error, hasAudio, isError, isLoading, slug]);
+  }, [data, error, hasAudio, isError, isLoading, slug, fromDiscover]);
 
   return (
     <div
@@ -72,11 +82,55 @@ function ExperienceView({
   experience,
   hasAudio,
   slug,
+  fromDiscover,
 }: {
   experience: LoadedCuriosityExperience;
   hasAudio: boolean;
   slug: string;
+  fromDiscover: boolean;
 }) {
+  const router = useRouter();
+  const randomMutation = useFeedRandomCuriosity();
+
+  const handleBack = useCallback(() => {
+    router.back();
+  }, [router]);
+
+  const handleSkip = useCallback(() => {
+    randomMutation.mutate(
+      { excludeSlug: slug },
+      {
+        onSuccess: (data) => {
+          if (data?.identity.slug) {
+            writeLastRandomSlug(data.identity.slug);
+            router.push(`${ROUTES.curiosity(data.identity.slug)}?from=discover`);
+          }
+        },
+      }
+    );
+  }, [slug, router, randomMutation]);
+
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const SWIPE_THRESHOLD = 50;
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? 0;
+    touchEndX.current = touchStartX.current;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0]?.clientX ?? 0;
+  }, []);
+
+  const onTouchEnd = useCallback(() => {
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) > SWIPE_THRESHOLD) {
+      if (diff > 0) handleSkip();
+      else handleBack();
+    }
+  }, [handleSkip, handleBack]);
+
   const { isCompleted } = useCompletedTopicIds();
   const { data: completionDetails } = useTopicCompletionDetails(experience.identity.id);
   const [hasJustCompleted, setHasJustCompleted] = useState(false);
@@ -110,22 +164,42 @@ function ExperienceView({
 
   return (
     <>
-      {/* Share button fixed top right */}
-      <div className="fixed right-4 top-14 z-20">
-        <ShareTopicButton
-          topicId={experience.identity.id}
-          slug={slug}
-          title={experience.identity.title}
-          hookQuestion={experience.discoveryCard.hookQuestion}
-          shortSummary={experience.discoveryCard.shortSummary}
-          variant="outline"
-          size="default"
-          className="shadow-md"
-        />
-      </div>
+      {/* Discover nav: arrows on sides of card, vertically centered */}
+      {fromDiscover && (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={handleBack}
+            aria-label="Go back"
+            className="fixed left-4 top-1/2 z-20 h-11 w-11 -translate-y-1/2 rounded-full bg-white/95 shadow-md dark:bg-slate-900/95"
+          >
+            <ChevronLeft className="h-6 w-6 text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={handleSkip}
+            disabled={randomMutation.isPending}
+            aria-label="Skip to next random topic"
+            className="fixed right-4 top-1/2 z-20 h-11 w-11 -translate-y-1/2 rounded-full bg-white/95 shadow-md dark:bg-slate-900/95"
+          >
+            <ChevronRight className="h-6 w-6 text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan" />
+          </Button>
+        </>
+      )}
 
       <article
-        className={cn("overflow-hidden rounded-xl shadow-lg", CARD_BASE)}
+        className={cn(
+          "overflow-hidden rounded-xl shadow-lg",
+          CARD_BASE,
+          fromDiscover && "touch-pan-y"
+        )}
+        onTouchStart={fromDiscover ? onTouchStart : undefined}
+        onTouchMove={fromDiscover ? onTouchMove : undefined}
+        onTouchEnd={fromDiscover ? onTouchEnd : undefined}
       >
         <CuriosityHeader
           experience={experience}

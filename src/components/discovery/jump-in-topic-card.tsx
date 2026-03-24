@@ -14,12 +14,14 @@ import { cn } from "@/lib/utils";
 
 export function JumpInTopicCard({
   topic,
+  href,
   className,
 }: {
   topic: TopicCardView;
+  href?: string;
   className?: string;
 }) {
-  const href = ROUTES.curiosity(topic.slug);
+  const to = href ?? ROUTES.curiosity(topic.slug);
   const diff = (topic.difficulty ?? "").trim().toLowerCase();
   const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
   const theme = getCategoryTheme(topic.categorySlug);
@@ -28,7 +30,7 @@ export function JumpInTopicCard({
 
   return (
     <Link
-      href={href}
+      href={to}
       className={cn(
         "block min-h-[200px] overflow-hidden rounded-xl border shadow-sm transition-all",
         "hover:shadow-md active:scale-[0.99]",

@@ -15,6 +15,7 @@ import {
 } from "@/components/discovery/discovery-section-body";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { TopicCardView } from "@/types/discovery";
+import { ROUTES } from "@/lib/constants/routes";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 4;
@@ -197,7 +198,7 @@ export function DiscoverHeroZone({
             <DiscoveryCardGrid>
               {searchQuery.data.map((t) => (
                 <li key={t.id}>
-                  <TopicCard topic={t} />
+                  <TopicCard topic={t} href={`${ROUTES.curiosity(t.slug)}?from=discover`} />
                 </li>
               ))}
             </DiscoveryCardGrid>
@@ -271,7 +272,7 @@ export function DiscoverHeroZone({
               >
                 {topicsToShow.map((t) => (
                   <li key={t.id}>
-                    <JumpInTopicCard topic={t} />
+                    <JumpInTopicCard topic={t} href={`${ROUTES.curiosity(t.slug)}?from=discover`} />
                   </li>
                 ))}
               </DiscoveryCardGrid>

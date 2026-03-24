@@ -4,6 +4,7 @@ import { getCuriosityPageMetadata } from "@/lib/services/social/get-curiosity-pa
 
 interface CuriosityPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export async function generateMetadata({
@@ -20,7 +21,10 @@ export async function generateMetadata({
 
 export default async function CuriosityPage({
   params,
+  searchParams,
 }: CuriosityPageProps) {
   const { slug } = await params;
-  return <CuriosityExperienceScreen slug={slug} />;
+  const sp = await searchParams;
+  const fromDiscover = sp?.from === "discover";
+  return <CuriosityExperienceScreen slug={slug} fromDiscover={fromDiscover} />;
 }
