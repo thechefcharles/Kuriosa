@@ -20,6 +20,8 @@ export type DailyCuriosityResult = {
   isCompleted: boolean;
   /** XP earned when completed (from user_topic_history.xp_earned) */
   xpEarned?: number;
+  /** True when challenge was answered correctly (from user_topic_history.challenge_correct) */
+  challengeCorrect?: boolean;
 };
 
 export type GetDailyCuriosityOptions = {
@@ -58,19 +60,23 @@ export async function getDailyCuriosity(
 
   let isCompleted = false;
   let xpEarned: number | undefined;
+  let challengeCorrect: boolean | undefined;
   if (options?.userId?.trim()) {
     const { data: hist } = await supabase
       .from("user_topic_history")
-      .select("id, xp_earned")
+      .select("id, xp_earned, challenge_correct")
       .eq("user_id", options.userId)
       .eq("topic_id", topicId)
       .eq("rewards_granted", true)
       .limit(1);
     if (hist?.length) {
       isCompleted = true;
-      const xp = (hist[0] as { xp_earned?: number | null }).xp_earned;
+      const h = hist[0] as { xp_earned?: number | null; challenge_correct?: boolean | null };
+      const xp = h.xp_earned;
       xpEarned =
         xp != null && Number.isFinite(Number(xp)) ? Math.max(0, Math.round(Number(xp))) : undefined;
+      challengeCorrect =
+        h.challenge_correct === true || h.challenge_correct === false ? h.challenge_correct : undefined;
     }
   }
 
@@ -80,5 +86,6 @@ export async function getDailyCuriosity(
     date: String(row.date ?? date),
     isCompleted,
     ...(xpEarned !== undefined ? { xpEarned } : {}),
+    ...(challengeCorrect !== undefined ? { challengeCorrect } : {}),
   };
 }

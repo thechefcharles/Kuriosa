@@ -85,6 +85,30 @@
   opacity: 0;
 }
 
+/* XP badge when daily challenge completed correct - gold shimmer */
+.xp-badge-correct {
+  background: linear-gradient(
+    110deg,
+    #d4af37 0%,
+    #f4e4a6 25%,
+    #d4af37 50%,
+    #f4e4a6 75%,
+    #d4af37 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: jackpot-shimmer 2.5s linear infinite, jackpot-pulse 1.5s ease-in-out infinite;
+  color: hsl(45, 30%, 12%) !important;
+}
+.dark .xp-badge-correct {
+  color: hsl(45, 20%, 8%);
+}
+
+/* XP badge when daily challenge completed wrong - red */
+.xp-badge-wrong {
+  background: hsl(var(--destructive)) !important;
+  color: hsl(var(--destructive-foreground)) !important;
+}
+
 @layer base {
   :root {
     --kuriosa-primary: 59 130 246;

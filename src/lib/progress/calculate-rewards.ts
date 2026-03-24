@@ -27,8 +27,27 @@ function roundXp(n: number): number {
 export function calculateRewards(
   event: CompletionEventInput
 ): RewardCalculationResult {
+  if (event.wasDailyFeature && !event.challengeCorrect) {
+    const xp = XP_CONFIG.DAILY_WRONG_ANSWER_XP;
+    return {
+      xpEarned: xp,
+      breakdown: {
+        lessonXp: 0,
+        challengeXp: 0,
+        perfectBonusXp: 0,
+        bonusQuestionXp: 0,
+        firstTryBonusXp: 0,
+        dailyBonusXp: xp,
+        randomBonusXp: 0,
+        listenBonusXp: 0,
+      },
+      isPerfect: false,
+    };
+  }
+
   const isPerfect = event.challengeAttempted && event.challengeCorrect;
   const mult = getDifficultyMultiplier(event.difficultyLevel);
+  const dailyMult = event.wasDailyFeature ? XP_CONFIG.DAILY_CHALLENGE_XP_MULTIPLIER : 1;
 
   const lessonBase = event.lessonCompleted ? XP_CONFIG.LESSON_COMPLETION_XP : 0;
   const challengeBase =
@@ -44,16 +63,16 @@ export function calculateRewards(
     ? XP_CONFIG.RANDOM_COMPLETION_BONUS_XP
     : 0;
 
-  const lessonXp = roundXp(lessonBase * mult);
-  const challengeXp = roundXp(challengeBase * mult);
-  const perfectBonusXp = roundXp(perfectBase * mult);
-  const bonusQuestionXp = roundXp(bonusQuestionBase * mult);
+  const lessonXp = roundXp(lessonBase * mult * dailyMult);
+  const challengeXp = roundXp(challengeBase * mult * dailyMult);
+  const perfectBonusXp = roundXp(perfectBase * mult * dailyMult);
+  const bonusQuestionXp = roundXp(bonusQuestionBase * mult * dailyMult);
   const dailyBonusXp = roundXp(dailyBase * mult);
   const randomBonusXp = roundXp(randomBase * mult);
 
   const firstTryBonusXp =
     event.firstTryCorrect && event.challengeCorrect
-      ? XP_CONFIG.FIRST_TRY_CORRECT_BONUS_XP
+      ? roundXp(XP_CONFIG.FIRST_TRY_CORRECT_BONUS_XP * dailyMult)
       : 0;
 
   const breakdown = {

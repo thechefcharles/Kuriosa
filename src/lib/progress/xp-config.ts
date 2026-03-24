@@ -12,7 +12,12 @@ export const XP_CONFIG = {
   PERFECT_CHALLENGE_BONUS_XP: 10,
   /** Bonus (second) question answered correctly */
   BONUS_QUESTION_XP: 10,
-  DAILY_COMPLETION_BONUS_XP: 5,
+  /** Daily Challenge: same topic for all users, worth more XP */
+  DAILY_COMPLETION_BONUS_XP: 15,
+  /** Multiplier applied to lesson/challenge/perfect/first-try when Daily Challenge */
+  DAILY_CHALLENGE_XP_MULTIPLIER: 1.5,
+  /** XP for Daily Challenge when quiz answered wrong (consolation) */
+  DAILY_WRONG_ANSWER_XP: 5,
   RANDOM_COMPLETION_BONUS_XP: 5,
   /** Main challenge correct on first try (no retry) */
   FIRST_TRY_CORRECT_BONUS_XP: 5,

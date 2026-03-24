@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 export function HomeDailyEmpty({ isToday = true }: { isToday?: boolean }) {
   return (
     <EmptyState
-      title={isToday ? "No daily curiosity yet" : "No curiosity for this date"}
+      title={isToday ? "No daily challenge yet" : "No challenge for this date"}
       description={
         isToday
           ? "We're not featuring a topic today. Check back soon, or explore Discover for more."

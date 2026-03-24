@@ -8,20 +8,39 @@ import {
   DEFAULT_BANNER,
 } from "@/lib/constants/card-styles";
 import { cn } from "@/lib/utils";
-import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
+import {
+  getCardXpFromDifficulty,
+  XP_CONFIG,
+} from "@/lib/progress/xp-config";
 
 export function CuriosityHeader({
   experience,
   className,
+  isDailyChallenge,
+  completedState,
 }: {
   experience: LoadedCuriosityExperience;
   className?: string;
+  /** When true, show boosted XP (daily challenge multiplier) */
+  isDailyChallenge?: boolean;
+  /** When set, show completion XP styling (gold shimmer if correct, red if wrong) */
+  completedState?: { correct: boolean; xpEarned: number };
 }) {
   const theme = getCategoryTheme(experience.taxonomy.categorySlug);
   const Icon = theme.icon;
   const diff = (experience.taxonomy.difficultyLevel ?? "").trim().toLowerCase();
   const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
-  const xp = getCardXpFromDifficulty(experience.taxonomy.difficultyLevel);
+  const baseXp = getCardXpFromDifficulty(experience.taxonomy.difficultyLevel);
+  const xp =
+    isDailyChallenge
+      ? Math.round(baseXp * XP_CONFIG.DAILY_CHALLENGE_XP_MULTIPLIER)
+      : baseXp;
+  const displayXp = completedState ? completedState.xpEarned : xp;
+  const xpBadgeClass = completedState
+    ? completedState.correct
+      ? "xp-badge-correct"
+      : "xp-badge-wrong"
+    : theme.bar;
 
   return (
     <header className={cn("space-y-4", className)}>
@@ -41,10 +60,10 @@ export function CuriosityHeader({
           <span
             className={cn(
               "rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
-              theme.bar
+              xpBadgeClass
             )}
           >
-            +{xp} XP
+            +{displayXp} XP
           </span>
         </div>
       </div>
