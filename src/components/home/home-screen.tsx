@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useDailyCuriosity } from "@/hooks/queries/useDailyCuriosity";
 import { PageContainer } from "@/components/shared/page-container";
 import { DailyChallengeCard } from "@/components/home/daily-challenge-card";
+import { DailyMultiplierSpinner } from "@/components/home/daily-multiplier-spinner";
 import { DailyCuriosityCardSkeleton } from "@/components/curiosity/daily-curiosity-card-skeleton";
 import { HomeDailyEmpty, HomeDailyError } from "@/components/home/home-daily-states";
 import { ROUTES } from "@/lib/constants/routes";
@@ -20,13 +21,19 @@ export function HomeScreen() {
       )}
     >
       <PageContainer className="max-w-md pb-10 pt-5 sm:pt-6">
-        <header className="mb-4" aria-labelledby="home-daily-heading">
+        <header className="mb-4 flex items-start justify-between gap-4" aria-labelledby="home-daily-heading">
           <h1
             id="home-daily-heading"
             className="text-xl font-semibold tracking-tight text-kuriosa-midnight-blue dark:text-slate-100"
           >
             Daily Challenge
           </h1>
+          {daily.data && (
+            <DailyMultiplierSpinner
+              multiplier={daily.data.dailyMultiplier ?? 1.5}
+              className="shrink-0"
+            />
+          )}
         </header>
 
         <section className="mb-6">
