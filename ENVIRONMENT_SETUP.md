@@ -98,7 +98,7 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 
 **Phase 6 E2E (manual)**: Sign in → complete one curiosity (challenge → Continue) → check **`/progress`** and celebration on **`#whats-next`**. Repeat same topic: no extra XP. See **`PHASE_6_PROGRESS_SYSTEM_INVENTORY.md`**.
 
-**Phase 9 AI (curiosity engine)**: `npm run ai:curiosity-followups` — generates follow-up questions for a sample topic. Requires migration `20260325120000_phase91_ai_engine.sql`. See **`AI_CURIOSITY_ENGINE_ARCHITECTURE.md`**.
+**Phase 9 AI (curiosity engine)**: `npm run ai:topic-followups -- --slug=why-sky-blue` — get or generate topic follow-ups (persists to ai_followups). `npm run ai:rabbit-holes -- --slug=why-sky-blue` — rabbit-hole suggestions (cached). Requires migrations `20260325120000_phase91_ai_engine.sql`, `20260325120001_phase92_ai_followups_unique.sql`. See **`GUIDED_CURIOSITY_EXPLORATION_ARCHITECTURE.md`**.
 
 ## Auth Redirect URLs (Supabase Dashboard)
 

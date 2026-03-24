@@ -32,10 +32,11 @@
 1. Run migration: `supabase db push`
 2. Ensure `OPENAI_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`
 
-## Test
+## Test (Phase 9.2)
 
 ```bash
-npm run ai:curiosity-followups
+npm run ai:topic-followups -- --slug=why-sky-blue
+npm run ai:rabbit-holes -- --slug=why-sky-blue
 ```
 
-Generates follow-up questions for "Why is the sky blue?" and caches in `ai_cache`. Requires migration applied first.
+See `GUIDED_CURIOSITY_EXPLORATION_ARCHITECTURE.md`.

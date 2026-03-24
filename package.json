@@ -23,7 +23,8 @@
     "seed:verify": "npx tsx src/lib/content/seeds/run-phase-4-seed-verification.ts",
     "progress:complete-example": "npx tsx src/lib/services/progress/examples/run-process-completion-example.ts",
     "progress:badges-example": "npx tsx src/lib/services/progress/examples/run-badge-evaluation-example.ts",
-    "ai:curiosity-followups": "npx tsx src/lib/services/ai/examples/run-generate-followups-example.ts"
+    "ai:topic-followups": "npx tsx src/lib/services/ai/examples/run-topic-followups-example.ts",
+    "ai:rabbit-holes": "npx tsx src/lib/services/ai/examples/run-topic-rabbit-holes-example.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",

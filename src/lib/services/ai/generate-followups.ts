@@ -1,23 +1,19 @@
 /**
  * Phase 9 — Generate follow-up questions for a topic.
- * Scaffolding: prompt → AI → parse → cache → moderation.
+ * Pure generator: prompt → AI → parse → moderation.
+ * Storage handled by getTopicFollowups (ai_followups).
  */
 
 import { buildFollowupPrompt } from "@/lib/ai/prompts/followup-prompt";
 import { runAICompletion } from "@/lib/ai/ai-client";
 import { parseStringArray } from "@/lib/ai/parse-ai-response";
-import { getOrSetAICache } from "@/lib/services/ai/get-or-set-ai-cache";
 import { moderateAIResponse } from "@/lib/services/ai/moderate-ai-response";
 import { checkAIRateLimit } from "@/lib/services/ai/ai-rate-limit";
 import type { FollowupGenerationInput } from "@/types/ai";
 
 export type GenerateFollowupsResult =
-  | { ok: true; questions: string[]; fromCache: boolean }
+  | { ok: true; questions: string[] }
   | { ok: false; error: string };
-
-function buildCacheKey(input: FollowupGenerationInput): string {
-  return `followups:${input.topicId}:${input.topicTitle.slice(0, 80)}`;
-}
 
 export async function generateFollowups(
   input: FollowupGenerationInput,
@@ -30,30 +26,21 @@ export async function generateFollowups(
     }
   }
 
-  const cacheResult = await getOrSetAICache(buildCacheKey(input), async () => {
-    const prompt = buildFollowupPrompt(input);
-    const completion = await runAICompletion(prompt, { temperature: 0.7 });
-    if (!completion.ok) {
-      throw new Error(completion.error);
-    }
-    const parsed = parseStringArray(completion.text);
-    if (!parsed.ok) {
-      throw new Error(parsed.error);
-    }
-    const mod = await moderateAIResponse(parsed.value.join("\n"));
-    if (!mod.ok || !mod.isSafe) {
-      throw new Error("Moderation check failed");
-    }
-    return parsed.value;
-  });
-
-  if (!cacheResult.ok) {
-    return { ok: false, error: cacheResult.error };
+  const prompt = buildFollowupPrompt(input);
+  const completion = await runAICompletion(prompt, { temperature: 0.7 });
+  if (!completion.ok) {
+    return { ok: false, error: completion.error };
   }
 
-  return {
-    ok: true,
-    questions: cacheResult.value,
-    fromCache: cacheResult.fromCache,
-  };
+  const parsed = parseStringArray(completion.text);
+  if (!parsed.ok) {
+    return { ok: false, error: parsed.error };
+  }
+
+  const mod = await moderateAIResponse(parsed.value.join("\n"));
+  if (!mod.ok || !mod.isSafe) {
+    return { ok: false, error: "Moderation check failed" };
+  }
+
+  return { ok: true, questions: parsed.value };
 }

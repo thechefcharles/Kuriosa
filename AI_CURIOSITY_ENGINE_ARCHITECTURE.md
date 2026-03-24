@@ -103,10 +103,11 @@ Answers are not cached; each question is unique. Followups and rabbit holes are 
 ## Test
 
 ```bash
-npm run ai:curiosity-followups
+npm run ai:topic-followups -- --slug=why-sky-blue
+npm run ai:rabbit-holes -- --slug=why-sky-blue
 ```
 
-Runs `generateFollowups()` for a sample topic. Requires migration and env vars.
+Requires migrations and env vars. See `GUIDED_CURIOSITY_EXPLORATION_ARCHITECTURE.md`.
 
 ## Key Files
 

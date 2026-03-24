@@ -1,12 +1,13 @@
 /**
  * Phase 9 — Generate rabbit-hole suggestions for a topic/question.
- * Scaffolding: prompt → AI → parse → cache → moderation.
+ * Uses ai_cache via standardized keys. No dedicated table.
  */
 
 import { buildRabbitHolePrompt } from "@/lib/ai/prompts/rabbit-hole-prompt";
 import { runAICompletion } from "@/lib/ai/ai-client";
 import { parseStringArray } from "@/lib/ai/parse-ai-response";
 import { getOrSetAICache } from "@/lib/services/ai/get-or-set-ai-cache";
+import { rabbitHolesCacheKey } from "@/lib/services/ai/ai-cache-keys";
 import { moderateAIResponse } from "@/lib/services/ai/moderate-ai-response";
 import { checkAIRateLimit } from "@/lib/services/ai/ai-rate-limit";
 import type { RabbitHoleGenerationInput } from "@/types/ai";
@@ -14,12 +15,6 @@ import type { RabbitHoleGenerationInput } from "@/types/ai";
 export type GenerateRabbitHolesResult =
   | { ok: true; suggestions: string[]; fromCache: boolean }
   | { ok: false; error: string };
-
-function buildCacheKey(input: RabbitHoleGenerationInput): string {
-  const base = `rabbitholes:${input.topicId}:${input.topicTitle.slice(0, 60)}`;
-  const q = input.questionText?.slice(0, 60) ?? "";
-  return q ? `${base}:${q}` : base;
-}
 
 export async function generateRabbitHoles(
   input: RabbitHoleGenerationInput,
@@ -32,7 +27,9 @@ export async function generateRabbitHoles(
     }
   }
 
-  const cacheResult = await getOrSetAICache(buildCacheKey(input), async () => {
+  const cacheKey = rabbitHolesCacheKey(input.topicId, input.questionText);
+
+  const cacheResult = await getOrSetAICache(cacheKey, async () => {
     const prompt = buildRabbitHolePrompt(input);
     const completion = await runAICompletion(prompt, { temperature: 0.7 });
     if (!completion.ok) {
