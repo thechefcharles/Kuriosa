@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCuriosityExperience } from "@/hooks/queries/useCuriosityExperience";
+import { useCompletedTopicIds } from "@/hooks/queries/useCompletedTopicIds";
 import type { CuriosityMode } from "@/components/curiosity/mode-toggle";
 import { ModeToggle } from "@/components/curiosity/mode-toggle";
 import { CuriosityHeader } from "@/components/curiosity/curiosity-header";
@@ -55,7 +56,7 @@ export function CuriosityExperienceScreen({ slug }: { slug: string }) {
         slug={slug}
       />
     );
-  }, [data, error, hasAudio, isError, isLoading, mode]);
+  }, [data, error, hasAudio, isError, isLoading, mode, slug]);
 
   return (
     <div
@@ -82,6 +83,12 @@ function ExperienceView({
   hasAudio: boolean;
   slug: string;
 }) {
+  const { isCompleted } = useCompletedTopicIds();
+  const [hasJustCompleted, setHasJustCompleted] = useState(false);
+  const hasCompletedChallenge =
+    isCompleted(experience.identity.id) || hasJustCompleted;
+  const handleConsumed = useCallback(() => setHasJustCompleted(true), []);
+
   useEffect(() => {
     initCuriosityModesSession(slug);
   }, [slug]);
@@ -139,7 +146,10 @@ function ExperienceView({
       <NextStepCallout slug={experience.identity.slug} />
 
       <section id="whats-next" className="scroll-mt-24 space-y-6">
-        <CompletionCelebrationHost topicSlug={slug} />
+        <CompletionCelebrationHost
+          topicSlug={slug}
+          onConsumed={handleConsumed}
+        />
         <ShareTopicCard
           topicId={experience.identity.id}
           slug={slug}
@@ -147,7 +157,10 @@ function ExperienceView({
           hookQuestion={experience.discoveryCard.hookQuestion}
           shortSummary={experience.discoveryCard.shortSummary}
         />
-        <PostChallengeExploration experience={experience} />
+        <PostChallengeExploration
+          experience={experience}
+          hasCompletedChallenge={hasCompletedChallenge}
+        />
       </section>
     </article>
   );

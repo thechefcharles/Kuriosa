@@ -126,8 +126,8 @@ export function ChallengeScreen({ slug }: { slug: string }) {
       </div>
 
       <header>
-        <p className="text-xs font-semibold uppercase tracking-wide text-kuriosa-electric-cyan">
-          {data.identity.title}
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {isBonus ? "Step 3" : "Step 2 of 3"} · {data.identity.title}
         </p>
         <h1 className="mt-1 text-2xl font-bold text-kuriosa-midnight-blue dark:text-slate-50">
           {isBonus ? "Bonus question" : "Quick challenge"}
@@ -135,7 +135,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
         <p className="mt-1 text-sm text-muted-foreground">
           {isBonus
             ? "One more — optional +10 XP if you get it."
-            : "One question — see how much stuck."}
+            : "One question — then we&apos;ll show you what&apos;s next."}
         </p>
       </header>
 

@@ -11,13 +11,23 @@ import { CompletionCelebrationCard } from "@/components/progress/completion-cele
 /**
  * Shows one-shot celebration after challenge → Continue when payload was stashed for this slug.
  */
-export function CompletionCelebrationHost({ topicSlug }: { topicSlug: string }) {
+export function CompletionCelebrationHost({
+  topicSlug,
+  onConsumed,
+}: {
+  topicSlug: string;
+  /** Called when a payload was consumed (user just completed challenge) */
+  onConsumed?: () => void;
+}) {
   const [payload, setPayload] = useState<CompletionCelebrationPayload | null>(null);
 
   useEffect(() => {
     const p = consumeCompletionCelebration(topicSlug);
-    if (p) setPayload(p);
-  }, [topicSlug]);
+    if (p) {
+      setPayload(p);
+      onConsumed?.();
+    }
+  }, [topicSlug, onConsumed]);
 
   if (!payload) return null;
 

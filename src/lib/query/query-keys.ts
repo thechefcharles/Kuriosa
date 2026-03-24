@@ -20,6 +20,8 @@ export const curiosityQueryKeys = {
 /** User-scoped progress reads (6.4). Always include real userId when known. */
 export const progressQueryKeys = {
   all: ["progress"] as const,
+  completedTopicIds: (userId: string) =>
+    [...progressQueryKeys.all, "completedTopicIds", userId] as const,
   summary: (userId: string) =>
     [...progressQueryKeys.all, "summary", userId] as const,
   badges: (userId: string) =>

@@ -131,7 +131,7 @@ export function ChallengeFeedback({
 
       {!showBonusOffer && !onContinueSlot ? (
         <p className="mt-3 text-center text-xs text-muted-foreground">
-          Saves your visit and scrolls to what&apos;s next.
+          Takes you back to your next paths.
         </p>
       ) : null}
     </div>

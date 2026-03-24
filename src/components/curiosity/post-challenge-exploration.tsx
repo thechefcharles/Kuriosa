@@ -19,9 +19,12 @@ import { cn } from "@/lib/utils";
 
 export function PostChallengeExploration({
   experience,
+  hasCompletedChallenge = false,
   className,
 }: {
   experience: LoadedCuriosityExperience;
+  /** True when user completed the challenge for this topic */
+  hasCompletedChallenge?: boolean;
   className?: string;
 }) {
   const currentSlug = experience.identity.slug;
@@ -40,6 +43,28 @@ export function PostChallengeExploration({
   const primaryTrail = displayTrails[0];
   const secondaryTrail = displayTrails[1];
   const [goDeeperOpen, setGoDeeperOpen] = useState(false);
+
+  if (!hasCompletedChallenge) {
+    return (
+      <section
+        className={cn(
+          "rounded-2xl border border-dashed border-violet-200/60 bg-violet-50/20 px-5 py-6 text-center dark:border-white/10 dark:bg-slate-950/30",
+          className
+        )}
+        aria-labelledby="whats-next-teaser"
+      >
+        <h2
+          id="whats-next-teaser"
+          className="text-base font-semibold text-kuriosa-midnight-blue dark:text-slate-200"
+        >
+          What&apos;s next?
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Finish the quick challenge to unlock what&apos;s next.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section

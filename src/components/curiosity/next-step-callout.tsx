@@ -15,13 +15,13 @@ export function NextStepCallout({ slug }: { slug: string }) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="text-xs font-semibold uppercase tracking-wide text-kuriosa-electric-cyan dark:text-kuriosa-electric-cyan/90">
-            Next
+            Next step
           </div>
           <h2 className="mt-1 text-lg font-bold text-kuriosa-midnight-blue dark:text-slate-50">
-            Ready for the challenge?
+            Lock it in
           </h2>
           <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
-            One quick question to lock in what you read.
+            One quick question before what&apos;s next.
           </p>
         </div>
 

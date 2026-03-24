@@ -40,6 +40,7 @@ export function getCompletionMattersLine(input: CompletionMattersInput): string 
   if (breakdown?.dailyBonusXp && breakdown.dailyBonusXp > 0) return "You completed today's pick.";
   if (breakdown?.randomBonusXp && breakdown.randomBonusXp > 0) return "You followed a random discovery.";
   if (input.xpEarned > 0) return "You're getting closer to your next level.";
+  if (wasCountedAsNewCompletion) return "You explored something new today.";
 
   return null;
 }

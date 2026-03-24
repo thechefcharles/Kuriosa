@@ -8,10 +8,36 @@ import { DailyCuriosityCardSkeleton } from "@/components/curiosity/daily-curiosi
 import { HomeDailyEmpty, HomeDailyError } from "@/components/home/home-daily-states";
 import { FeedMyCuriosityButton } from "@/components/curiosity/feed-my-curiosity-button";
 import { ROUTES } from "@/lib/constants/routes";
+import { getSessionCompletionCount } from "@/lib/progress/session-completion-tracker";
 import { cn } from "@/lib/utils";
+
+function getHomeHeaderCopy(
+  sessionCount: number,
+  isDailyCompleted: boolean
+): { eyebrow: string; title: string } {
+  if (sessionCount >= 2) {
+    return {
+      eyebrow: "Today's curiosity",
+      title: "You're on a roll",
+    };
+  }
+  if (sessionCount === 1) {
+    return {
+      eyebrow: "Today's curiosity",
+      title: isDailyCompleted ? "Ready for another?" : "1 curiosity explored today",
+    };
+  }
+  return {
+    eyebrow: "Today's curiosity",
+    title: "Start with today's pick.",
+  };
+}
 
 export function HomeScreen() {
   const daily = useDailyCuriosity();
+  const sessionCount = getSessionCompletionCount();
+  const isDailyCompleted = daily.data?.isCompleted ?? false;
+  const { eyebrow, title } = getHomeHeaderCopy(sessionCount, isDailyCompleted);
 
   return (
     <div
@@ -27,10 +53,10 @@ export function HomeScreen() {
             id="home-daily-heading"
             className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
-            Today&apos;s curiosity
+            {eyebrow}
           </p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight text-kuriosa-midnight-blue dark:text-slate-100">
-            Start with today&apos;s pick.
+            {title}
           </h1>
         </header>
 
@@ -56,7 +82,7 @@ export function HomeScreen() {
           aria-label="Random curiosity"
         >
           <p className="mb-3 text-sm font-medium text-muted-foreground">
-            Prefer a surprise?
+            {sessionCount >= 1 ? "Try a surprise" : "Prefer a surprise?"}
           </p>
           <FeedMyCuriosityButton
             dailyTopicSlug={daily.data?.experience.identity.slug ?? null}
