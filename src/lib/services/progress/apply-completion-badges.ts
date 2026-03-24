@@ -14,11 +14,12 @@ export type ApplyCompletionBadgesOutcome = {
 
 export async function applyCompletionBadgeUnlocks(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  completedAtIso?: string | null
 ): Promise<ApplyCompletionBadgesOutcome> {
   const warnings: string[] = [];
 
-  const evalResult = await evaluateBadgeEligibility(supabase, userId);
+  const evalResult = await evaluateBadgeEligibility(supabase, userId, completedAtIso);
   if ("error" in evalResult) {
     warnings.push(`Badge evaluation skipped: ${evalResult.error}`);
     return { unlockedBadges: [], warnings };

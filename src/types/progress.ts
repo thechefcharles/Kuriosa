@@ -9,9 +9,13 @@ export type CompletionEventInput = {
   challengeCorrect: boolean;
   /** True when bonus question was attempted and answered correctly. */
   bonusCorrect?: boolean;
+  /** True when main challenge was correct on first try (no retry). */
+  firstTryCorrect?: boolean;
   wasDailyFeature: boolean;
   wasRandomSpin: boolean;
   usedListenMode: boolean;
+  /** Topic difficulty for multiplier: beginner, intermediate, advanced, etc. */
+  difficultyLevel?: string | null;
 };
 
 /** Full payload for the progress processor (server-validated). */
@@ -27,11 +31,15 @@ export type CuriosityCompletionPayload = {
   challengeAttempted: boolean;
   challengeCorrect: boolean;
   bonusCorrect?: boolean;
+  /** True when main challenge correct on first try (no retry). */
+  firstTryCorrect?: boolean;
   wasDailyFeature: boolean;
   wasRandomSpin: boolean;
   usedListenMode: boolean;
   /** Optional; loaded from topics if omitted */
   categoryId?: string | null;
+  /** Topic difficulty for XP multiplier; loaded from topics if omitted */
+  difficultyLevel?: string | null;
 };
 
 /** Body sent from the client to record a challenge-flow completion (thin API). */
@@ -42,6 +50,8 @@ export type CompleteCuriosityClientPayload = {
   challengeCorrect: boolean;
   /** True when user attempted bonus question and got it right. */
   bonusCorrect?: boolean;
+  /** True when main challenge correct on first try (no retry). */
+  firstTryCorrect?: boolean;
   wasDailyFeature: boolean;
   wasRandomSpin: boolean;
 };
@@ -51,6 +61,7 @@ export type RewardBreakdown = {
   challengeXp: number;
   perfectBonusXp: number;
   bonusQuestionXp: number;
+  firstTryBonusXp: number;
   dailyBonusXp: number;
   randomBonusXp: number;
   listenBonusXp: number;
@@ -105,6 +116,8 @@ export type ProgressUpdateSuccess = {
   wasCountedAsNewCompletion: boolean;
   levelBefore: number;
   levelAfter: number;
+  /** XP still needed for next level (after this completion). */
+  xpToNextLevel?: number;
   streakBefore: number;
   streakAfter: number;
   curiosityScoreBefore: number;

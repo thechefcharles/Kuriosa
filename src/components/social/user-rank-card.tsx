@@ -50,7 +50,7 @@ export function UserRankCard({
               Not ranked yet
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Explore a curiosity topic to earn your place {windowLabel(window)}.
+              Explore a curiosity to earn your place {windowLabel(window)}.
               Every discovery counts.
             </p>
           </div>

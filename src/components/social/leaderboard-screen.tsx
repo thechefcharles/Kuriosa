@@ -24,9 +24,17 @@ export function LeaderboardScreen() {
     setWindow(w);
   }, []);
 
+  const windowCopy =
+    window === "weekly"
+      ? "Based on XP earned this week."
+      : window === "monthly"
+        ? "Based on XP earned this month."
+        : "Based on curiosity score — depth, breadth, and consistency.";
+
   return (
     <div className="space-y-6">
       <LeaderboardWindowTabs value={window} onValueChange={handleWindowChange} />
+      <p className="text-sm text-muted-foreground">{windowCopy}</p>
 
       <UserRankCard
         position={position.data ?? null}

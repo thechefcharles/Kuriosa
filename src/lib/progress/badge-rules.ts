@@ -12,6 +12,9 @@ export const BADGE_CRITERIA_TYPES = [
   "quiz_perfect_scores",
   "random_completions",
   "category_completions",
+  "categories_in_one_day",
+  "comeback_gap",
+  "advanced_in_row",
 ] as const;
 
 export type BadgeCriteriaType = (typeof BADGE_CRITERIA_TYPES)[number];
@@ -41,6 +44,12 @@ export type BadgeEvaluationContext = {
   randomCompletionCount: number;
   /** Rewarded completions per category slug, e.g. { science: 3 }. */
   completionsByCategorySlug: Record<string, number>;
+  /** Max distinct categories in any single calendar day. */
+  maxCategoriesInOneDay: number;
+  /** Days since last activity before this completion (0 = same day or yesterday). */
+  comebackGapDays: number;
+  /** Longest run of intermediate/advanced/expert topics in a row (by completed_at). */
+  advancedInRowMax: number;
 };
 
 function parsePositiveInt(raw: string | null | undefined): number | null {
@@ -109,6 +118,15 @@ export function isBadgeEligible(
       const n = ctx.completionsByCategorySlug[parsed.categorySlug] ?? 0;
       return n >= parsed.required;
     }
+
+    case "categories_in_one_day":
+      return threshold != null && ctx.maxCategoriesInOneDay >= threshold;
+
+    case "comeback_gap":
+      return threshold != null && ctx.comebackGapDays >= threshold;
+
+    case "advanced_in_row":
+      return threshold != null && ctx.advancedInRowMax >= threshold;
 
     default:
       return false;

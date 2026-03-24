@@ -8,6 +8,12 @@ import { Sparkles, Trophy, HelpCircle } from "lucide-react";
 const CURIOSITY_SCORE_EXPLANATION =
   "Your curiosity score reflects how much you explore: topics completed, quiz accuracy, variety of categories, and your streak. It’s a simple way to see your learning journey — not a competition.";
 
+const CURIOSITY_SCORE_TIPS = [
+  "Explore more categories to grow this.",
+  "Accuracy and variety both help.",
+  "Streaks add momentum.",
+];
+
 export function ProgressHeroCard({ summary }: { summary: UserProgressSummary }) {
   const labelId = "level-progress-label";
   const [showScoreHelp, setShowScoreHelp] = useState(false);
@@ -53,9 +59,14 @@ export function ProgressHeroCard({ summary }: { summary: UserProgressSummary }) 
               </button>
             </div>
             {showScoreHelp ? (
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                {CURIOSITY_SCORE_EXPLANATION}
-              </p>
+              <div className="space-y-2 text-xs leading-relaxed text-muted-foreground">
+                <p>{CURIOSITY_SCORE_EXPLANATION}</p>
+                <ul className="list-inside list-disc space-y-0.5 pt-1">
+                  {CURIOSITY_SCORE_TIPS.map((tip) => (
+                    <li key={tip}>{tip}</li>
+                  ))}
+                </ul>
+              </div>
             ) : null}
           </div>
         </div>
@@ -75,6 +86,11 @@ export function ProgressHeroCard({ summary }: { summary: UserProgressSummary }) 
           {summary.xpIntoCurrentLevel.toLocaleString()} /{" "}
           {summary.xpRequiredForCurrentLevel.toLocaleString()} XP this level
         </p>
+        {summary.nextLevelXP > 0 && summary.nextLevelXP <= 50 ? (
+          <p className="mt-1 text-xs text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
+            You&apos;re getting close.
+          </p>
+        ) : null}
       </div>
     </div>
   );

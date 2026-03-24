@@ -66,13 +66,26 @@ async function loadUnlockedState(
   return { ok: true, ids, slugs };
 }
 
+function parseUtcDateOnly(iso: string): string {
+  return iso.slice(0, 10);
+}
+
+function daysBetween(dateStrA: string, dateStrB: string): number {
+  const a = new Date(dateStrA + "T12:00:00Z").getTime();
+  const b = new Date(dateStrB + "T12:00:00Z").getTime();
+  return Math.floor(Math.abs(b - a) / (24 * 60 * 60 * 1000));
+}
+
+const ADVANCED_LEVELS = new Set(["intermediate", "advanced", "expert"]);
+
 async function buildEvaluationContext(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  completedAtIso: string | null
 ): Promise<BadgeEvaluationContext | null> {
   const { data: profile, error: pErr } = await supabase
     .from("profiles")
-    .select("current_streak, longest_streak")
+    .select("current_streak, longest_streak, last_active_date")
     .eq("id", userId)
     .maybeSingle();
 
@@ -80,9 +93,10 @@ async function buildEvaluationContext(
 
   const { data: rows, error: hErr } = await supabase
     .from("user_topic_history")
-    .select("topic_id, was_random_spin, challenge_correct")
+    .select("topic_id, was_random_spin, challenge_correct, completed_at")
     .eq("user_id", userId)
-    .eq("rewards_granted", true);
+    .eq("rewards_granted", true)
+    .not("completed_at", "is", null);
 
   if (hErr) return null;
 
@@ -100,11 +114,13 @@ async function buildEvaluationContext(
   const topicIds = [...new Set(history.map((r) => String(r.topic_id)))];
   const completionsByCategorySlug: Record<string, number> = {};
   let categoriesExplored = 0;
+  let maxCategoriesInOneDay = 0;
+  let advancedInRowMax = 0;
 
   if (topicIds.length) {
     const { data: topics } = await supabase
       .from("topics")
-      .select("id, category_id")
+      .select("id, category_id, difficulty_level")
       .in("id", topicIds);
 
     const catIds = [
@@ -129,7 +145,16 @@ async function buildEvaluationContext(
       ])
     );
 
+    const topicToDifficulty = new Map(
+      (topics ?? []).map((t) => [
+        String(t.id),
+        String((t as { difficulty_level?: string | null }).difficulty_level ?? "").toLowerCase(),
+      ])
+    );
+
     const distinctCats = new Set<string>();
+    const byDate = new Map<string, Set<string>>();
+
     for (const row of history) {
       const slug = topicToSlug.get(String(row.topic_id));
       if (slug) {
@@ -137,8 +162,45 @@ async function buildEvaluationContext(
         completionsByCategorySlug[slug] =
           (completionsByCategorySlug[slug] ?? 0) + 1;
       }
+      const completedAt = (row as { completed_at?: string | null }).completed_at;
+      if (completedAt && slug) {
+        const d = parseUtcDateOnly(completedAt);
+        if (!byDate.has(d)) byDate.set(d, new Set());
+        byDate.get(d)!.add(slug);
+      }
     }
     categoriesExplored = distinctCats.size;
+
+    for (const cats of byDate.values()) {
+      maxCategoriesInOneDay = Math.max(maxCategoriesInOneDay, cats.size);
+    }
+
+    const sorted = [...history]
+      .filter((r) => (r as { completed_at?: string }).completed_at)
+      .sort(
+        (a, b) =>
+          new Date((b as { completed_at: string }).completed_at).getTime() -
+          new Date((a as { completed_at: string }).completed_at).getTime()
+      );
+
+    let run = 0;
+    for (const row of sorted) {
+      const diff = topicToDifficulty.get(String(row.topic_id)) ?? "";
+      if (ADVANCED_LEVELS.has(diff)) {
+        run++;
+        advancedInRowMax = Math.max(advancedInRowMax, run);
+      } else {
+        run = 0;
+      }
+    }
+  }
+
+  let comebackGapDays = 0;
+  if (completedAtIso && profile.last_active_date) {
+    const completedDate = parseUtcDateOnly(completedAtIso);
+    const lastDate = String(profile.last_active_date).slice(0, 10);
+    const diff = daysBetween(lastDate, completedDate);
+    if (diff > 1) comebackGapDays = diff;
   }
 
   return {
@@ -150,15 +212,20 @@ async function buildEvaluationContext(
     perfectChallengeCount,
     randomCompletionCount,
     completionsByCategorySlug,
+    maxCategoriesInOneDay,
+    comebackGapDays,
+    advancedInRowMax,
   };
 }
 
 /**
  * Determines which badge definitions the user newly qualifies for (excluding already unlocked).
+ * @param completedAtIso - Optional. When provided (e.g. from completion flow), used for comeback_gap.
  */
 export async function evaluateBadgeEligibility(
   supabase: SupabaseClient,
-  userId: string
+  userId: string,
+  completedAtIso?: string | null
 ): Promise<BadgeEligibilityResult | { error: string }> {
   const uid = userId.trim();
   if (!uid) return { error: "Missing user id" };
@@ -166,7 +233,7 @@ export async function evaluateBadgeEligibility(
   const [definitions, unlocked, ctx] = await Promise.all([
     loadBadgeDefinitions(supabase),
     loadUnlockedState(supabase, uid),
-    buildEvaluationContext(supabase, uid),
+    buildEvaluationContext(supabase, uid, completedAtIso ?? null),
   ]);
 
   if (!unlocked.ok) {

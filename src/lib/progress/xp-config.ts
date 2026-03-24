@@ -16,6 +16,17 @@ export const XP_CONFIG = {
   RANDOM_COMPLETION_BONUS_XP: 5,
   /** Small nod for using narration */
   LISTEN_MODE_BONUS_XP: 3,
+  /** Main challenge correct on first try (no retry) */
+  FIRST_TRY_CORRECT_BONUS_XP: 5,
+} as const;
+
+/** Difficulty multipliers: beginner=1.0, intermediate=1.1, advanced=1.2 */
+export const DIFFICULTY_MULTIPLIERS = {
+  beginner: 1.0,
+  easy: 1.0,
+  intermediate: 1.1,
+  advanced: 1.2,
+  expert: 1.2,
 } as const;
 
 export type XpConfigKey = keyof typeof XP_CONFIG;

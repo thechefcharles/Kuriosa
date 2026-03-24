@@ -38,6 +38,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [recallText, setRecallText] = useState("");
   const [result, setResult] = useState<ChallengeValidationResult | null>(null);
+  const [hasRetried, setHasRetried] = useState(false);
 
   const canSubmit = useMemo(() => {
     if (!activeChallenge) return false;
@@ -67,6 +68,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
   );
 
   const handleRetry = useCallback(() => {
+    setHasRetried(true);
     setResult(null);
     setSelectedIndex(null);
     setRecallText("");
@@ -185,6 +187,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
             onRetry={handleRetry}
             lessonText={lessonText}
             showBonusOffer={showBonusOffer}
+            firstTryCorrect={result.isCorrect && !hasRetried}
             onContinueSlot={
               showBonusOffer ? (
                 <ChallengeBonusOffer
@@ -194,6 +197,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
                       slug={slug}
                       topicId={data.identity.id}
                       challengeCorrect={true}
+                      firstTryCorrect
                     />
                   }
                 />
@@ -211,6 +215,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
           onRetry={handleRetry}
           lessonText={lessonText}
           bonusCorrect={result.isCorrect}
+          firstTryCorrect={false}
         />
       ) : null}
     </div>

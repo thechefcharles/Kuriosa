@@ -15,7 +15,7 @@ import type {
   ProgressUpdateSuccess,
 } from "@/types/progress";
 import { calculateRewards } from "@/lib/progress/calculate-rewards";
-import { getLevelFromXP } from "@/lib/progress/level-config";
+import { getLevelFromXP, getXPForNextLevel } from "@/lib/progress/level-config";
 import { calculateCuriosityScore } from "@/lib/progress/curiosity-score";
 import { calculateNextStreak } from "@/lib/progress/streak-utils";
 import { applyCompletionBadgeUnlocks } from "@/lib/services/progress/apply-completion-badges";
@@ -44,15 +44,20 @@ function mergeModeUsed(
   return "read";
 }
 
-function toRewardEvent(p: CuriosityCompletionPayload): CompletionEventInput {
+function toRewardEvent(
+  p: CuriosityCompletionPayload,
+  topicDifficultyLevel: string | null | undefined
+): CompletionEventInput {
   return {
     lessonCompleted: p.lessonCompleted,
     challengeAttempted: p.challengeAttempted,
     challengeCorrect: p.challengeCorrect,
     bonusCorrect: p.bonusCorrect,
+    firstTryCorrect: p.firstTryCorrect,
     wasDailyFeature: p.wasDailyFeature,
     wasRandomSpin: p.wasRandomSpin,
     usedListenMode: p.usedListenMode,
+    difficultyLevel: p.difficultyLevel ?? topicDifficultyLevel,
   };
 }
 
@@ -146,7 +151,7 @@ export async function processCuriosityCompletion(
 
   const { data: topic, error: topicErr } = await supabase
     .from("topics")
-    .select("id, slug")
+    .select("id, slug, difficulty_level")
     .eq("id", topicId)
     .maybeSingle();
 
@@ -253,7 +258,8 @@ export async function processCuriosityCompletion(
     }
   }
 
-  const rewards = calculateRewards(toRewardEvent(payload));
+  const topicDifficulty = (topic as { difficulty_level?: string | null })?.difficulty_level;
+  const rewards = calculateRewards(toRewardEvent(payload, topicDifficulty));
 
   const { data: claimed, error: claimErr } = await supabase
     .from("user_topic_history")
@@ -346,13 +352,14 @@ export async function processCuriosityCompletion(
     };
   }
 
-  const badgeOutcome = await applyCompletionBadgeUnlocks(supabase, userId);
+  const badgeOutcome = await applyCompletionBadgeUnlocks(supabase, userId, completedAtIso);
 
   const data: ProgressUpdateSuccess = {
     xpEarned: rewards.xpEarned,
     wasCountedAsNewCompletion: true,
     levelBefore,
     levelAfter,
+    xpToNextLevel: getXPForNextLevel(newXp),
     streakBefore: p.current_streak,
     streakAfter: streak,
     curiosityScoreBefore: p.curiosity_score,

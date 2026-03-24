@@ -12,6 +12,7 @@ export type RewardBreakdownPayload = {
   challengeXp: number;
   perfectBonusXp: number;
   bonusQuestionXp: number;
+  firstTryBonusXp: number;
   dailyBonusXp: number;
   randomBonusXp: number;
   listenBonusXp: number;
@@ -24,6 +25,8 @@ export type CompletionCelebrationPayload = {
   wasCountedAsNewCompletion: boolean;
   levelBefore: number;
   levelAfter: number;
+  /** XP still needed for next level (for "close to level" hint). */
+  xpToNextLevel?: number;
   streakBefore: number;
   streakAfter: number;
   curiosityScoreBefore: number;
@@ -59,21 +62,17 @@ function normalizePayload(raw: unknown): CompletionCelebrationPayload | null {
   let breakdown: CompletionCelebrationPayload["breakdown"] = null;
   if (o.breakdown && typeof o.breakdown === "object") {
     const b = o.breakdown as Record<string, unknown>;
-    if (
-      [b.lessonXp, b.challengeXp, b.perfectBonusXp, b.bonusQuestionXp, b.dailyBonusXp, b.randomBonusXp, b.listenBonusXp].every(
-        (v) => typeof v === "number" && Number.isFinite(v)
-      )
-    ) {
-      breakdown = {
-        lessonXp: b.lessonXp as number,
-        challengeXp: b.challengeXp as number,
-        perfectBonusXp: b.perfectBonusXp as number,
-        bonusQuestionXp: b.bonusQuestionXp as number,
-        dailyBonusXp: b.dailyBonusXp as number,
-        randomBonusXp: b.randomBonusXp as number,
-        listenBonusXp: b.listenBonusXp as number,
-      };
-    }
+    const def = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : 0);
+    breakdown = {
+      lessonXp: def(b.lessonXp),
+      challengeXp: def(b.challengeXp),
+      perfectBonusXp: def(b.perfectBonusXp),
+      bonusQuestionXp: def(b.bonusQuestionXp),
+      firstTryBonusXp: def(b.firstTryBonusXp),
+      dailyBonusXp: def(b.dailyBonusXp),
+      randomBonusXp: def(b.randomBonusXp),
+      listenBonusXp: def(b.listenBonusXp),
+    };
   }
   const badges = o.unlockedBadges;
   if (!Array.isArray(badges)) return null;
@@ -92,6 +91,8 @@ function normalizePayload(raw: unknown): CompletionCelebrationPayload | null {
   });
   if (unlockedBadges.some((x) => x === null)) return null;
 
+  const xpToNextLevel = isFiniteNumber(o.xpToNextLevel) ? o.xpToNextLevel : undefined;
+
   return {
     topicSlug: o.topicSlug.trim(),
     storedAtMs,
@@ -99,6 +100,7 @@ function normalizePayload(raw: unknown): CompletionCelebrationPayload | null {
     wasCountedAsNewCompletion: o.wasCountedAsNewCompletion,
     levelBefore: o.levelBefore,
     levelAfter: o.levelAfter,
+    xpToNextLevel,
     streakBefore: o.streakBefore,
     streakAfter: o.streakAfter,
     curiosityScoreBefore: o.curiosityScoreBefore,

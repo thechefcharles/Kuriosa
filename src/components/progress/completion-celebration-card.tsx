@@ -2,6 +2,7 @@ import type {
   CompletionCelebrationPayload,
   RewardBreakdownPayload,
 } from "@/lib/progress/completion-celebration-storage";
+import { getCompletionMattersLine } from "@/lib/progress/completion-matters-line";
 import { X, Sparkles, TrendingUp, Flame, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ function xpBreakdownLines(b: RewardBreakdownPayload) {
   if (b.challengeXp > 0) lines.push({ label: "Challenge", xp: b.challengeXp });
   if (b.perfectBonusXp > 0) lines.push({ label: "Perfect run", xp: b.perfectBonusXp });
   if (b.bonusQuestionXp > 0) lines.push({ label: "Bonus question", xp: b.bonusQuestionXp });
+  if (b.firstTryBonusXp > 0) lines.push({ label: "First-try correct", xp: b.firstTryBonusXp });
   if (b.dailyBonusXp > 0) lines.push({ label: "Daily feature", xp: b.dailyBonusXp });
   if (b.randomBonusXp > 0) lines.push({ label: "Spin discovery", xp: b.randomBonusXp });
   if (b.listenBonusXp > 0) lines.push({ label: "Listen mode", xp: b.listenBonusXp });
@@ -33,11 +35,30 @@ export function CompletionCelebrationCard({
   const scoreUp = payload.curiosityScoreAfter > payload.curiosityScoreBefore;
   const hasBadges = payload.unlockedBadges.length > 0;
   const showXp = payload.wasCountedAsNewCompletion && payload.xpEarned > 0;
+  const mattersLine = getCompletionMattersLine({
+    wasCountedAsNewCompletion: payload.wasCountedAsNewCompletion,
+    xpEarned: payload.xpEarned,
+    levelBefore: payload.levelBefore,
+    levelAfter: payload.levelAfter,
+    streakBefore: payload.streakBefore,
+    streakAfter: payload.streakAfter,
+    curiosityScoreBefore: payload.curiosityScoreBefore,
+    curiosityScoreAfter: payload.curiosityScoreAfter,
+    breakdown: payload.breakdown,
+    unlockedBadgesCount: payload.unlockedBadges.length,
+  });
+  const closeToLevel =
+    !leveledUp &&
+    showXp &&
+    payload.xpToNextLevel != null &&
+    payload.xpToNextLevel > 0 &&
+    payload.xpToNextLevel <= 50;
   const breakdownLines = payload.breakdown ? xpBreakdownLines(payload.breakdown) : [];
   const hasBonusXp =
     payload.breakdown &&
     (payload.breakdown.perfectBonusXp > 0 ||
       payload.breakdown.bonusQuestionXp > 0 ||
+      payload.breakdown.firstTryBonusXp > 0 ||
       payload.breakdown.dailyBonusXp > 0 ||
       payload.breakdown.randomBonusXp > 0 ||
       payload.breakdown.listenBonusXp > 0);
@@ -80,6 +101,16 @@ export function CompletionCelebrationCard({
               ? "Here’s what you earned."
               : "Your progress is up to date."}
           </p>
+          {mattersLine ? (
+            <p className="mt-1.5 text-sm text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
+              {mattersLine}
+            </p>
+          ) : null}
+          {closeToLevel ? (
+            <p className="mt-1 text-xs text-muted-foreground">
+              One more curiosity could do it.
+            </p>
+          ) : null}
           {sessionCompletionCount != null && sessionCompletionCount >= 2 ? (
             <p className="mt-2 text-sm font-medium text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
               {sessionCompletionCount === 2 ? "You're on a roll" : `${sessionCompletionCount} curiosities explored today`}
@@ -115,7 +146,7 @@ export function CompletionCelebrationCard({
                     className={cn(
                       "flex justify-between text-xs",
                       hasBonusXp &&
-                        ["Bonus question", "Perfect run", "Daily feature", "Spin discovery", "Listen mode"].includes(label)
+                        ["Bonus question", "Perfect run", "First-try correct", "Daily feature", "Spin discovery", "Listen mode"].includes(label)
                         ? "text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan"
                         : "text-muted-foreground"
                     )}
@@ -156,16 +187,18 @@ export function CompletionCelebrationCard({
 
         {hasBadges ? (
           <li className="rounded-lg border border-violet-200/60 bg-violet-50/50 px-3 py-2 dark:border-white/10 dark:bg-white/5">
-            <div className="flex items-center gap-2 font-medium text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
-              <Award className="h-4 w-4 shrink-0" />
-              New badge{payload.unlockedBadges.length > 1 ? "s" : ""}
+            <div className="flex items-center gap-2 font-semibold text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
+              <Award className="h-4 w-4 shrink-0" aria-hidden />
+              New badge{payload.unlockedBadges.length > 1 ? "s" : ""} unlocked
             </div>
-            <ul className="mt-2 space-y-1.5 text-foreground">
+            <ul className="mt-2 space-y-2 text-foreground">
               {payload.unlockedBadges.map((b) => (
                 <li key={b.slug} className="text-sm">
-                  <span className="font-medium">{b.name}</span>
+                  <span className="font-semibold">{b.name}</span>
                   {b.description ? (
-                    <span className="text-muted-foreground"> — {b.description}</span>
+                    <span className="block mt-0.5 text-muted-foreground">
+                      {b.description}
+                    </span>
                   ) : null}
                 </li>
               ))}

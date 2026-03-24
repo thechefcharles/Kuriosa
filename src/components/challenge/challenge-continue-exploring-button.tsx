@@ -21,12 +21,15 @@ export function ChallengeContinueExploringButton({
   topicId,
   challengeCorrect,
   bonusCorrect,
+  firstTryCorrect = false,
 }: {
   slug: string;
   topicId: string;
   challengeCorrect: boolean;
   /** True when user attempted bonus question and got it right. */
   bonusCorrect?: boolean;
+  /** True when main challenge correct on first try (no retry). */
+  firstTryCorrect?: boolean;
 }) {
   const router = useRouter();
   const { mutateAsync, isPending } = useRecordCuriosityCompletion();
@@ -42,6 +45,7 @@ export function ChallengeContinueExploringButton({
         modeUsed: getModeUsedLabel(slug),
         challengeCorrect,
         bonusCorrect,
+        firstTryCorrect,
         wasDailyFeature,
         wasRandomSpin,
       });
@@ -60,6 +64,7 @@ export function ChallengeContinueExploringButton({
             wasCountedAsNewCompletion: d.wasCountedAsNewCompletion,
             levelBefore: d.levelBefore,
             levelAfter: d.levelAfter,
+            xpToNextLevel: d.xpToNextLevel,
             streakBefore: d.streakBefore,
             streakAfter: d.streakAfter,
             curiosityScoreBefore: d.curiosityScoreBefore,

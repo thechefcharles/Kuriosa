@@ -22,6 +22,7 @@ export function ChallengeFeedback({
   lessonText,
   showBonusOffer,
   bonusCorrect,
+  firstTryCorrect = false,
   onContinueSlot,
 }: {
   slug: string;
@@ -34,6 +35,8 @@ export function ChallengeFeedback({
   showBonusOffer?: boolean;
   /** When showing post-bonus feedback, pass bonus result for completion */
   bonusCorrect?: boolean;
+  /** True when main challenge correct on first try (no retry) */
+  firstTryCorrect?: boolean;
   /** Slot for Continue button when showBonusOffer (parent renders it) */
   onContinueSlot?: React.ReactNode;
 }) {
@@ -117,6 +120,7 @@ export function ChallengeFeedback({
             topicId={topicId}
             challengeCorrect={ok}
             bonusCorrect={bonusCorrect}
+            firstTryCorrect={firstTryCorrect}
           />
         </div>
       ) : null}
