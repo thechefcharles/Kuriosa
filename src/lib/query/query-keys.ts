@@ -45,6 +45,13 @@ export const discoveryQueryKeys = {
     ["discovery", "suggested", userId ?? "guest"] as const,
 } as const;
 
+/** Phase 10.4 — Activity feed. */
+export const activityFeedQueryKeys = {
+  all: ["activity-feed"] as const,
+  list: (limit?: number, offset?: number) =>
+    [...activityFeedQueryKeys.all, "list", limit ?? 20, offset ?? 0] as const,
+} as const;
+
 /** Phase 10.3 — Leaderboard. */
 export const leaderboardQueryKeys = {
   all: ["leaderboard"] as const,

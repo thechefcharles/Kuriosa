@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { label: "Home", href: ROUTES.home },
   { label: "Discover", href: ROUTES.discover },
+  { label: "Community", href: ROUTES.leaderboard },
   { label: "Progress", href: ROUTES.progress },
   { label: "Profile", href: ROUTES.profile },
 ] as const;

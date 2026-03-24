@@ -4,6 +4,7 @@ export const ROUTES = {
   discover: "/discover",
   discoverCategory: (slug: string) => `/discover/category/${slug}`,
   progress: "/progress",
+  leaderboard: "/leaderboard",
   profile: "/profile",
   signIn: "/auth/sign-in",
   signUp: "/auth/sign-up",
