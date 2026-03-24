@@ -45,13 +45,20 @@ export async function getDailyCuriosity(
 
   const { data: row, error } = await supabase
     .from("daily_curiosity")
-    .select("topic_id, theme, date, daily_multiplier")
+    .select("topic_id, theme, date")
     .eq("date", date)
     .maybeSingle();
 
   if (error || !row?.topic_id) {
     return null;
   }
+
+  const { data: multRow } = await supabase
+    .from("daily_curiosity")
+    .select("daily_multiplier")
+    .eq("date", date)
+    .maybeSingle();
+  const rawMult = multRow && "daily_multiplier" in multRow ? (multRow as { daily_multiplier?: number | null }).daily_multiplier : null;
 
   const topicId = String(row.topic_id);
   const experience = await loadCuriosityExperience(supabase, { topicId });
@@ -82,7 +89,6 @@ export async function getDailyCuriosity(
     }
   }
 
-  const rawMult = (row as { daily_multiplier?: number | null }).daily_multiplier;
   const dailyMultiplier =
     rawMult != null && Number.isFinite(Number(rawMult))
       ? Math.min(3, Math.max(1, Number(rawMult)))

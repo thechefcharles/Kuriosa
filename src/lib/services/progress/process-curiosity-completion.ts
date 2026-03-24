@@ -175,7 +175,7 @@ export async function processCuriosityCompletion(
   const { data: profile, error: profErr } = await supabase
     .from("profiles")
     .select(
-      "total_xp, current_level, curiosity_score, current_streak, longest_streak, last_active_date, correct_streak, longest_correct_streak"
+      "total_xp, current_level, curiosity_score, current_streak, longest_streak, last_active_date"
     )
     .eq("id", userId)
     .maybeSingle();
@@ -191,8 +191,6 @@ export async function processCuriosityCompletion(
     current_streak: number;
     longest_streak: number;
     last_active_date: string | null;
-    correct_streak?: number;
-    longest_correct_streak?: number;
   };
 
   const levelBefore = getLevelFromXP(p.total_xp);
@@ -333,14 +331,6 @@ export async function processCuriosityCompletion(
     : p.longest_streak;
   const today = now.toISOString().slice(0, 10);
 
-  const currCorrect = p.correct_streak ?? 0;
-  const longCorrect = p.longest_correct_streak ?? 0;
-  const correctResult = calculateNextCorrectStreak(
-    payload.challengeCorrect,
-    currCorrect,
-    longCorrect
-  );
-
   const scoreInputs = await fetchScoreInputs(supabase, userId);
   const curiosityScoreAfter = calculateCuriosityScore({
     topicsCompleted: scoreInputs.topicsCompleted,
@@ -355,11 +345,27 @@ export async function processCuriosityCompletion(
     curiosity_score: curiosityScoreAfter,
     current_streak: streak,
     longest_streak: longest,
-    correct_streak: correctResult.nextCorrectStreak,
-    longest_correct_streak: correctResult.longestCorrectStreak,
     last_active_date: today,
     updated_at: completedAtIso,
   };
+
+  const { data: profileWithCorrect } = await supabase
+    .from("profiles")
+    .select("correct_streak, longest_correct_streak")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profileWithCorrect && "correct_streak" in profileWithCorrect) {
+    const currCorrect = Number(profileWithCorrect.correct_streak) || 0;
+    const longCorrect = Number(profileWithCorrect.longest_correct_streak) || 0;
+    const correctResult = calculateNextCorrectStreak(
+      payload.challengeCorrect,
+      currCorrect,
+      longCorrect
+    );
+    profileUpdate.correct_streak = correctResult.nextCorrectStreak;
+    profileUpdate.longest_correct_streak = correctResult.longestCorrectStreak;
+  }
 
   const { error: profUp } = await supabase
     .from("profiles")
@@ -368,24 +374,24 @@ export async function processCuriosityCompletion(
 
   const categoryId = (topic as { category_id?: string | null }).category_id;
   if (categoryId && rewards.xpEarned > 0) {
-    const { data: catRow } = await supabase
+    const { data: catRow, error: catErr } = await supabase
       .from("user_category_xp")
       .select("total_xp")
       .eq("user_id", userId)
       .eq("category_id", categoryId)
       .maybeSingle();
-
-    const existing = catRow as { total_xp?: number } | null;
-    const prev = existing?.total_xp ?? 0;
-    await supabase.from("user_category_xp").upsert(
-      {
-        user_id: userId,
-        category_id: categoryId,
-        total_xp: prev + rewards.xpEarned,
-        updated_at: completedAtIso,
-      },
-      { onConflict: "user_id,category_id" }
-    );
+    if (!catErr) {
+      const prev = (catRow as { total_xp?: number } | null)?.total_xp ?? 0;
+      await supabase.from("user_category_xp").upsert(
+        {
+          user_id: userId,
+          category_id: categoryId,
+          total_xp: prev + rewards.xpEarned,
+          updated_at: completedAtIso,
+        },
+        { onConflict: "user_id,category_id" }
+      );
+    }
   }
 
   if (profUp) {

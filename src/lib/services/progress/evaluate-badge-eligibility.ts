@@ -87,12 +87,18 @@ async function buildEvaluationContext(
   const { data: profile, error: pErr } = await supabase
     .from("profiles")
     .select(
-      "current_streak, longest_streak, last_active_date, total_xp, correct_streak, longest_correct_streak"
+      "current_streak, longest_streak, last_active_date, total_xp"
     )
     .eq("id", userId)
     .maybeSingle();
 
   if (pErr || !profile) return null;
+
+  const { data: profileExt } = await supabase
+    .from("profiles")
+    .select("correct_streak, longest_correct_streak")
+    .eq("id", userId)
+    .maybeSingle();
 
   const { data: rows, error: hErr } = await supabase
     .from("user_topic_history")
@@ -235,9 +241,8 @@ async function buildEvaluationContext(
     current_streak?: number;
     longest_streak?: number;
     total_xp?: number;
-    correct_streak?: number;
-    longest_correct_streak?: number;
   };
+  const ext = profileExt as { correct_streak?: number; longest_correct_streak?: number } | null;
 
   return {
     topicsCompleted,
@@ -253,8 +258,8 @@ async function buildEvaluationContext(
     comebackGapDays,
     advancedInRowMax,
     totalXp: Number(prof.total_xp) || 0,
-    correctStreak: Number(prof.correct_streak) || 0,
-    longestCorrectStreak: Number(prof.longest_correct_streak) || 0,
+    correctStreak: ext ? Number(ext.correct_streak) || 0 : 0,
+    longestCorrectStreak: ext ? Number(ext.longest_correct_streak) || 0 : 0,
     hitLuckyMultiplier: options?.hitLuckyMultiplier,
   };
 }
