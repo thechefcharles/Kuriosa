@@ -1,14 +1,11 @@
 export function DiscoverHeaderCompact() {
   return (
     <header className="mb-4" aria-labelledby="discover-heading">
-      <p
+      <h1
         id="discover-heading"
-        className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        className="text-xl font-semibold tracking-tight text-kuriosa-midnight-blue dark:text-slate-100"
       >
-        Browse
-      </p>
-      <h1 className="mt-1 text-xl font-semibold tracking-tight text-kuriosa-midnight-blue dark:text-slate-100">
-        Find something to explore
+        Discover Curiosities
       </h1>
     </header>
   );

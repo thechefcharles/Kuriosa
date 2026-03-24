@@ -12,6 +12,8 @@ import { loadCuriosityExperience } from "@/lib/services/content/load-curiosity-e
 
 export type GetRandomCuriosityOptions = {
   difficultyLevel?: string;
+  /** If set, restricts to topics in this category (by slug) */
+  categorySlug?: string;
   /** If set, excluded from the candidate pool when alternatives exist */
   excludeSlug?: string;
   /** Topic IDs to exclude (e.g. completed) — when alternatives exist */
@@ -22,11 +24,26 @@ async function fetchCandidateIds(
   supabase: SupabaseClient,
   opts: GetRandomCuriosityOptions & { featuredOnly: boolean }
 ): Promise<{ id: string; slug: string }[]> {
+  let categoryId: string | undefined;
+  if (opts.categorySlug?.trim()) {
+    const { data: cat } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("slug", opts.categorySlug.trim().toLowerCase())
+      .maybeSingle();
+    if (cat && (cat as { id: string }).id) {
+      categoryId = (cat as { id: string }).id;
+    }
+  }
+
   let q = supabase
     .from("topics")
     .select("id, slug")
     .eq("status", "published");
 
+  if (categoryId) {
+    q = q.eq("category_id", categoryId);
+  }
   if (opts.difficultyLevel?.trim()) {
     q = q.eq("difficulty_level", opts.difficultyLevel.trim());
   }

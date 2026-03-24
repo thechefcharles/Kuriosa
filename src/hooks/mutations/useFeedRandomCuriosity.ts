@@ -12,6 +12,8 @@ export const KURIOSA_LAST_RANDOM_SLUG_KEY = "kuriosa_last_random_slug";
 export type FeedRandomCuriosityInput = {
   /** Matches `topics.difficulty_level` when set; omit for any */
   difficultyLevel?: string;
+  /** Restricts random pick to topics in this category (by slug) */
+  categorySlug?: string | null;
   /**
    * Today’s daily topic slug — used as exclude target on first spin when
    * no prior random exists this session, so the first surprise isn’t the same card.
@@ -55,6 +57,7 @@ export function useFeedRandomCuriosity() {
 
       return getRandomCuriosity(supabase, {
         difficultyLevel: input.difficultyLevel?.trim() || undefined,
+        categorySlug: input.categorySlug?.trim() || undefined,
         excludeSlug,
         excludeTopicIds: excludeTopicIds.length ? excludeTopicIds : undefined,
       });
