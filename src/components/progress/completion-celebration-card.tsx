@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type {
   CompletionCelebrationPayload,
@@ -72,6 +73,15 @@ export function CompletionCelebrationCard({
   const xpIntoLevel = Math.max(0, xpRequired - xpToNext);
   const totalXp = cumulativeXpForLevel(payload.levelAfter) + xpIntoLevel;
   const progressPercent = xpRequired > 0 ? Math.min(100, (xpIntoLevel / xpRequired) * 100) : 0;
+
+  const [animatedPercent, setAnimatedPercent] = useState(0);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setAnimatedPercent(progressPercent));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [progressPercent]);
+
   const hasBonusXp =
     payload.breakdown &&
     (payload.breakdown.perfectBonusXp > 0 ||
@@ -129,38 +139,54 @@ export function CompletionCelebrationCard({
         <X className="h-4 w-4" />
       </Button>
 
-      {/* XP hero when earned */}
+      {/* Progress bar with animated fill + total XP hero */}
       {showXp && (
-        <div className="mb-4 text-center">
-          <p className="text-sm font-medium uppercase tracking-wider text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
-            You earned
-          </p>
-          <p className="mt-1 text-3xl font-bold tabular-nums text-kuriosa-midnight-blue dark:text-white sm:text-4xl">
-            +{payload.xpEarned} XP
-          </p>
+        <div className="mb-6">
+          {/* Big total XP */}
+          <div className="mb-4 flex items-baseline justify-center gap-2">
+            <span className="text-5xl font-bold tabular-nums text-kuriosa-midnight-blue dark:text-white sm:text-6xl">
+              {totalXp.toLocaleString()}
+            </span>
+            <span className="text-xl font-semibold text-muted-foreground sm:text-2xl">
+              total XP
+            </span>
+          </div>
+
+          {/* Gold progress bar with fill animation */}
+          <div className="relative overflow-visible">
+            <div className="h-6 overflow-hidden rounded-full bg-amber-200/60 dark:bg-amber-900/40">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)] dark:from-amber-500 dark:via-amber-400 dark:to-yellow-500"
+                style={{
+                  width: `${animatedPercent}%`,
+                  transition: "width 1s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                }}
+              />
+            </div>
+            {/* +XP earned badge - rides the bar as it fills */}
+            <div
+              className="xp-earned-badge absolute top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-amber-600 px-2.5 py-1 text-sm font-bold text-white shadow-lg dark:bg-amber-500"
+              style={{
+                left: `${Math.max(4, Math.min(animatedPercent, 96))}%`,
+                transition: "left 1s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              }}
+            >
+              +{payload.xpEarned} XP
+            </div>
+          </div>
+
+          <div className="mt-2 flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span>Level {payload.levelAfter}</span>
+            {payload.xpToNextLevel != null && payload.xpToNextLevel > 0 && (
+              <span>{payload.xpToNextLevel} to next level</span>
+            )}
+          </div>
+
           {leveledUp && (
-            <p className="mt-2 font-semibold text-emerald-600 dark:text-emerald-400">
+            <p className="mt-3 text-center font-semibold text-emerald-600 dark:text-emerald-400">
               Level up! Now level {payload.levelAfter}
             </p>
           )}
-        </div>
-      )}
-
-      {/* Progress bar */}
-      {showXp && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-            <span>{totalXp.toLocaleString()} total XP · Level {payload.levelAfter}</span>
-            {payload.xpToNextLevel != null && payload.xpToNextLevel > 0 && (
-              <span>{payload.xpToNextLevel} to next</span>
-            )}
-          </div>
-          <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-kuriosa-deep-purple to-kuriosa-electric-cyan transition-all duration-700 ease-out"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
         </div>
       )}
 

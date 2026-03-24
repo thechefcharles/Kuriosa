@@ -73,6 +73,18 @@
   color: hsl(45, 20%, 6%);
 }
 
+@keyframes xp-earned-pop {
+  0% { opacity: 0; transform: scale(0.8); }
+  40% { opacity: 0; }
+  50% { opacity: 1; transform: scale(1.1); }
+  70% { transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.xp-earned-badge {
+  animation: xp-earned-pop 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s forwards;
+  opacity: 0;
+}
+
 @layer base {
   :root {
     --kuriosa-primary: 59 130 246;
