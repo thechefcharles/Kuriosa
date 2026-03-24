@@ -96,7 +96,57 @@ export type AnswerGenerationInput = {
   topicTitle: string;
   questionText: string;
   lessonContext?: string;
+  categoryName?: string;
 };
+
+/** Input for manual question flow */
+export type ManualQuestionInput = {
+  userId: string;
+  topicId?: string;
+  slug?: string;
+  questionText: string;
+};
+
+/** Result from manual question answering */
+export type ManualQuestionResult =
+  | {
+      ok: true;
+      question: string;
+      answerText: string;
+      fromCache: boolean;
+      moderated: boolean;
+      rateLimited: false;
+      fallbackUsed: boolean;
+      questionId?: string;
+      answerId?: string;
+    }
+  | {
+      ok: false;
+      question?: string;
+      answerText?: string;
+      fromCache: false;
+      moderated: boolean;
+      rateLimited: boolean;
+      fallbackUsed: boolean;
+      error: string;
+      questionId?: string;
+      answerId?: string;
+    };
+
+/** Result from persisting ai_questions row */
+export type PersistedAIQuestionResult =
+  | { ok: true; questionId: string }
+  | { ok: false; error: string };
+
+/** Result from persisting ai_answers row */
+export type PersistedAIAnswerResult =
+  | { ok: true; answerId: string }
+  | { ok: false; error: string };
+
+/** Result from answer generation (internal) */
+export type AnswerGenerationResult =
+  | { ok: true; answerText: string; model?: string; tokensUsed?: number }
+  | { ok: false; error: string };
 
 /** Input for generating rabbit-hole suggestions */
 export type RabbitHoleGenerationInput = {

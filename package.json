@@ -24,7 +24,8 @@
     "progress:complete-example": "npx tsx src/lib/services/progress/examples/run-process-completion-example.ts",
     "progress:badges-example": "npx tsx src/lib/services/progress/examples/run-badge-evaluation-example.ts",
     "ai:topic-followups": "npx tsx src/lib/services/ai/examples/run-topic-followups-example.ts",
-    "ai:rabbit-holes": "npx tsx src/lib/services/ai/examples/run-topic-rabbit-holes-example.ts"
+    "ai:rabbit-holes": "npx tsx src/lib/services/ai/examples/run-topic-rabbit-holes-example.ts",
+    "ai:manual-question": "npx tsx src/lib/services/ai/examples/run-manual-question-example.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",

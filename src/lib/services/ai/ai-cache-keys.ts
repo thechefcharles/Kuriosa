@@ -6,6 +6,7 @@
  * - followups:topic:{topicId}
  * - rabbitholes:topic:{topicId}
  * - rabbitholes:topic:{topicId}:question:{hash}
+ * - manualanswer:topic:{topicId}:question:{hash}
  */
 
 export function followupsCacheKey(topicId: string): string {
@@ -22,8 +23,16 @@ export function rabbitHolesCacheKey(
   return `${base}:question:${hash}`;
 }
 
+export function manualAnswerCacheKey(
+  topicId: string,
+  normalizedQuestion: string
+): string {
+  const hash = simpleHash(normalizedQuestion.trim());
+  return `manualanswer:topic:${topicId.trim()}:question:${hash}`;
+}
+
 /** Deterministic short hash for cache key. No crypto deps. */
-function simpleHash(s: string): string {
+export function simpleHash(s: string): string {
   let h = 0;
   for (let i = 0; i < s.length; i++) {
     const c = s.charCodeAt(i);
