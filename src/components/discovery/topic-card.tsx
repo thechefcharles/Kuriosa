@@ -4,6 +4,7 @@ import type { TopicCardView } from "@/types/discovery";
 import { DifficultyLabel } from "@/components/curiosity/difficulty-label";
 import { ROUTES } from "@/lib/constants/routes";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
+import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
 import { cn } from "@/lib/utils";
 
 const DIFFICULTY_CARD_STYLES: Record<string, string> = {
@@ -53,15 +54,23 @@ export function TopicCard({
       {/* Boardwalk-style category banner at top */}
       <div
         className={cn(
-          "flex items-center gap-2 px-4 py-2",
+          "grid grid-cols-3 items-center gap-2 px-4 py-2",
           theme.bar,
           "text-white"
         )}
       >
-        <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
-        <span className="truncate text-xs font-bold uppercase tracking-wide">
-          {topic.categoryName}
-        </span>
+        <div />
+        <div className="flex min-w-0 items-center justify-center gap-2">
+          <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
+          <span className="truncate text-xs font-bold uppercase tracking-wide">
+            {topic.categoryName}
+          </span>
+        </div>
+        <div className="flex justify-end">
+          <span className="text-xs font-bold tabular-nums">
+            +{getCardXpFromDifficulty(topic.difficulty)} XP
+          </span>
+        </div>
       </div>
       {/* Line underneath the category (Monopoly-style) */}
       <div className={cn("h-1 w-full shrink-0", theme.bar)} aria-hidden />

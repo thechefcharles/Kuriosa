@@ -4,20 +4,7 @@ import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { DifficultyLabel } from "@/components/curiosity/difficulty-label";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
 import { cn } from "@/lib/utils";
-import {
-  XP_CONFIG,
-  DIFFICULTY_MULTIPLIERS,
-} from "@/lib/progress/xp-config";
-
-function getCardXp(experience: LoadedCuriosityExperience): number {
-  const base =
-    XP_CONFIG.LESSON_COMPLETION_XP + XP_CONFIG.CHALLENGE_COMPLETION_XP;
-  const mult =
-    DIFFICULTY_MULTIPLIERS[
-      experience.taxonomy.difficultyLevel as keyof typeof DIFFICULTY_MULTIPLIERS
-    ] ?? 1;
-  return Math.round(base * mult);
-}
+import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
 
 const DIFFICULTY_TEXT_STYLES: Record<string, string> = {
   beginner: "text-emerald-900 dark:text-emerald-100",
@@ -61,7 +48,7 @@ export function CuriosityHeader({
           </div>
           <div className="flex justify-end">
             <span className="text-sm font-bold tabular-nums">
-              +{getCardXp(experience)} XP
+              +{getCardXpFromDifficulty(experience.taxonomy.difficultyLevel)} XP
             </span>
           </div>
         </div>

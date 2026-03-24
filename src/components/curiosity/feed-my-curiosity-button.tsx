@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Shuffle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants/routes";
+import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
 import {
   useFeedRandomCuriosity,
   writeLastRandomSlug,
@@ -136,8 +137,11 @@ export function FeedMyCuriosityButton({
 
       {previewTopic ? (
         <div className="space-y-3">
-          <div className={cn("rounded-xl border p-4 shadow-sm", cardStyle)}>
-            <h3 className="line-clamp-3 text-sm font-semibold leading-snug text-kuriosa-midnight-blue dark:text-white">
+          <div className={cn("relative rounded-xl border p-4 shadow-sm", cardStyle)}>
+            <span className="absolute right-3 top-3 text-xs font-bold tabular-nums text-muted-foreground">
+              +{getCardXpFromDifficulty(previewTopic.taxonomy.difficultyLevel)} XP
+            </span>
+            <h3 className="line-clamp-3 pr-12 text-sm font-semibold leading-snug text-kuriosa-midnight-blue dark:text-white">
               {previewTopic.identity.title}
             </h3>
             <p className="mt-2 text-xs font-medium text-muted-foreground">

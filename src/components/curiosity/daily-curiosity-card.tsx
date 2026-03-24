@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ROUTES } from "@/lib/constants/routes";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
+import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
 import { cn } from "@/lib/utils";
 import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 
@@ -76,15 +77,23 @@ export function DailyCuriosityCard({
       {/* Boardwalk-style category banner at top */}
       <div
         className={cn(
-          "flex items-center justify-center gap-2 px-4 py-3",
+          "grid grid-cols-3 items-center gap-3 px-4 py-3",
           theme.bar,
           "text-white"
         )}
       >
-        <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
-        <span className="text-sm font-bold uppercase tracking-wide truncate">
-          {experience.taxonomy.category}
-        </span>
+        <div />
+        <div className="flex items-center justify-center gap-2">
+          <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
+          <span className="text-sm font-bold uppercase tracking-wide truncate">
+            {experience.taxonomy.category}
+          </span>
+        </div>
+        <div className="flex justify-end">
+          <span className="text-sm font-bold tabular-nums">
+            +{getCardXpFromDifficulty(experience.taxonomy.difficultyLevel)} XP
+          </span>
+        </div>
       </div>
       {/* Line underneath the category (Monopoly-style) */}
       <div className={cn("h-1 w-full shrink-0", theme.bar)} aria-hidden />

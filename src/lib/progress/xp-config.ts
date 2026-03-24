@@ -30,3 +30,15 @@ export const DIFFICULTY_MULTIPLIERS = {
 } as const;
 
 export type XpConfigKey = keyof typeof XP_CONFIG;
+
+/** Card value (lesson + challenge) from difficulty — for display on topic cards. */
+export function getCardXpFromDifficulty(
+  difficultyLevel: string | null | undefined
+): number {
+  const base =
+    XP_CONFIG.LESSON_COMPLETION_XP + XP_CONFIG.CHALLENGE_COMPLETION_XP;
+  const key = (difficultyLevel ?? "").trim().toLowerCase();
+  const mult =
+    (DIFFICULTY_MULTIPLIERS as Record<string, number>)[key] ?? 1;
+  return Math.round(base * mult);
+}
