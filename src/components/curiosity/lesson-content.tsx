@@ -3,6 +3,14 @@
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { cn } from "@/lib/utils";
 
+export type LessonContentProps = {
+  experience: LoadedCuriosityExperience;
+  className?: string;
+  listenMode?: boolean;
+  /** Optional play button to show at the start of the main text */
+  playButtonSlot?: React.ReactNode;
+};
+
 function splitIntoParagraphs(text: string): string[] {
   // Prefer blank-line paragraph breaks; fallback to line breaks.
   const t = text.replace(/\r\n/g, "\n").trim();
@@ -16,11 +24,8 @@ export function LessonContent({
   experience,
   className,
   listenMode = false,
-}: {
-  experience: LoadedCuriosityExperience;
-  className?: string;
-  listenMode?: boolean;
-}) {
+  playButtonSlot,
+}: LessonContentProps) {
   const lessonParagraphs = splitIntoParagraphs(experience.lesson.lessonText);
 
   return (
@@ -37,6 +42,30 @@ export function LessonContent({
           Written lesson
         </h2>
       ) : null}
+      {playButtonSlot ? (
+        <div className="flex items-start gap-3">
+          <div className="pt-0.5">{playButtonSlot}</div>
+          <div className="min-w-0 flex-1 space-y-3">
+            {lessonParagraphs.length ? (
+              lessonParagraphs.map((p, i) => (
+                <p
+                  key={`${i}-${p.slice(0, 12)}`}
+                  className={cn(
+                    "text-slate-800 dark:text-slate-200",
+                    listenMode ? "text-sm leading-6" : "text-[15px] leading-7"
+                  )}
+                >
+                  {p}
+                </p>
+              ))
+            ) : (
+              <p className="text-[15px] leading-7 text-slate-800 dark:text-slate-200">
+                Lesson content isn't available yet.
+              </p>
+            )}
+          </div>
+        </div>
+      ) : (
       <div
         className={cn(
           "space-y-3",
@@ -62,6 +91,7 @@ export function LessonContent({
           </p>
         )}
       </div>
+      )}
 
       {experience.lesson.surprisingFact ? (
         <section className="rounded-2xl border border-violet-200/80 bg-violet-50/60 p-5 dark:border-violet-900/40 dark:bg-violet-950/20">
@@ -74,16 +104,6 @@ export function LessonContent({
         </section>
       ) : null}
 
-      {experience.lesson.realWorldRelevance ? (
-        <section className="rounded-2xl border border-slate-200/80 bg-white/60 p-5 dark:border-white/10 dark:bg-slate-900/30">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
-            Why it matters
-          </div>
-          <p className="text-base leading-7 text-slate-700 dark:text-slate-200">
-            {experience.lesson.realWorldRelevance}
-          </p>
-        </section>
-      ) : null}
     </div>
   );
 }

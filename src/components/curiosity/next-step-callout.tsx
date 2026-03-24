@@ -1,39 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { ROUTES } from "@/lib/constants/routes";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  XP_CONFIG,
+  DIFFICULTY_MULTIPLIERS,
+} from "@/lib/progress/xp-config";
+import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 
-export function NextStepCallout({ slug }: { slug: string }) {
+function getChallengeXp(experience: LoadedCuriosityExperience): number {
+  const base = XP_CONFIG.CHALLENGE_COMPLETION_XP;
+  const mult =
+    DIFFICULTY_MULTIPLIERS[
+      experience.taxonomy.difficultyLevel as keyof typeof DIFFICULTY_MULTIPLIERS
+    ] ?? 1;
+  return Math.round(base * mult);
+}
+
+export function NextStepCallout({
+  slug,
+  experience,
+}: {
+  slug: string;
+  experience: LoadedCuriosityExperience;
+}) {
+  const xp = getChallengeXp(experience);
+
   return (
     <section
       className="mt-8 rounded-2xl border border-kuriosa-electric-cyan/25 bg-kuriosa-electric-cyan/10 p-5 dark:border-kuriosa-electric-cyan/15"
-      aria-label="Next step"
+      aria-label="Earn XP"
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="text-xs font-semibold uppercase tracking-wide text-kuriosa-electric-cyan dark:text-kuriosa-electric-cyan/90">
-            Next step
-          </div>
-          <h2 className="mt-1 text-lg font-bold text-kuriosa-midnight-blue dark:text-slate-50">
-            Lock it in
-          </h2>
-          <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
-            One quick question before what&apos;s next.
-          </p>
-        </div>
-
+      <div className="flex justify-end">
         <Link
           href={ROUTES.challenge(slug)}
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
-            "inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap sm:w-auto"
+            "inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap bg-emerald-500 px-6 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500"
           )}
         >
-          Take the challenge
-          <ArrowRight className="h-4 w-4" aria-hidden />
+          Earn +{xp} XP
         </Link>
       </div>
     </section>
