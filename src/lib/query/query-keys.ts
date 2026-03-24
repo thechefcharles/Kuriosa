@@ -44,3 +44,9 @@ export const discoveryQueryKeys = {
   suggestedTopics: (userId?: string | null) =>
     ["discovery", "suggested", userId ?? "guest"] as const,
 } as const;
+
+/** Phase 9.4 — AI exploration (guided follow-ups, rabbit holes). */
+export const aiExplorationQueryKeys = {
+  topicExploration: (slugOrId: string) =>
+    ["ai", "topic-exploration", slugOrId] as const,
+} as const;

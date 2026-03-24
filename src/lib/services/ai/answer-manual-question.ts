@@ -26,6 +26,7 @@ export async function answerManualQuestion(
   if (!norm.ok) {
     return {
       ok: false,
+      fromCache: false,
       moderated: false,
       rateLimited: false,
       fallbackUsed: false,
@@ -43,6 +44,7 @@ export async function answerManualQuestion(
     return {
       ok: false,
       question: normalizedQuestion,
+      fromCache: false,
       moderated: false,
       rateLimited: false,
       fallbackUsed: false,
@@ -58,6 +60,7 @@ export async function answerManualQuestion(
       ok: false,
       question: normalizedQuestion,
       answerText: getFallbackResponse("rateLimitExceeded"),
+      fromCache: false,
       moderated: false,
       rateLimited: true,
       fallbackUsed: true,
@@ -117,6 +120,7 @@ export async function answerManualQuestion(
       ok: false,
       question: normalizedQuestion,
       answerText: fallback,
+      fromCache: false,
       moderated: false,
       rateLimited: false,
       fallbackUsed: true,
