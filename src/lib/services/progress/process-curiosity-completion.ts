@@ -19,6 +19,7 @@ import { getLevelFromXP } from "@/lib/progress/level-config";
 import { calculateCuriosityScore } from "@/lib/progress/curiosity-score";
 import { calculateNextStreak } from "@/lib/progress/streak-utils";
 import { applyCompletionBadgeUnlocks } from "@/lib/services/progress/apply-completion-badges";
+import { recordActivityEvent } from "@/lib/services/social/record-activity-event";
 
 function mergeModeUsed(
   previous: string | null | undefined,
@@ -362,6 +363,29 @@ export async function processCuriosityCompletion(
     unlockedBadges: badgeOutcome.unlockedBadges,
     badgeEvaluationRan: true,
   };
+
+  recordActivityEvent({
+    userId,
+    type: "topic_completed",
+    topicId,
+    metadata: { slug: topic.slug },
+  }).catch(() => {});
+
+  if (levelBefore !== levelAfter) {
+    recordActivityEvent({
+      userId,
+      type: "level_up",
+      metadata: { levelBefore, levelAfter },
+    }).catch(() => {});
+  }
+
+  for (const badge of badgeOutcome.unlockedBadges) {
+    recordActivityEvent({
+      userId,
+      type: "badge_unlocked",
+      metadata: { badgeId: badge.badgeId, badgeSlug: badge.slug },
+    }).catch(() => {});
+  }
 
   return { ok: true, data };
 }
