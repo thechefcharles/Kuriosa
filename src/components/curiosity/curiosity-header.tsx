@@ -4,6 +4,20 @@ import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { DifficultyLabel } from "@/components/curiosity/difficulty-label";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
 import { cn } from "@/lib/utils";
+import {
+  XP_CONFIG,
+  DIFFICULTY_MULTIPLIERS,
+} from "@/lib/progress/xp-config";
+
+function getCardXp(experience: LoadedCuriosityExperience): number {
+  const base =
+    XP_CONFIG.LESSON_COMPLETION_XP + XP_CONFIG.CHALLENGE_COMPLETION_XP;
+  const mult =
+    DIFFICULTY_MULTIPLIERS[
+      experience.taxonomy.difficultyLevel as keyof typeof DIFFICULTY_MULTIPLIERS
+    ] ?? 1;
+  return Math.round(base * mult);
+}
 
 const DIFFICULTY_TEXT_STYLES: Record<string, string> = {
   beginner: "text-emerald-900 dark:text-emerald-100",
@@ -33,15 +47,23 @@ export function CuriosityHeader({
       <div className="flex flex-col">
         <div
           className={cn(
-            "flex items-center justify-center gap-2 px-4 py-3",
+            "grid grid-cols-3 items-center gap-3 px-4 py-3",
             theme.bar,
             "text-white"
           )}
         >
-          <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
-          <span className="text-sm font-bold uppercase tracking-wide truncate">
-            {experience.taxonomy.category}
-          </span>
+          <div />
+          <div className="flex items-center justify-center gap-2">
+            <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
+            <span className="text-sm font-bold uppercase tracking-wide truncate">
+              {experience.taxonomy.category}
+            </span>
+          </div>
+          <div className="flex justify-end">
+            <span className="text-sm font-bold tabular-nums">
+              +{getCardXp(experience)} XP
+            </span>
+          </div>
         </div>
         {/* Line underneath (Monopoly-style) - flush with banner */}
         <div className={cn("h-1 w-full shrink-0", theme.bar)} aria-hidden />

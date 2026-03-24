@@ -136,7 +136,7 @@ export function InlineChallengeBlock({
                 type="submit"
                 size="lg"
                 disabled={!canSubmit}
-                className="h-12 min-h-[48px] w-full sm:w-auto"
+                className="h-12 min-h-[48px] w-full bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-500 sm:w-auto"
               >
                 Check answer
               </Button>

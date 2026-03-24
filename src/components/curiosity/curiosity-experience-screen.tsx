@@ -153,18 +153,28 @@ function ExperienceView({
         <CuriosityHeader experience={experience} />
 
         <div className="space-y-6 p-5 sm:p-6">
-          <LessonContent
-            experience={experience}
-            playButtonSlot={playButtonSlot}
-            textClassName={textStyle}
-          />
-
-          {!hasCompletedChallenge && experience.challenge && !showInlineChallenge && (
-            <NextStepCallout
-              slug={experience.identity.slug}
+          {showInlineChallenge && experience.challenge ? (
+            <InlineChallengeBlock
               experience={experience}
-              onClick={() => setShowInlineChallenge(true)}
+              slug={slug}
+              onComplete={handleChallengeComplete}
             />
+          ) : (
+            <>
+              <LessonContent
+                experience={experience}
+                playButtonSlot={playButtonSlot}
+                textClassName={textStyle}
+              />
+
+              {!hasCompletedChallenge && experience.challenge && (
+                <NextStepCallout
+                  slug={experience.identity.slug}
+                  experience={experience}
+                  onClick={() => setShowInlineChallenge(true)}
+                />
+              )}
+            </>
           )}
 
           <section id="whats-next" className="scroll-mt-24 space-y-6">
@@ -180,15 +190,6 @@ function ExperienceView({
           </section>
         </div>
       </article>
-
-      {showInlineChallenge && experience.challenge && (
-        <InlineChallengeBlock
-          experience={experience}
-          slug={slug}
-          onComplete={handleChallengeComplete}
-          className="mt-6"
-        />
-      )}
     </>
   );
 }
