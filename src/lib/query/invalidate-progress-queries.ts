@@ -40,6 +40,9 @@ export function invalidateProgressQueries(
     queryKey: [...progressQueryKeys.all, "category-progress"],
   });
   void queryClient.invalidateQueries({
+    queryKey: [...progressQueryKeys.all, "topic-completion-details"],
+  });
+  void queryClient.invalidateQueries({
     queryKey: discoveryQueryKeys.recent(id),
   });
   void queryClient.invalidateQueries({

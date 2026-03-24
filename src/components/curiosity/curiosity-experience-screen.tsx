@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCuriosityExperience } from "@/hooks/queries/useCuriosityExperience";
 import { useCompletedTopicIds } from "@/hooks/queries/useCompletedTopicIds";
+import { useTopicCompletionDetails } from "@/hooks/queries/useTopicCompletionDetails";
 import { CuriosityHeader } from "@/components/curiosity/curiosity-header";
 import { LessonContent } from "@/components/curiosity/lesson-content";
 import { AudioPlayer } from "@/components/curiosity/audio-player";
@@ -73,6 +74,7 @@ function ExperienceView({
   slug: string;
 }) {
   const { isCompleted } = useCompletedTopicIds();
+  const { data: completionDetails } = useTopicCompletionDetails(experience.identity.id);
   const [hasJustCompleted, setHasJustCompleted] = useState(false);
   const [showInlineChallenge, setShowInlineChallenge] = useState(false);
   const [completionCheckKey, setCompletionCheckKey] = useState(0);
@@ -121,7 +123,17 @@ function ExperienceView({
       <article
         className={cn("overflow-hidden rounded-xl shadow-lg", CARD_BASE)}
       >
-        <CuriosityHeader experience={experience} />
+        <CuriosityHeader
+          experience={experience}
+          completedState={
+            completionDetails
+              ? {
+                  correct: completionDetails.xpEarned !== 5,
+                  xpEarned: completionDetails.xpEarned,
+                }
+              : undefined
+          }
+        />
 
         <div className="space-y-6 p-5 sm:p-6">
           {showInlineChallenge && experience.challenge ? (
