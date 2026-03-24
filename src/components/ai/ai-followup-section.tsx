@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Sparkles } from "lucide-react";
 import { AIFollowupCard } from "./ai-followup-card";
 import { AIAnswerLoading } from "./ai-answer-loading";
@@ -26,21 +26,27 @@ export function AIFollowupSection({
     question: string;
     result: ManualQuestionResult;
   } | null>(null);
+  const expandedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    expandedRef.current = expandedQuestion;
+  }, [expandedQuestion]);
 
   const askQuestion = useAskManualQuestion();
 
   const onToggleFollowup = (question: string) => {
     const next = expandedQuestion === question ? null : question;
     setExpandedQuestion(next);
+    expandedRef.current = next;
 
     if (next) {
       setAnswerState(null);
       if (!userId) return;
       askQuestion.mutate(
-        { slug, topicId, questionText: question },
+        { slug, topicId, questionText: question, interactionType: "guided_followup" },
         {
           onSuccess: (result) => {
-            setAnswerState({ question: next, result });
+            if (expandedRef.current === next) setAnswerState({ question: next, result });
           },
         }
       );
@@ -80,7 +86,7 @@ export function AIFollowupSection({
               result={stateForThis}
               onRetry={() =>
                 askQuestion.mutate(
-                  { slug, topicId, questionText: q },
+                  { slug, topicId, questionText: q, interactionType: "guided_followup" },
                   { onSuccess: (r) => setAnswerState({ question: q, result: r }) }
                 )
               }

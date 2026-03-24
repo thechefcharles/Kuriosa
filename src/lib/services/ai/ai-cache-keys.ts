@@ -1,12 +1,12 @@
 /**
  * Phase 9 — Standardized cache key conventions for AI responses.
- * Deterministic, documented patterns.
+ * Deterministic, documented patterns. No collision between topics or question variants.
  *
- * Patterns:
- * - followups:topic:{topicId}
- * - rabbitholes:topic:{topicId}
- * - rabbitholes:topic:{topicId}:question:{hash}
- * - manualanswer:topic:{topicId}:question:{hash}
+ * Follow-ups: ai_followups table (one row per topic)
+ * ai_cache keys:
+ * - rabbitholes:topic:{topicId} — topic-only rabbit holes
+ * - rabbitholes:topic:{topicId}:question:{hash} — question-scoped rabbit holes
+ * - manualanswer:topic:{topicId}:question:{hash} — manual/guided answers
  */
 
 export function followupsCacheKey(topicId: string): string {

@@ -3,10 +3,13 @@
 import { useMutation } from "@tanstack/react-query";
 import type { ManualQuestionResult } from "@/types/ai";
 
+export type AIInteractionType = "guided_followup" | "manual" | "rabbit_hole";
+
 export type AskManualQuestionInput = {
   slug: string;
   topicId?: string;
   questionText: string;
+  interactionType?: AIInteractionType;
 };
 
 async function askManualQuestion(
@@ -19,6 +22,7 @@ async function askManualQuestion(
       questionText: input.questionText,
       slug: input.slug,
       topicId: input.topicId,
+      interactionType: input.interactionType ?? "manual",
     }),
     credentials: "same-origin",
   });

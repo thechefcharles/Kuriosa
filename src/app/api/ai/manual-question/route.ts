@@ -7,9 +7,16 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
 import { answerManualQuestion } from "@/lib/services/ai/answer-manual-question";
 
+const INTERACTION_TYPES = new Set(["guided_followup", "manual", "rabbit_hole"]);
+
 function isManualQuestionBody(
   body: unknown
-): body is { questionText: string; topicId?: string; slug?: string } {
+): body is {
+  questionText: string;
+  topicId?: string;
+  slug?: string;
+  interactionType?: string;
+} {
   if (!body || typeof body !== "object") return false;
   const o = body as Record<string, unknown>;
   if (typeof o.questionText !== "string" || !o.questionText.trim()) return false;
@@ -51,11 +58,18 @@ export async function POST(request: Request) {
     );
   }
 
+  const rawType = body.interactionType;
+  const interactionType =
+    typeof rawType === "string" && INTERACTION_TYPES.has(rawType)
+      ? (rawType as "guided_followup" | "manual" | "rabbit_hole")
+      : "manual";
+
   const input = {
     userId: user.id,
     questionText: body.questionText.trim(),
     topicId: body.topicId?.trim(),
     slug: body.slug?.trim(),
+    interactionType,
   };
 
   const result = await answerManualQuestion(input);

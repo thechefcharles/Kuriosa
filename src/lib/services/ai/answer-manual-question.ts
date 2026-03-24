@@ -12,6 +12,7 @@ import { generateAnswer } from "@/lib/services/ai/generate-answer";
 import { saveAIQuestion } from "@/lib/services/ai/save-ai-question";
 import { saveAIAnswer } from "@/lib/services/ai/save-ai-answer";
 import { getFallbackResponse } from "@/lib/services/ai/ai-fallback-responses";
+import { recordAIInteraction } from "@/lib/services/ai/record-ai-interaction";
 import type { ManualQuestionInput, ManualQuestionResult } from "@/types/ai";
 
 type CachedAnswer = { answerText: string };
@@ -56,7 +57,7 @@ export async function answerManualQuestion(
 
   const limit = checkAIRateLimit(input.userId);
   if (!limit.allowed) {
-    return {
+    const rateLimitResult: ManualQuestionResult = {
       ok: false,
       question: normalizedQuestion,
       answerText: getFallbackResponse("rateLimitExceeded"),
@@ -66,6 +67,16 @@ export async function answerManualQuestion(
       fallbackUsed: true,
       error: "Rate limit exceeded",
     };
+    recordAIInteraction({
+      userId: input.userId,
+      topicId: context.topicId,
+      eventType: input.interactionType ?? "manual",
+      questionText: normalizedQuestion,
+      fromCache: false,
+      rateLimited: true,
+      fallbackUsed: true,
+    }).catch(() => {});
+    return rateLimitResult;
   }
 
   let persistedQuestionId: string | undefined;
@@ -116,7 +127,7 @@ export async function answerManualQuestion(
 
   if (!cacheResult.ok) {
     const fallback = getFallbackResponse("generationFailed");
-    return {
+    const failResult: ManualQuestionResult = {
       ok: false,
       question: normalizedQuestion,
       answerText: fallback,
@@ -126,9 +137,19 @@ export async function answerManualQuestion(
       fallbackUsed: true,
       error: cacheResult.error,
     };
+    recordAIInteraction({
+      userId: input.userId,
+      topicId: context.topicId,
+      eventType: input.interactionType ?? "manual",
+      questionText: normalizedQuestion,
+      fromCache: false,
+      rateLimited: false,
+      fallbackUsed: true,
+    }).catch(() => {});
+    return failResult;
   }
 
-  return {
+  const successResult: ManualQuestionResult = {
     ok: true,
     question: normalizedQuestion,
     answerText: cacheResult.value.answerText,
@@ -139,4 +160,18 @@ export async function answerManualQuestion(
     questionId: persistedQuestionId,
     answerId: persistedAnswerId,
   };
+
+  recordAIInteraction({
+    userId: input.userId,
+    topicId: context.topicId,
+    eventType: input.interactionType ?? "manual",
+    questionText: normalizedQuestion,
+    fromCache: cacheResult.fromCache,
+    rateLimited: false,
+    fallbackUsed: false,
+    questionId: persistedQuestionId,
+    answerId: persistedAnswerId,
+  }).catch(() => {});
+
+  return successResult;
 }

@@ -99,12 +99,17 @@ export type AnswerGenerationInput = {
   categoryName?: string;
 };
 
+/** Interaction type for analytics (Phase 9.5) */
+export type AIInteractionType = "guided_followup" | "manual" | "rabbit_hole";
+
 /** Input for manual question flow */
 export type ManualQuestionInput = {
   userId: string;
   topicId?: string;
   slug?: string;
   questionText: string;
+  /** For analytics; defaults to 'manual' */
+  interactionType?: AIInteractionType;
 };
 
 /** Result from manual question answering */
