@@ -1,21 +1,41 @@
 "use client";
 
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ChallengeValidationResult } from "@/lib/services/challenge/validate-challenge-answer";
 import { ChallengeContinueExploringButton } from "@/components/challenge/challenge-continue-exploring-button";
 import { cn } from "@/lib/utils";
+
+function lessonSnippet(lessonText: string, maxChars = 180): string {
+  const cleaned = lessonText.replace(/\s+/g, " ").trim();
+  if (cleaned.length <= maxChars) return cleaned;
+  const cut = cleaned.slice(0, maxChars).trim();
+  const lastSpace = cut.lastIndexOf(" ");
+  return lastSpace > maxChars / 2 ? cut.slice(0, lastSpace) + "…" : cut + "…";
+}
 
 export function ChallengeFeedback({
   slug,
   topicId,
   result,
   onRetry,
+  lessonText,
+  showBonusOffer,
+  bonusCorrect,
+  onContinueSlot,
 }: {
   slug: string;
   topicId: string;
   result: ChallengeValidationResult;
   onRetry: () => void;
+  /** When wrong, show "From the lesson" snippet to reinforce learning */
+  lessonText?: string;
+  /** When true, parent renders bonus offer; we omit our action buttons */
+  showBonusOffer?: boolean;
+  /** When showing post-bonus feedback, pass bonus result for completion */
+  bonusCorrect?: boolean;
+  /** Slot for Continue button when showBonusOffer (parent renders it) */
+  onContinueSlot?: React.ReactNode;
 }) {
   const ok = result.isCorrect;
 
@@ -44,7 +64,7 @@ export function ChallengeFeedback({
         )}
         <div className="min-w-0 flex-1 space-y-2">
           <p className="text-base font-semibold text-foreground">
-            {ok ? "Nice — that’s right!" : "Not quite — here’s the idea."}
+            {ok ? "Nice — you've got it." : "Not quite — here's the idea."}
           </p>
           {!ok && result.correctAnswerDisplay && result.correctAnswerDisplay !== "—" ? (
             <p className="text-sm text-muted-foreground">
@@ -57,29 +77,52 @@ export function ChallengeFeedback({
               {result.explanation}
             </p>
           ) : null}
+          {!ok && lessonText?.trim() ? (
+            <div className="mt-3 rounded-lg border border-slate-200/80 bg-white/60 px-3 py-2 dark:border-white/10 dark:bg-slate-900/40">
+              <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <BookOpen className="h-3.5 w-3.5" aria-hidden />
+                From the lesson:
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                {lessonSnippet(lessonText)}
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Button
-          type="button"
-          variant="outline"
-          size="lg"
-          className="min-h-12 w-full sm:w-auto"
-          onClick={onRetry}
-        >
-          Try again
-        </Button>
-        <ChallengeContinueExploringButton
-          slug={slug}
-          topicId={topicId}
-          challengeCorrect={ok}
-        />
-      </div>
-      <p className="mt-3 text-center text-xs text-muted-foreground">
-        Saves your visit (no XP yet) and scrolls to <strong>What&apos;s next</strong> — follow-ups
-        and next curiosities on the lesson page.
-      </p>
+      {!showBonusOffer ? (
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          {!ok ? (
+            <Button
+              type="button"
+              size="lg"
+              className="min-h-12 w-full sm:w-auto"
+              onClick={onRetry}
+            >
+              Try again
+            </Button>
+          ) : null}
+          <ChallengeContinueExploringButton
+            slug={slug}
+            topicId={topicId}
+            challengeCorrect={ok}
+            bonusCorrect={bonusCorrect}
+          />
+        </div>
+      ) : null}
+
+      {onContinueSlot ? (
+        <div className="mt-6">{onContinueSlot}</div>
+      ) : null}
+
+      {!showBonusOffer && !onContinueSlot ? (
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          That&apos;s one more curiosity unlocked. Saves your visit and scrolls to{" "}
+          <strong>What&apos;s next</strong> — follow-ups and next curiosities on the lesson
+          page.
+        </p>
+      ) : null}
     </div>
   );
 }

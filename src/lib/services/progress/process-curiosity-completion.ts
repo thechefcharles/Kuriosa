@@ -49,6 +49,7 @@ function toRewardEvent(p: CuriosityCompletionPayload): CompletionEventInput {
     lessonCompleted: p.lessonCompleted,
     challengeAttempted: p.challengeAttempted,
     challengeCorrect: p.challengeCorrect,
+    bonusCorrect: p.bonusCorrect,
     wasDailyFeature: p.wasDailyFeature,
     wasRandomSpin: p.wasRandomSpin,
     usedListenMode: p.usedListenMode,

@@ -10,6 +10,8 @@ export const XP_CONFIG = {
   LESSON_COMPLETION_XP: 10,
   CHALLENGE_COMPLETION_XP: 20,
   PERFECT_CHALLENGE_BONUS_XP: 10,
+  /** Bonus (second) question answered correctly */
+  BONUS_QUESTION_XP: 10,
   DAILY_COMPLETION_BONUS_XP: 5,
   RANDOM_COMPLETION_BONUS_XP: 5,
   /** Small nod for using narration */

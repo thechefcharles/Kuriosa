@@ -17,7 +17,8 @@ function isPayload(
     MODES.has(o.modeUsed as "read") &&
     typeof o.challengeCorrect === "boolean" &&
     typeof o.wasDailyFeature === "boolean" &&
-    typeof o.wasRandomSpin === "boolean"
+    typeof o.wasRandomSpin === "boolean" &&
+    (o.bonusCorrect === undefined || typeof o.bonusCorrect === "boolean")
   );
 }
 
@@ -71,6 +72,7 @@ export async function POST(request: Request) {
     lessonCompleted: true,
     challengeAttempted: true,
     challengeCorrect: body.challengeCorrect,
+    bonusCorrect: body.bonusCorrect,
     wasDailyFeature: body.wasDailyFeature,
     wasRandomSpin: body.wasRandomSpin,
     usedListenMode,

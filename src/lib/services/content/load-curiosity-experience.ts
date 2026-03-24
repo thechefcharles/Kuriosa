@@ -64,7 +64,8 @@ function buildExperience(
   tags: string[],
   followups: CuriosityFollowup[],
   challenge: CuriosityChallenge | undefined,
-  trails: CuriosityTrail[]
+  trails: CuriosityTrail[],
+  bonusChallenge?: CuriosityChallenge
 ): LoadedCuriosityExperience {
   const hook =
     normalizeText(String(topic.hook_text ?? "")) ||
@@ -134,6 +135,7 @@ function buildExperience(
     },
     audio,
     challenge,
+    bonusChallenge,
     rewards: {
       xpAward: 0,
     },
@@ -244,14 +246,17 @@ export async function loadCuriosityExperience(
     .eq("topic_id", topic.id)
     .order("sort_order", { ascending: true });
 
-  const quiz = (quizRows ?? [])[0];
+  const allQuizzes = (quizRows ?? []).slice(0, 2);
+  const quiz = allQuizzes[0];
+  const bonusQuiz = allQuizzes[1];
   let challenge: CuriosityChallenge | undefined;
+  let bonusChallenge: CuriosityChallenge | undefined;
 
-  if (quiz) {
+  async function buildChallenge(q: { id: string; question_text: string; quiz_type: string; explanation_text: string | null; difficulty_level: string | null }): Promise<CuriosityChallenge> {
     const { data: optionRows } = await supabase
       .from("quiz_options")
       .select("option_text, is_correct")
-      .eq("quiz_id", quiz.id as string)
+      .eq("quiz_id", q.id)
       .order("created_at", { ascending: true });
 
     const options = (optionRows ?? []).map(
@@ -261,23 +266,26 @@ export async function loadCuriosityExperience(
       })
     );
 
-    challenge = {
-      id: String(quiz.id),
-      questionText: String(quiz.question_text),
-      quizType: String(quiz.quiz_type),
+    return {
+      id: String(q.id),
+      questionText: String(q.question_text),
+      quizType: String(q.quiz_type),
       options:
         options.length > 0
           ? options
           : [{ optionText: "(No options yet)", isCorrect: true }],
-      explanationText:
-        quiz.explanation_text != null
-          ? String(quiz.explanation_text)
-          : undefined,
-      difficultyLevel:
-        quiz.difficulty_level != null
-          ? String(quiz.difficulty_level)
-          : undefined,
+      explanationText: q.explanation_text != null ? String(q.explanation_text) : undefined,
+      difficultyLevel: q.difficulty_level != null ? String(q.difficulty_level) : undefined,
     };
+  }
+
+  if (quiz) {
+    const row = quiz as { id: string; question_text: string; quiz_type: string; explanation_text: string | null; difficulty_level: string | null };
+    challenge = await buildChallenge(row);
+  }
+  if (bonusQuiz) {
+    const row = bonusQuiz as { id: string; question_text: string; quiz_type: string; explanation_text: string | null; difficulty_level: string | null };
+    bonusChallenge = await buildChallenge(row);
   }
 
   const { data: trailRows } = await supabase
@@ -331,6 +339,7 @@ export async function loadCuriosityExperience(
     tags,
     followups,
     challenge,
-    trails
+    trails,
+    bonusChallenge
   );
 }

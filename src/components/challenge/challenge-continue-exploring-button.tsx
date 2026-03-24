@@ -19,10 +19,13 @@ export function ChallengeContinueExploringButton({
   slug,
   topicId,
   challengeCorrect,
+  bonusCorrect,
 }: {
   slug: string;
   topicId: string;
   challengeCorrect: boolean;
+  /** True when user attempted bonus question and got it right. */
+  bonusCorrect?: boolean;
 }) {
   const router = useRouter();
   const { mutateAsync, isPending } = useRecordCuriosityCompletion();
@@ -37,6 +40,7 @@ export function ChallengeContinueExploringButton({
         slug,
         modeUsed: getModeUsedLabel(slug),
         challengeCorrect,
+        bonusCorrect,
         wasDailyFeature,
         wasRandomSpin,
       });

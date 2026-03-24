@@ -17,6 +17,9 @@ export function calculateRewards(
   const challengeXp =
     event.challengeAttempted ? XP_CONFIG.CHALLENGE_COMPLETION_XP : 0;
   const perfectBonusXp = isPerfect ? XP_CONFIG.PERFECT_CHALLENGE_BONUS_XP : 0;
+  const bonusQuestionXp = event.bonusCorrect
+    ? XP_CONFIG.BONUS_QUESTION_XP
+    : 0;
   const dailyBonusXp = event.wasDailyFeature
     ? XP_CONFIG.DAILY_COMPLETION_BONUS_XP
     : 0;
@@ -32,6 +35,7 @@ export function calculateRewards(
     lessonXp,
     challengeXp,
     perfectBonusXp,
+    bonusQuestionXp,
     dailyBonusXp,
     randomBonusXp,
     listenBonusXp,
@@ -41,6 +45,7 @@ export function calculateRewards(
     lessonXp +
     challengeXp +
     perfectBonusXp +
+    bonusQuestionXp +
     dailyBonusXp +
     randomBonusXp +
     listenBonusXp;

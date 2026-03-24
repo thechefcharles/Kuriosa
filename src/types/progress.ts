@@ -7,6 +7,8 @@ export type CompletionEventInput = {
   lessonCompleted: boolean;
   challengeAttempted: boolean;
   challengeCorrect: boolean;
+  /** True when bonus question was attempted and answered correctly. */
+  bonusCorrect?: boolean;
   wasDailyFeature: boolean;
   wasRandomSpin: boolean;
   usedListenMode: boolean;
@@ -24,6 +26,7 @@ export type CuriosityCompletionPayload = {
   lessonCompleted: boolean;
   challengeAttempted: boolean;
   challengeCorrect: boolean;
+  bonusCorrect?: boolean;
   wasDailyFeature: boolean;
   wasRandomSpin: boolean;
   usedListenMode: boolean;
@@ -37,6 +40,8 @@ export type CompleteCuriosityClientPayload = {
   slug: string;
   modeUsed: "read" | "listen" | "read_listen";
   challengeCorrect: boolean;
+  /** True when user attempted bonus question and got it right. */
+  bonusCorrect?: boolean;
   wasDailyFeature: boolean;
   wasRandomSpin: boolean;
 };
@@ -45,6 +50,7 @@ export type RewardBreakdown = {
   lessonXp: number;
   challengeXp: number;
   perfectBonusXp: number;
+  bonusQuestionXp: number;
   dailyBonusXp: number;
   randomBonusXp: number;
   listenBonusXp: number;
