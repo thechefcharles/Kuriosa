@@ -60,6 +60,7 @@ export function HomeScreen() {
             <DailyCuriosityCard
               experience={daily.data.experience}
               themeLabel={daily.data.theme}
+              isCompleted={daily.data.isCompleted}
             />
           )}
         </section>

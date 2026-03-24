@@ -16,6 +16,14 @@ export type DailyCuriosityResult = {
   theme: string | null;
   /** ISO date string YYYY-MM-DD */
   date: string;
+  /** True when user has completed this topic (rewards_granted) */
+  isCompleted: boolean;
+};
+
+export type GetDailyCuriosityOptions = {
+  dateISO?: string;
+  /** When set, checks user_topic_history for isCompleted */
+  userId?: string | null;
 };
 
 /**
@@ -23,11 +31,11 @@ export type DailyCuriosityResult = {
  */
 export async function getDailyCuriosity(
   supabase: SupabaseClient,
-  dateISO?: string
+  dateISO?: string,
+  options?: GetDailyCuriosityOptions
 ): Promise<DailyCuriosityResult | null> {
   const date =
-    dateISO ??
-    new Date().toISOString().slice(0, 10);
+    options?.dateISO ?? dateISO ?? new Date().toISOString().slice(0, 10);
 
   const { data: row, error } = await supabase
     .from("daily_curiosity")
@@ -46,9 +54,22 @@ export async function getDailyCuriosity(
     return null;
   }
 
+  let isCompleted = false;
+  if (options?.userId?.trim()) {
+    const { data: hist } = await supabase
+      .from("user_topic_history")
+      .select("id")
+      .eq("user_id", options.userId)
+      .eq("topic_id", topicId)
+      .eq("rewards_granted", true)
+      .limit(1);
+    isCompleted = (hist?.length ?? 0) > 0;
+  }
+
   return {
     experience,
     theme: row.theme != null ? String(row.theme) : null,
     date: String(row.date ?? date),
+    isCompleted,
   };
 }

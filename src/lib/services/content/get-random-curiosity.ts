@@ -14,6 +14,8 @@ export type GetRandomCuriosityOptions = {
   difficultyLevel?: string;
   /** If set, excluded from the candidate pool when alternatives exist */
   excludeSlug?: string;
+  /** Topic IDs to exclude (e.g. completed) — when alternatives exist */
+  excludeTopicIds?: string[];
 };
 
 async function fetchCandidateIds(
@@ -78,7 +80,14 @@ export async function getRandomCuriosity(
     }
   }
 
-  const chosen = pickRandom(pool);
+  let poolFiltered = pool;
+  if (options.excludeTopicIds?.length) {
+    const excludeSet = new Set(options.excludeTopicIds);
+    poolFiltered = pool.filter((p) => !excludeSet.has(p.id));
+  }
+  if (!poolFiltered.length) poolFiltered = pool;
+
+  const chosen = pickRandom(poolFiltered);
   if (!chosen) return null;
 
   return loadCuriosityExperience(supabase, { topicId: chosen.id });

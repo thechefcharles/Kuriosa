@@ -6,8 +6,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { TopicCardView } from "@/types/discovery";
 import { mapTopicToTopicCardView } from "@/lib/services/discovery/read/discovery-read-helpers";
+import { getCompletedTopicIds } from "@/lib/services/progress/get-completed-topic-ids";
 
 const RESULT_LIMIT = 20;
+
+export type SearchTopicsOptions = {
+  userId?: string | null;
+};
 
 function ilikePattern(term: string): string {
   return `%${term.replace(/%/g, "").replace(/_/g, "").trim()}%`;
@@ -15,7 +20,8 @@ function ilikePattern(term: string): string {
 
 async function topicsToCardViews(
   supabase: SupabaseClient,
-  topicIds: string[]
+  topicIds: string[],
+  completedTopicIds: string[] = []
 ): Promise<TopicCardView[]> {
   const ids = topicIds.slice(0, RESULT_LIMIT);
   if (!ids.length) return [];
@@ -42,6 +48,7 @@ async function topicsToCardViews(
     })
   );
 
+  const completedSet = new Set(completedTopicIds);
   const byId = new Map(rows.map((r) => [String((r as { id: string }).id), r]));
   const out: TopicCardView[] = [];
   for (const id of ids) {
@@ -59,6 +66,7 @@ async function topicsToCardViews(
     const v = mapTopicToTopicCardView(row, {
       categoryName: c?.name,
       categorySlug: c?.slug,
+      isCompleted: completedSet.has(String(row.id)),
     });
     if (v) out.push(v);
   }
@@ -67,10 +75,15 @@ async function topicsToCardViews(
 
 export async function searchTopics(
   supabase: SupabaseClient,
-  rawQuery: string
+  rawQuery: string,
+  options?: SearchTopicsOptions
 ): Promise<TopicCardView[]> {
   const term = rawQuery.trim();
   if (term.length < 2) return [];
+
+  const completedIds = options?.userId?.trim()
+    ? await getCompletedTopicIds(supabase, options.userId)
+    : [];
 
   const pat = ilikePattern(term);
   const seen = new Set<string>();
@@ -133,5 +146,5 @@ export async function searchTopics(
     add((catTopics ?? []).map((r) => String((r as { id: string }).id)));
   }
 
-  return topicsToCardViews(supabase, orderedIds);
+  return topicsToCardViews(supabase, orderedIds, completedIds);
 }

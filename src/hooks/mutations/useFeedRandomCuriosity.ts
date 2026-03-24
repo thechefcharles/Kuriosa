@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { createSupabaseBrowserClient } from "@/lib/supabase/supabase-browser-client";
 import { getRandomCuriosity } from "@/lib/services/content/get-random-curiosity";
+import { getCompletedTopicIds } from "@/lib/services/progress/get-completed-topic-ids";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 
 /** Session key for last random topic slug (repeat avoidance). */
@@ -44,10 +45,18 @@ export function useFeedRandomCuriosity() {
     mutationKey: ["curiosity", "feed-random"],
     mutationFn: async (input) => {
       const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const excludeSlug = readExcludeSlug(input.dailyTopicSlug);
+      const excludeTopicIds = user?.id
+        ? await getCompletedTopicIds(supabase, user.id)
+        : [];
+
       return getRandomCuriosity(supabase, {
         difficultyLevel: input.difficultyLevel?.trim() || undefined,
         excludeSlug,
+        excludeTopicIds: excludeTopicIds.length ? excludeTopicIds : undefined,
       });
     },
   });

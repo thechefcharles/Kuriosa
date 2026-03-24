@@ -37,7 +37,8 @@ export const discoveryQueryKeys = {
     ["discovery", "category", slug] as const,
   categoryDetail: (slug: string) =>
     ["discovery", "category-detail", slug] as const,
-  featured: ["discovery", "featured"] as const,
+  featured: (userId?: string | null) =>
+    ["discovery", "featured", userId ?? "guest"] as const,
   recent: (userId: string) => ["discovery", "recent", userId] as const,
   searchTopics: (query: string) =>
     ["discovery", "search", query] as const,

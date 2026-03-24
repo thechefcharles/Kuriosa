@@ -24,10 +24,10 @@ export function TopicCard({
           {topic.title}
         </h3>
         {topic.isCompleted ? (
-          <CheckCircle2
-            className="h-5 w-5 shrink-0 text-emerald-500"
-            aria-label="Completed"
-          />
+          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
+            Completed
+          </span>
         ) : null}
       </div>
       <p className="mt-2 line-clamp-2 min-h-[2.5rem] text-sm text-muted-foreground">
