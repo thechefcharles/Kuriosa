@@ -60,6 +60,7 @@ export function ChallengeContinueExploringButton({
             streakAfter: d.streakAfter,
             curiosityScoreBefore: d.curiosityScoreBefore,
             curiosityScoreAfter: d.curiosityScoreAfter,
+            breakdown: d.breakdown ?? null,
             unlockedBadges: (d.unlockedBadges ?? []).map((b) => ({
               slug: b.slug,
               name: b.name,

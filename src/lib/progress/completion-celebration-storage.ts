@@ -7,6 +7,16 @@ const KEY = "kuriosa:completionCelebration";
 /** Drop celebration if not shown within this window (avoids surprise pop-ins days later). */
 export const COMPLETION_CELEBRATION_TTL_MS = 15 * 60 * 1000;
 
+export type RewardBreakdownPayload = {
+  lessonXp: number;
+  challengeXp: number;
+  perfectBonusXp: number;
+  bonusQuestionXp: number;
+  dailyBonusXp: number;
+  randomBonusXp: number;
+  listenBonusXp: number;
+};
+
 export type CompletionCelebrationPayload = {
   topicSlug: string;
   storedAtMs: number;
@@ -18,6 +28,8 @@ export type CompletionCelebrationPayload = {
   streakAfter: number;
   curiosityScoreBefore: number;
   curiosityScoreAfter: number;
+  /** XP breakdown for display (lesson, challenge, bonus, etc.) */
+  breakdown: RewardBreakdownPayload | null;
   unlockedBadges: { slug: string; name: string; description: string | null }[];
 };
 
@@ -43,6 +55,25 @@ function normalizePayload(raw: unknown): CompletionCelebrationPayload | null {
     !isFiniteNumber(o.curiosityScoreAfter)
   ) {
     return null;
+  }
+  let breakdown: CompletionCelebrationPayload["breakdown"] = null;
+  if (o.breakdown && typeof o.breakdown === "object") {
+    const b = o.breakdown as Record<string, unknown>;
+    if (
+      [b.lessonXp, b.challengeXp, b.perfectBonusXp, b.bonusQuestionXp, b.dailyBonusXp, b.randomBonusXp, b.listenBonusXp].every(
+        (v) => typeof v === "number" && Number.isFinite(v)
+      )
+    ) {
+      breakdown = {
+        lessonXp: b.lessonXp as number,
+        challengeXp: b.challengeXp as number,
+        perfectBonusXp: b.perfectBonusXp as number,
+        bonusQuestionXp: b.bonusQuestionXp as number,
+        dailyBonusXp: b.dailyBonusXp as number,
+        randomBonusXp: b.randomBonusXp as number,
+        listenBonusXp: b.listenBonusXp as number,
+      };
+    }
   }
   const badges = o.unlockedBadges;
   if (!Array.isArray(badges)) return null;
@@ -72,6 +103,7 @@ function normalizePayload(raw: unknown): CompletionCelebrationPayload | null {
     streakAfter: o.streakAfter,
     curiosityScoreBefore: o.curiosityScoreBefore,
     curiosityScoreAfter: o.curiosityScoreAfter,
+    breakdown,
     unlockedBadges: unlockedBadges as CompletionCelebrationPayload["unlockedBadges"],
   };
 }

@@ -66,6 +66,15 @@ export function ChallengeFeedback({
           <p className="text-base font-semibold text-foreground">
             {ok ? "Nice — you've got it." : "Not quite — here's the idea."}
           </p>
+          {ok && bonusCorrect ? (
+            <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+              Bonus complete — +10 XP
+            </p>
+          ) : ok && !bonusCorrect ? (
+            <p className="text-xs text-muted-foreground">
+              Earn XP when you see what&apos;s next
+            </p>
+          ) : null}
           {!ok && result.correctAnswerDisplay && result.correctAnswerDisplay !== "—" ? (
             <p className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">Answer: </span>

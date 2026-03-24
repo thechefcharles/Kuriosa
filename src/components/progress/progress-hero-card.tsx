@@ -1,9 +1,16 @@
+"use client";
+
+import { useState } from "react";
 import type { UserProgressSummary } from "@/types/progress-view";
 import { LevelProgressBar } from "@/components/progress/level-progress-bar";
-import { Sparkles, Trophy } from "lucide-react";
+import { Sparkles, Trophy, HelpCircle } from "lucide-react";
+
+const CURIOSITY_SCORE_EXPLANATION =
+  "Your curiosity score reflects how much you explore: topics completed, quiz accuracy, variety of categories, and your streak. It’s a simple way to see your learning journey — not a competition.";
 
 export function ProgressHeroCard({ summary }: { summary: UserProgressSummary }) {
   const labelId = "level-progress-label";
+  const [showScoreHelp, setShowScoreHelp] = useState(false);
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-violet-200/60 bg-gradient-to-br from-violet-50 via-white to-cyan-50/80 p-6 shadow-md dark:border-white/10 dark:from-kuriosa-midnight-blue dark:via-slate-900 dark:to-slate-950 sm:p-8">
@@ -25,14 +32,31 @@ export function ProgressHeroCard({ summary }: { summary: UserProgressSummary }) 
               {summary.totalXP.toLocaleString()} total XP
             </span>
           </div>
-          <div className="mt-4 flex items-center gap-2 rounded-xl bg-white/60 px-3 py-2 dark:bg-white/5">
-            <Trophy className="h-4 w-4 shrink-0 text-kuriosa-electric-cyan" aria-hidden />
-            <span className="text-sm font-medium text-kuriosa-midnight-blue dark:text-slate-100">
-              Curiosity score{" "}
-              <span className="tabular-nums text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
-                {summary.curiosityScore.toLocaleString()}
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center gap-2 rounded-xl bg-white/60 px-3 py-2 dark:bg-white/5">
+              <Trophy className="h-4 w-4 shrink-0 text-kuriosa-electric-cyan" aria-hidden />
+              <span className="text-sm font-medium text-kuriosa-midnight-blue dark:text-slate-100">
+                Curiosity score{" "}
+                <span className="tabular-nums text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
+                  {summary.curiosityScore.toLocaleString()}
+                </span>
               </span>
-            </span>
+              <button
+                type="button"
+                onClick={() => setShowScoreHelp((v) => !v)}
+                className="ml-1 rounded p-0.5 text-muted-foreground hover:text-kuriosa-deep-purple hover:bg-white/50 dark:hover:text-kuriosa-electric-cyan"
+                aria-expanded={showScoreHelp}
+                aria-label="What contributes to curiosity score?"
+                title={CURIOSITY_SCORE_EXPLANATION}
+              >
+                <HelpCircle className="h-4 w-4" aria-hidden />
+              </button>
+            </div>
+            {showScoreHelp ? (
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {CURIOSITY_SCORE_EXPLANATION}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

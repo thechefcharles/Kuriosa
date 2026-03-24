@@ -4,7 +4,8 @@
  */
 
 const BASE_XP_PER_TIER = 100;
-const LEVEL_EXPONENT = 1.35;
+/** Slightly gentler than 1.35 to reduce mid-level stagnation. */
+const LEVEL_EXPONENT = 1.30;
 
 /** XP needed to go from `level` to `level + 1` (level is 1-based). */
 export function xpRequiredToAdvanceFromLevel(level: number): number {
