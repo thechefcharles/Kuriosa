@@ -13,14 +13,12 @@ import {
 import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { cn } from "@/lib/utils";
-
-const DIFFICULTY_CARD_STYLES: Record<string, string> = {
-  beginner: "border-emerald-300/70 bg-emerald-50/90 dark:border-emerald-700/50 dark:bg-emerald-950/40",
-  easy: "border-emerald-300/70 bg-emerald-50/90 dark:border-emerald-700/50 dark:bg-emerald-950/40",
-  intermediate: "border-amber-300/70 bg-amber-50/90 dark:border-amber-800/50 dark:bg-amber-950/40",
-  advanced: "border-rose-300/70 bg-rose-50/90 dark:border-rose-800/50 dark:bg-rose-950/40",
-  expert: "border-rose-300/70 bg-rose-50/90 dark:border-rose-800/50 dark:bg-rose-950/40",
-};
+import {
+  DIFFICULTY_BANNER,
+  DEFAULT_BANNER,
+  CARD_BASE,
+} from "@/lib/constants/card-styles";
+import { getCategoryTheme } from "@/lib/constants/category-themes";
 
 const DIFFICULTY_OPTIONS = [
   { value: "", label: "All" },
@@ -102,10 +100,11 @@ export function FeedMyCuriosityButton({
 
   const diff =
     (previewTopic?.taxonomy.difficultyLevel ?? "").trim().toLowerCase();
-  const cardStyle =
-    DIFFICULTY_CARD_STYLES[diff] ??
-    "border-slate-200/90 bg-white/90 dark:border-white/10 dark:bg-slate-900/60";
-
+  const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
+  const theme = previewTopic
+    ? getCategoryTheme(previewTopic.taxonomy.categorySlug)
+    : null;
+  const Icon = theme?.icon;
   const showDifficultyButtons = difficultyOverride === undefined;
 
   return (
@@ -137,16 +136,39 @@ export function FeedMyCuriosityButton({
 
       {previewTopic ? (
         <div className="space-y-3">
-          <div className={cn("relative rounded-xl border p-4 shadow-sm", cardStyle)}>
-            <span className="absolute right-3 top-3 text-xs font-bold tabular-nums text-muted-foreground">
-              +{getCardXpFromDifficulty(previewTopic.taxonomy.difficultyLevel)} XP
-            </span>
-            <h3 className="line-clamp-3 pr-12 text-sm font-semibold leading-snug text-kuriosa-midnight-blue dark:text-white">
-              {previewTopic.identity.title}
-            </h3>
-            <p className="mt-2 text-xs font-medium text-muted-foreground">
-              {previewTopic.taxonomy.category}
-            </p>
+          <div
+            className={cn(
+              "overflow-hidden rounded-xl shadow-sm",
+              CARD_BASE
+            )}
+          >
+            <div className={cn("flex items-center justify-between gap-3 px-3 py-2", bannerBg)}>
+              {theme && Icon && (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5",
+                    theme.bar,
+                    "text-xs font-bold uppercase tracking-wide text-white"
+                  )}
+                >
+                  <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                  {previewTopic.taxonomy.category}
+                </span>
+              )}
+              <span
+                className={cn(
+                  "rounded-lg px-2 py-0.5 text-xs font-bold tabular-nums text-white",
+                  theme?.bar ?? "bg-white/20"
+                )}
+              >
+                +{getCardXpFromDifficulty(previewTopic.taxonomy.difficultyLevel)} XP
+              </span>
+            </div>
+            <div className="p-4">
+              <h3 className="line-clamp-3 text-sm font-semibold leading-snug text-kuriosa-midnight-blue dark:text-white">
+                {previewTopic.identity.title}
+              </h3>
+            </div>
           </div>
           <div className="flex gap-2">
             <Button

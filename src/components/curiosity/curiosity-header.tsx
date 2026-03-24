@@ -3,18 +3,12 @@
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { DifficultyLabel } from "@/components/curiosity/difficulty-label";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
+import {
+  DIFFICULTY_BANNER,
+  DEFAULT_BANNER,
+} from "@/lib/constants/card-styles";
 import { cn } from "@/lib/utils";
 import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
-
-const DIFFICULTY_TEXT_STYLES: Record<string, string> = {
-  beginner: "text-emerald-900 dark:text-emerald-100",
-  easy: "text-emerald-900 dark:text-emerald-100",
-  intermediate: "text-amber-900 dark:text-amber-100",
-  advanced: "text-rose-900 dark:text-rose-100",
-  expert: "text-rose-900 dark:text-rose-100",
-};
-
-const DEFAULT_TEXT = "text-kuriosa-midnight-blue dark:text-white";
 
 export function CuriosityHeader({
   experience,
@@ -26,43 +20,37 @@ export function CuriosityHeader({
   const theme = getCategoryTheme(experience.taxonomy.categorySlug);
   const Icon = theme.icon;
   const diff = (experience.taxonomy.difficultyLevel ?? "").trim().toLowerCase();
-  const textStyle = DIFFICULTY_TEXT_STYLES[diff] ?? DEFAULT_TEXT;
+  const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
+  const xp = getCardXpFromDifficulty(experience.taxonomy.difficultyLevel);
 
   return (
     <header className={cn("space-y-4", className)}>
-      {/* Boardwalk-style category banner + line (flush, no gap) */}
-      <div className="flex flex-col">
-        <div
-          className={cn(
-            "grid grid-cols-3 items-center gap-3 px-4 py-3",
-            theme.bar,
-            "text-white"
-          )}
-        >
-          <div />
-          <div className="flex items-center justify-center gap-2">
+      {/* Difficulty-colored banner with category + XP in category-colored boxes */}
+      <div className={cn("flex flex-col", bannerBg)}>
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1",
+              theme.bar,
+              "text-sm font-bold uppercase tracking-wide text-white"
+            )}
+          >
             <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
-            <span className="text-sm font-bold uppercase tracking-wide truncate">
-              {experience.taxonomy.category}
-            </span>
-          </div>
-          <div className="flex justify-end">
-            <span className="text-sm font-bold tabular-nums">
-              +{getCardXpFromDifficulty(experience.taxonomy.difficultyLevel)} XP
-            </span>
-          </div>
+            {experience.taxonomy.category}
+          </span>
+          <span
+            className={cn(
+              "rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+              theme.bar
+            )}
+          >
+            +{xp} XP
+          </span>
         </div>
-        {/* Line underneath (Monopoly-style) - flush with banner */}
-        <div className={cn("h-1 w-full shrink-0", theme.bar)} aria-hidden />
       </div>
       {/* Title + difficulty */}
       <div className="flex flex-col items-center gap-3 px-5 pb-2 text-center sm:px-6">
-        <h1
-          className={cn(
-            "text-2xl font-bold leading-tight tracking-tight sm:text-3xl",
-            textStyle
-          )}
-        >
+        <h1 className="text-2xl font-bold leading-tight tracking-tight text-kuriosa-midnight-blue dark:text-slate-50 sm:text-3xl">
           {experience.identity.title}
         </h1>
         <DifficultyLabel level={experience.taxonomy.difficultyLevel} />

@@ -4,33 +4,13 @@ import Link from "next/link";
 import type { TopicCardView } from "@/types/discovery";
 import { ROUTES } from "@/lib/constants/routes";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
+import {
+  DIFFICULTY_BANNER,
+  DEFAULT_BANNER,
+  CARD_BASE,
+} from "@/lib/constants/card-styles";
 import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
 import { cn } from "@/lib/utils";
-
-const DIFFICULTY_CARD_STYLES: Record<string, string> = {
-  beginner:
-    "border-emerald-400 bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/80",
-  easy:
-    "border-emerald-400 bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/80",
-  intermediate:
-    "border-amber-400 bg-amber-100 dark:border-amber-600 dark:bg-amber-900/80",
-  advanced:
-    "border-rose-400 bg-rose-100 dark:border-rose-600 dark:bg-rose-900/80",
-  expert:
-    "border-rose-400 bg-rose-100 dark:border-rose-600 dark:bg-rose-900/80",
-};
-
-const DIFFICULTY_TEXT_STYLES: Record<string, string> = {
-  beginner: "text-emerald-900 dark:text-emerald-100",
-  easy: "text-emerald-900 dark:text-emerald-100",
-  intermediate: "text-amber-900 dark:text-amber-100",
-  advanced: "text-rose-900 dark:text-rose-100",
-  expert: "text-rose-900 dark:text-rose-100",
-};
-
-const DEFAULT_CARD =
-  "border-slate-200/90 bg-white/90 dark:border-white/10 dark:bg-slate-900/60";
-const DEFAULT_TEXT = "text-kuriosa-midnight-blue dark:text-white";
 
 export function JumpInTopicCard({
   topic,
@@ -41,10 +21,10 @@ export function JumpInTopicCard({
 }) {
   const href = ROUTES.curiosity(topic.slug);
   const diff = (topic.difficulty ?? "").trim().toLowerCase();
-  const cardStyle = DIFFICULTY_CARD_STYLES[diff] ?? DEFAULT_CARD;
-  const textStyle = DIFFICULTY_TEXT_STYLES[diff] ?? DEFAULT_TEXT;
+  const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
   const theme = getCategoryTheme(topic.categorySlug);
   const Icon = theme.icon;
+  const xp = getCardXpFromDifficulty(topic.difficulty);
 
   return (
     <Link
@@ -53,44 +33,39 @@ export function JumpInTopicCard({
         "block min-h-[200px] overflow-hidden rounded-xl border shadow-sm transition-all",
         "hover:shadow-md active:scale-[0.99]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kuriosa-electric-cyan",
-        cardStyle,
+        CARD_BASE,
         className
       )}
     >
-      {/* Boardwalk-style category banner at top */}
+      {/* Difficulty-colored banner with category + XP in category-colored boxes */}
       <div
         className={cn(
-          "grid grid-cols-3 items-center gap-2 px-4 py-2",
-          theme.bar,
-          "text-white"
+          "flex items-center justify-between gap-2 px-4 py-2",
+          bannerBg
         )}
       >
-        <div />
-        <div className="flex items-center justify-center gap-2">
-          <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
-          <span className="text-xs font-bold uppercase tracking-wide">
-            {topic.categoryName}
-          </span>
-        </div>
-        <div className="flex justify-end">
-          <span className="text-xs font-bold tabular-nums">
-            +{getCardXpFromDifficulty(topic.difficulty)} XP
-          </span>
-        </div>
-      </div>
-      {/* Line underneath the category (Monopoly-style) */}
-      <div
-        className={cn("h-1 w-full shrink-0", theme.bar)}
-        aria-hidden
-      />
-      {/* Card body - difficulty colored */}
-      <div className="flex min-h-[160px] flex-col items-center justify-center p-5 text-center">
-        <h3
+        <span
           className={cn(
-            "text-base font-semibold leading-snug",
-            textStyle
+            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1",
+            theme.bar,
+            "text-xs font-bold uppercase tracking-wide text-white"
           )}
         >
+          <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
+          {topic.categoryName}
+        </span>
+        <span
+          className={cn(
+            "rounded-lg px-2.5 py-1 text-xs font-bold tabular-nums text-white",
+            theme.bar
+          )}
+        >
+          +{xp} XP
+        </span>
+      </div>
+      {/* Card body - white */}
+      <div className="flex min-h-[160px] flex-col items-center justify-center p-5 text-center">
+        <h3 className="text-base font-semibold leading-snug text-kuriosa-midnight-blue dark:text-slate-50">
           {topic.title}
         </h3>
       </div>

@@ -19,30 +19,7 @@ import { cn } from "@/lib/utils";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { isAudioAvailable } from "@/lib/audio/is-audio-available";
 import { initCuriosityModesSession } from "@/lib/services/progress/session-curiosity-modes";
-
-const DIFFICULTY_CARD_STYLES: Record<string, string> = {
-  beginner:
-    "border-emerald-400 bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/80",
-  easy:
-    "border-emerald-400 bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/80",
-  intermediate:
-    "border-amber-400 bg-amber-100 dark:border-amber-600 dark:bg-amber-900/80",
-  advanced:
-    "border-rose-400 bg-rose-100 dark:border-rose-600 dark:bg-rose-900/80",
-  expert:
-    "border-rose-400 bg-rose-100 dark:border-rose-600 dark:bg-rose-900/80",
-};
-
-const DEFAULT_CARD =
-  "border-slate-200/90 bg-white/90 dark:border-white/10 dark:bg-slate-900/60";
-
-const DIFFICULTY_TEXT_STYLES: Record<string, string> = {
-  beginner: "text-emerald-900 dark:text-emerald-100",
-  easy: "text-emerald-900 dark:text-emerald-100",
-  intermediate: "text-amber-900 dark:text-amber-100",
-  advanced: "text-rose-900 dark:text-rose-100",
-  expert: "text-rose-900 dark:text-rose-100",
-};
+import { CARD_BASE } from "@/lib/constants/card-styles";
 
 const DEFAULT_TEXT = "text-kuriosa-midnight-blue dark:text-slate-200";
 
@@ -124,9 +101,7 @@ function ExperienceView({
       />
     ) : undefined;
 
-  const diff = (experience.taxonomy.difficultyLevel ?? "").trim().toLowerCase();
-  const cardStyle = DIFFICULTY_CARD_STYLES[diff] ?? DEFAULT_CARD;
-  const textStyle = DIFFICULTY_TEXT_STYLES[diff] ?? DEFAULT_TEXT;
+  const textStyle = DEFAULT_TEXT;
 
   return (
     <>
@@ -145,10 +120,7 @@ function ExperienceView({
       </div>
 
       <article
-        className={cn(
-          "overflow-hidden rounded-xl border shadow-lg",
-          cardStyle
-        )}
+        className={cn("overflow-hidden rounded-xl shadow-lg", CARD_BASE)}
       >
         <CuriosityHeader experience={experience} />
 
