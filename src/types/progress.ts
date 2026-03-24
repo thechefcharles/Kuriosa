@@ -9,13 +9,13 @@ export type CompletionEventInput = {
   challengeCorrect: boolean;
   /** True when bonus question was attempted and answered correctly. */
   bonusCorrect?: boolean;
-  /** True when main challenge was correct on first try (no retry). */
-  firstTryCorrect?: boolean;
   wasDailyFeature: boolean;
   wasRandomSpin: boolean;
   usedListenMode: boolean;
-  /** Topic difficulty for multiplier: beginner, intermediate, advanced, etc. */
+  /** Topic difficulty for base XP: beginner=10, intermediate=20, advanced=30, expert=40 */
   difficultyLevel?: string | null;
+  /** Daily multiplier when wasDailyFeature (1.2–2.5). Fetched from daily_curiosity by caller. */
+  dailyMultiplier?: number;
 };
 
 /** Full payload for the progress processor (server-validated). */
@@ -31,8 +31,6 @@ export type CuriosityCompletionPayload = {
   challengeAttempted: boolean;
   challengeCorrect: boolean;
   bonusCorrect?: boolean;
-  /** True when main challenge correct on first try (no retry). */
-  firstTryCorrect?: boolean;
   wasDailyFeature: boolean;
   wasRandomSpin: boolean;
   usedListenMode: boolean;
@@ -50,21 +48,17 @@ export type CompleteCuriosityClientPayload = {
   challengeCorrect: boolean;
   /** True when user attempted bonus question and got it right. */
   bonusCorrect?: boolean;
-  /** True when main challenge correct on first try (no retry). */
-  firstTryCorrect?: boolean;
   wasDailyFeature: boolean;
   wasRandomSpin: boolean;
 };
 
 export type RewardBreakdown = {
-  lessonXp: number;
-  challengeXp: number;
-  perfectBonusXp: number;
+  /** Base XP from main quiz (correct = difficulty XP × multiplier, wrong = 5) */
+  mainQuizXp: number;
+  /** Bonus question correct = +10 flat */
   bonusQuestionXp: number;
-  firstTryBonusXp: number;
-  dailyBonusXp: number;
-  randomBonusXp: number;
-  listenBonusXp: number;
+  /** Daily multiplier applied (e.g. 1.5) when was daily feature */
+  dailyMultiplierApplied?: number;
 };
 
 export type RewardCalculationResult = {

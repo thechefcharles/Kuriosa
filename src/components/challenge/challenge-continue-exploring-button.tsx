@@ -19,14 +19,11 @@ export function ChallengeContinueExploringButton({
   slug,
   topicId,
   challengeCorrect,
-  firstTryCorrect = false,
   jackpot = false,
 }: {
   slug: string;
   topicId: string;
   challengeCorrect: boolean;
-  /** True when main challenge correct on first try (no retry). */
-  firstTryCorrect?: boolean;
   /** Gold shimmering jackpot style for the claim button */
   jackpot?: boolean;
 }) {
@@ -43,7 +40,6 @@ export function ChallengeContinueExploringButton({
         slug,
         modeUsed: getModeUsedLabel(slug),
         challengeCorrect,
-        firstTryCorrect,
         wasDailyFeature,
         wasRandomSpin,
       });

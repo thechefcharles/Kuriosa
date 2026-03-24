@@ -16,6 +16,8 @@ export type DailyCuriosityResult = {
   theme: string | null;
   /** ISO date string YYYY-MM-DD */
   date: string;
+  /** Daily multiplier for today (1.2–2.5). Default 1.5 if not set. */
+  dailyMultiplier?: number;
   /** True when user has completed this topic (rewards_granted) */
   isCompleted: boolean;
   /** XP earned when completed (from user_topic_history.xp_earned) */
@@ -43,7 +45,7 @@ export async function getDailyCuriosity(
 
   const { data: row, error } = await supabase
     .from("daily_curiosity")
-    .select("topic_id, theme, date")
+    .select("topic_id, theme, date, daily_multiplier")
     .eq("date", date)
     .maybeSingle();
 
@@ -80,10 +82,17 @@ export async function getDailyCuriosity(
     }
   }
 
+  const rawMult = (row as { daily_multiplier?: number | null }).daily_multiplier;
+  const dailyMultiplier =
+    rawMult != null && Number.isFinite(Number(rawMult))
+      ? Math.min(3, Math.max(1, Number(rawMult)))
+      : 1.5;
+
   return {
     experience,
     theme: row.theme != null ? String(row.theme) : null,
     date: String(row.date ?? date),
+    dailyMultiplier,
     isCompleted,
     ...(xpEarned !== undefined ? { xpEarned } : {}),
     ...(challengeCorrect !== undefined ? { challengeCorrect } : {}),

@@ -8,14 +8,20 @@ const KEY = "kuriosa:completionCelebration";
 export const COMPLETION_CELEBRATION_TTL_MS = 15 * 60 * 1000;
 
 export type RewardBreakdownPayload = {
-  lessonXp: number;
-  challengeXp: number;
-  perfectBonusXp: number;
-  bonusQuestionXp: number;
-  firstTryBonusXp: number;
-  dailyBonusXp: number;
-  randomBonusXp: number;
-  listenBonusXp: number;
+  /** New format: main quiz XP (correct = difficulty × mult, wrong = 5) */
+  mainQuizXp?: number;
+  /** New format: bonus question correct = +10 */
+  bonusQuestionXp?: number;
+  /** New format: daily multiplier applied (e.g. 1.5) */
+  dailyMultiplierApplied?: number;
+  /** Legacy fields (for backwards compat with stashed payloads) */
+  lessonXp?: number;
+  challengeXp?: number;
+  perfectBonusXp?: number;
+  firstTryBonusXp?: number;
+  dailyBonusXp?: number;
+  randomBonusXp?: number;
+  listenBonusXp?: number;
 };
 
 export type CompletionCelebrationPayload = {
@@ -64,10 +70,12 @@ function normalizePayload(raw: unknown): CompletionCelebrationPayload | null {
     const b = o.breakdown as Record<string, unknown>;
     const def = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : 0);
     breakdown = {
+      mainQuizXp: def(b.mainQuizXp),
+      bonusQuestionXp: def(b.bonusQuestionXp),
+      dailyMultiplierApplied: def(b.dailyMultiplierApplied) || undefined,
       lessonXp: def(b.lessonXp),
       challengeXp: def(b.challengeXp),
       perfectBonusXp: def(b.perfectBonusXp),
-      bonusQuestionXp: def(b.bonusQuestionXp),
       firstTryBonusXp: def(b.firstTryBonusXp),
       dailyBonusXp: def(b.dailyBonusXp),
       randomBonusXp: def(b.randomBonusXp),

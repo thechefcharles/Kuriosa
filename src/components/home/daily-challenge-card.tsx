@@ -29,6 +29,7 @@ export function DailyChallengeCard({
   isCompleted: isCompletedFromData,
   challengeCorrect,
   xpEarned,
+  dailyMultiplier = 1.5,
   className,
 }: {
   experience: LoadedCuriosityExperience;
@@ -38,6 +39,8 @@ export function DailyChallengeCard({
   challengeCorrect?: boolean;
   /** XP earned when completed (5 when wrong, more when correct) */
   xpEarned?: number;
+  /** Daily multiplier for today (1.2–2.5). Used for XP display when not completed. */
+  dailyMultiplier?: number;
   className?: string;
 }) {
   const slug = experience.identity.slug;
@@ -80,11 +83,10 @@ export function DailyChallengeCard({
       : undefined;
 
   const baseXp = Math.round(
-    getCardXpFromDifficulty(experience.taxonomy.difficultyLevel) *
-      XP_CONFIG.DAILY_CHALLENGE_XP_MULTIPLIER
+    getCardXpFromDifficulty(experience.taxonomy.difficultyLevel) * dailyMultiplier
   );
   const displayXpEarned =
-    xpEarned ?? (challengeCorrect ? baseXp : XP_CONFIG.DAILY_WRONG_ANSWER_XP);
+    xpEarned ?? (challengeCorrect ? baseXp : XP_CONFIG.WRONG_ANSWER_XP);
 
   const cardContent = (
     <article
@@ -99,6 +101,7 @@ export function DailyChallengeCard({
       <CuriosityHeader
         experience={experience}
         isDailyChallenge
+        dailyMultiplier={dailyMultiplier}
         completedState={
           hasCompletedChallenge && completedState
             ? { correct: completedState.correct, xpEarned: displayXpEarned }

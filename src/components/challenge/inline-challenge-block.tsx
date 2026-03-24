@@ -145,13 +145,11 @@ export function InlineChallengeBlock({
           result={result}
           onRetry={handleRetry}
           lessonText={lessonText}
-          firstTryCorrect={result.isCorrect && !hasRetried}
           inlineContinue={
             <InlineChallengeContinueButton
               slug={slug}
               topicId={experience.identity.id}
               challengeCorrect={result.isCorrect}
-              firstTryCorrect={result.isCorrect && !hasRetried}
               onComplete={onComplete}
               onPayload={setCompletionPayload}
             />
@@ -170,14 +168,12 @@ function InlineChallengeContinueButton({
   slug,
   topicId,
   challengeCorrect,
-  firstTryCorrect = false,
   onComplete,
   onPayload,
 }: {
   slug: string;
   topicId: string;
   challengeCorrect: boolean;
-  firstTryCorrect?: boolean;
   onComplete?: () => void;
   /** Called with API response to show inline celebration */
   onPayload?: (data: ProgressUpdateSuccess) => void;
@@ -196,7 +192,6 @@ function InlineChallengeContinueButton({
         slug,
         modeUsed: getModeUsedLabel(slug),
         challengeCorrect,
-        firstTryCorrect,
         wasDailyFeature,
         wasRandomSpin,
       });

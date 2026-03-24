@@ -81,11 +81,14 @@ const ADVANCED_LEVELS = new Set(["intermediate", "advanced", "expert"]);
 async function buildEvaluationContext(
   supabase: SupabaseClient,
   userId: string,
-  completedAtIso: string | null
+  completedAtIso: string | null,
+  options?: BadgeEvaluationOptions
 ): Promise<BadgeEvaluationContext | null> {
   const { data: profile, error: pErr } = await supabase
     .from("profiles")
-    .select("current_streak, longest_streak, last_active_date")
+    .select(
+      "current_streak, longest_streak, last_active_date, total_xp, correct_streak, longest_correct_streak"
+    )
     .eq("id", userId)
     .maybeSingle();
 
@@ -113,9 +116,34 @@ async function buildEvaluationContext(
 
   const topicIds = [...new Set(history.map((r) => String(r.topic_id)))];
   const completionsByCategorySlug: Record<string, number> = {};
+  const categoryXpBySlug: Record<string, number> = {};
   let categoriesExplored = 0;
   let maxCategoriesInOneDay = 0;
   let advancedInRowMax = 0;
+
+  const { data: catXpRows } = await supabase
+    .from("user_category_xp")
+    .select("category_id, total_xp")
+    .eq("user_id", userId);
+  if (catXpRows?.length) {
+    const catIds = catXpRows.map((r) => (r as { category_id: string }).category_id);
+    const { data: cats } = await supabase
+      .from("categories")
+      .select("id, slug")
+      .in("id", catIds);
+    const idToSlug = new Map(
+      (cats ?? []).map((c) => [
+        String((c as { id: string }).id),
+        String((c as { slug: string }).slug).toLowerCase(),
+      ])
+    );
+    for (const row of catXpRows) {
+      const slug = idToSlug.get(String((row as { category_id: string }).category_id));
+      if (slug) {
+        categoryXpBySlug[slug] = Number((row as { total_xp?: number }).total_xp) ?? 0;
+      }
+    }
+  }
 
   if (topicIds.length) {
     const { data: topics } = await supabase
@@ -203,20 +231,37 @@ async function buildEvaluationContext(
     if (diff > 1) comebackGapDays = diff;
   }
 
+  const prof = profile as {
+    current_streak?: number;
+    longest_streak?: number;
+    total_xp?: number;
+    correct_streak?: number;
+    longest_correct_streak?: number;
+  };
+
   return {
     topicsCompleted,
-    currentStreak: Number(profile.current_streak) || 0,
-    longestStreak: Number(profile.longest_streak) || 0,
+    currentStreak: Number(prof.current_streak) || 0,
+    longestStreak: Number(prof.longest_streak) || 0,
     categoriesExplored,
     quizzesCompleted,
     perfectChallengeCount,
     randomCompletionCount,
     completionsByCategorySlug,
+    categoryXpBySlug,
     maxCategoriesInOneDay,
     comebackGapDays,
     advancedInRowMax,
+    totalXp: Number(prof.total_xp) || 0,
+    correctStreak: Number(prof.correct_streak) || 0,
+    longestCorrectStreak: Number(prof.longest_correct_streak) || 0,
+    hitLuckyMultiplier: options?.hitLuckyMultiplier,
   };
 }
+
+export type BadgeEvaluationOptions = {
+  hitLuckyMultiplier?: boolean;
+};
 
 /**
  * Determines which badge definitions the user newly qualifies for (excluding already unlocked).
@@ -225,7 +270,8 @@ async function buildEvaluationContext(
 export async function evaluateBadgeEligibility(
   supabase: SupabaseClient,
   userId: string,
-  completedAtIso?: string | null
+  completedAtIso?: string | null,
+  options?: BadgeEvaluationOptions
 ): Promise<BadgeEligibilityResult | { error: string }> {
   const uid = userId.trim();
   if (!uid) return { error: "Missing user id" };
@@ -233,7 +279,7 @@ export async function evaluateBadgeEligibility(
   const [definitions, unlocked, ctx] = await Promise.all([
     loadBadgeDefinitions(supabase),
     loadUnlockedState(supabase, uid),
-    buildEvaluationContext(supabase, uid, completedAtIso ?? null),
+    buildEvaluationContext(supabase, uid, completedAtIso ?? null, options),
   ]);
 
   if (!unlocked.ok) {

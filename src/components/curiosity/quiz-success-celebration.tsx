@@ -18,14 +18,13 @@ function xpBreakdownLines(d: ProgressUpdateSuccess) {
   const b = d.breakdown;
   if (!b) return [];
   const lines: { label: string; xp: number }[] = [];
-  if (b.lessonXp > 0) lines.push({ label: "Lesson", xp: b.lessonXp });
-  if (b.challengeXp > 0) lines.push({ label: "Challenge", xp: b.challengeXp });
-  if (b.perfectBonusXp > 0) lines.push({ label: "Perfect run", xp: b.perfectBonusXp });
-  if (b.bonusQuestionXp > 0) lines.push({ label: "Bonus question", xp: b.bonusQuestionXp });
-  if (b.firstTryBonusXp > 0) lines.push({ label: "First-try correct", xp: b.firstTryBonusXp });
-  if (b.dailyBonusXp > 0) lines.push({ label: "Daily feature", xp: b.dailyBonusXp });
-  if (b.randomBonusXp > 0) lines.push({ label: "Spin discovery", xp: b.randomBonusXp });
-  if (b.listenBonusXp > 0) lines.push({ label: "Listen mode", xp: b.listenBonusXp });
+  if ((b.mainQuizXp ?? 0) > 0) {
+    const label = b.dailyMultiplierApplied
+      ? `Quiz (${b.dailyMultiplierApplied}× daily)`
+      : "Quiz";
+    lines.push({ label, xp: b.mainQuizXp! });
+  }
+  if ((b.bonusQuestionXp ?? 0) > 0) lines.push({ label: "Bonus question", xp: b.bonusQuestionXp! });
   return lines;
 }
 

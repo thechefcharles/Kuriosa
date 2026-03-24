@@ -42,6 +42,7 @@ export function HomeScreen() {
               isCompleted={daily.data.isCompleted}
               challengeCorrect={daily.data.challengeCorrect}
               xpEarned={daily.data.xpEarned}
+              dailyMultiplier={daily.data.dailyMultiplier}
             />
           )}
         </section>

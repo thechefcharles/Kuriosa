@@ -12,14 +12,24 @@ export type ApplyCompletionBadgesOutcome = {
   warnings: string[];
 };
 
+export type CompletionBadgeContext = {
+  hitLuckyMultiplier?: boolean;
+};
+
 export async function applyCompletionBadgeUnlocks(
   supabase: SupabaseClient,
   userId: string,
-  completedAtIso?: string | null
+  completedAtIso?: string | null,
+  completionContext?: CompletionBadgeContext
 ): Promise<ApplyCompletionBadgesOutcome> {
   const warnings: string[] = [];
 
-  const evalResult = await evaluateBadgeEligibility(supabase, userId, completedAtIso);
+  const evalResult = await evaluateBadgeEligibility(
+    supabase,
+    userId,
+    completedAtIso,
+    completionContext
+  );
   if ("error" in evalResult) {
     warnings.push(`Badge evaluation skipped: ${evalResult.error}`);
     return { unlockedBadges: [], warnings };

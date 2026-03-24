@@ -49,7 +49,6 @@ export function ChallengeFeedback({
   result,
   onRetry,
   lessonText,
-  firstTryCorrect = false,
   inlineContinue,
 }: {
   slug: string;
@@ -58,8 +57,6 @@ export function ChallengeFeedback({
   onRetry: () => void;
   /** When wrong, show "From the lesson" snippet to reinforce learning */
   lessonText?: string;
-  /** True when main challenge correct on first try (no retry) */
-  firstTryCorrect?: boolean;
   /** When provided, use this instead of ChallengeContinueExploringButton (e.g. inline on curiosity page) */
   inlineContinue?: React.ReactNode;
 }) {
@@ -141,7 +138,6 @@ export function ChallengeFeedback({
             slug={slug}
             topicId={topicId}
             challengeCorrect={ok}
-            firstTryCorrect={firstTryCorrect}
             jackpot={ok}
           />
         )}

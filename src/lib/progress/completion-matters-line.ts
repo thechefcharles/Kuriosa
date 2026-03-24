@@ -35,10 +35,8 @@ export function getCompletionMattersLine(input: CompletionMattersInput): string 
 
   if (levelAfter > levelBefore) return "You leveled up.";
   if (streakAfter > streakBefore && streakAfter >= 2) return "Your streak is still growing.";
-  if (breakdown?.firstTryBonusXp && breakdown.firstTryBonusXp > 0) return "That first-try answer gave you a small boost.";
   if (curiosityScoreAfter > curiosityScoreBefore) return "This topic strengthened your curiosity score.";
-  if (breakdown?.dailyBonusXp && breakdown.dailyBonusXp > 0) return "You completed today's pick.";
-  if (breakdown?.randomBonusXp && breakdown.randomBonusXp > 0) return "You followed a random discovery.";
+  if (breakdown?.dailyMultiplierApplied && breakdown.dailyMultiplierApplied > 0) return "You completed today's pick.";
   if (input.xpEarned > 0) return "You're getting closer to your next level.";
   if (wasCountedAsNewCompletion) return "You explored something new today.";
 

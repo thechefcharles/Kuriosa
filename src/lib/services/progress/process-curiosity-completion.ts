@@ -17,9 +17,13 @@ import type {
 import { calculateRewards } from "@/lib/progress/calculate-rewards";
 import { getLevelFromXP, getXPForNextLevel } from "@/lib/progress/level-config";
 import { calculateCuriosityScore } from "@/lib/progress/curiosity-score";
-import { calculateNextStreak } from "@/lib/progress/streak-utils";
+import {
+  calculateNextStreak,
+  calculateNextCorrectStreak,
+} from "@/lib/progress/streak-utils";
 import { applyCompletionBadgeUnlocks } from "@/lib/services/progress/apply-completion-badges";
 import { recordActivityEvent } from "@/lib/services/social/record-activity-event";
+import { getDailyMultiplier } from "@/lib/services/progress/get-daily-multiplier";
 
 function mergeModeUsed(
   previous: string | null | undefined,
@@ -44,20 +48,26 @@ function mergeModeUsed(
   return "read";
 }
 
-function toRewardEvent(
+async function toRewardEvent(
+  supabase: SupabaseClient,
   p: CuriosityCompletionPayload,
-  topicDifficultyLevel: string | null | undefined
-): CompletionEventInput {
+  topicDifficultyLevel: string | null | undefined,
+  completedAtIso: string
+): Promise<CompletionEventInput> {
+  let dailyMultiplier: number | undefined;
+  if (p.wasDailyFeature) {
+    dailyMultiplier = await getDailyMultiplier(supabase, completedAtIso);
+  }
   return {
     lessonCompleted: p.lessonCompleted,
     challengeAttempted: p.challengeAttempted,
     challengeCorrect: p.challengeCorrect,
     bonusCorrect: p.bonusCorrect,
-    firstTryCorrect: p.firstTryCorrect,
     wasDailyFeature: p.wasDailyFeature,
     wasRandomSpin: p.wasRandomSpin,
     usedListenMode: p.usedListenMode,
     difficultyLevel: p.difficultyLevel ?? topicDifficultyLevel,
+    dailyMultiplier,
   };
 }
 
@@ -151,7 +161,7 @@ export async function processCuriosityCompletion(
 
   const { data: topic, error: topicErr } = await supabase
     .from("topics")
-    .select("id, slug, difficulty_level")
+    .select("id, slug, difficulty_level, category_id")
     .eq("id", topicId)
     .maybeSingle();
 
@@ -165,7 +175,7 @@ export async function processCuriosityCompletion(
   const { data: profile, error: profErr } = await supabase
     .from("profiles")
     .select(
-      "total_xp, current_level, curiosity_score, current_streak, longest_streak, last_active_date"
+      "total_xp, current_level, curiosity_score, current_streak, longest_streak, last_active_date, correct_streak, longest_correct_streak"
     )
     .eq("id", userId)
     .maybeSingle();
@@ -181,6 +191,8 @@ export async function processCuriosityCompletion(
     current_streak: number;
     longest_streak: number;
     last_active_date: string | null;
+    correct_streak?: number;
+    longest_correct_streak?: number;
   };
 
   const levelBefore = getLevelFromXP(p.total_xp);
@@ -259,7 +271,13 @@ export async function processCuriosityCompletion(
   }
 
   const topicDifficulty = (topic as { difficulty_level?: string | null })?.difficulty_level;
-  const rewards = calculateRewards(toRewardEvent(payload, topicDifficulty));
+  const rewardEvent = await toRewardEvent(
+    supabase,
+    payload,
+    topicDifficulty,
+    completedAtIso
+  );
+  const rewards = calculateRewards(rewardEvent);
 
   const { data: claimed, error: claimErr } = await supabase
     .from("user_topic_history")
@@ -315,6 +333,14 @@ export async function processCuriosityCompletion(
     : p.longest_streak;
   const today = now.toISOString().slice(0, 10);
 
+  const currCorrect = p.correct_streak ?? 0;
+  const longCorrect = p.longest_correct_streak ?? 0;
+  const correctResult = calculateNextCorrectStreak(
+    payload.challengeCorrect,
+    currCorrect,
+    longCorrect
+  );
+
   const scoreInputs = await fetchScoreInputs(supabase, userId);
   const curiosityScoreAfter = calculateCuriosityScore({
     topicsCompleted: scoreInputs.topicsCompleted,
@@ -323,18 +349,44 @@ export async function processCuriosityCompletion(
     streakLength: streak,
   });
 
+  const profileUpdate: Record<string, unknown> = {
+    total_xp: newXp,
+    current_level: levelAfter,
+    curiosity_score: curiosityScoreAfter,
+    current_streak: streak,
+    longest_streak: longest,
+    correct_streak: correctResult.nextCorrectStreak,
+    longest_correct_streak: correctResult.longestCorrectStreak,
+    last_active_date: today,
+    updated_at: completedAtIso,
+  };
+
   const { error: profUp } = await supabase
     .from("profiles")
-    .update({
-      total_xp: newXp,
-      current_level: levelAfter,
-      curiosity_score: curiosityScoreAfter,
-      current_streak: streak,
-      longest_streak: longest,
-      last_active_date: today,
-      updated_at: completedAtIso,
-    })
+    .update(profileUpdate)
     .eq("id", userId);
+
+  const categoryId = (topic as { category_id?: string | null }).category_id;
+  if (categoryId && rewards.xpEarned > 0) {
+    const { data: catRow } = await supabase
+      .from("user_category_xp")
+      .select("total_xp")
+      .eq("user_id", userId)
+      .eq("category_id", categoryId)
+      .maybeSingle();
+
+    const existing = catRow as { total_xp?: number } | null;
+    const prev = existing?.total_xp ?? 0;
+    await supabase.from("user_category_xp").upsert(
+      {
+        user_id: userId,
+        category_id: categoryId,
+        total_xp: prev + rewards.xpEarned,
+        updated_at: completedAtIso,
+      },
+      { onConflict: "user_id,category_id" }
+    );
+  }
 
   if (profUp) {
     await supabase
@@ -352,7 +404,16 @@ export async function processCuriosityCompletion(
     };
   }
 
-  const badgeOutcome = await applyCompletionBadgeUnlocks(supabase, userId, completedAtIso);
+  const badgeOutcome = await applyCompletionBadgeUnlocks(
+    supabase,
+    userId,
+    completedAtIso,
+    {
+      hitLuckyMultiplier:
+        payload.wasDailyFeature &&
+        (rewardEvent.dailyMultiplier ?? 0) >= 2.5,
+    }
+  );
 
   const data: ProgressUpdateSuccess = {
     xpEarned: rewards.xpEarned,

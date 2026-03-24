@@ -166,7 +166,6 @@ export function ChallengeScreen({ slug }: { slug: string }) {
           result={result}
           onRetry={handleRetry}
           lessonText={lessonText}
-          firstTryCorrect={result.isCorrect && !hasRetried}
         />
       ) : null}
     </div>

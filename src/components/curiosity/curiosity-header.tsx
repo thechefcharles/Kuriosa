@@ -8,21 +8,21 @@ import {
   DEFAULT_BANNER,
 } from "@/lib/constants/card-styles";
 import { cn } from "@/lib/utils";
-import {
-  getCardXpFromDifficulty,
-  XP_CONFIG,
-} from "@/lib/progress/xp-config";
+import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
 
 export function CuriosityHeader({
   experience,
   className,
   isDailyChallenge,
+  dailyMultiplier = 1.5,
   completedState,
 }: {
   experience: LoadedCuriosityExperience;
   className?: string;
   /** When true, show boosted XP (daily challenge multiplier) */
   isDailyChallenge?: boolean;
+  /** Daily multiplier when isDailyChallenge (1.2–2.5). Default 1.5. */
+  dailyMultiplier?: number;
   /** When set, show completion XP styling (gold shimmer if correct, red if wrong) */
   completedState?: { correct: boolean; xpEarned: number };
 }) {
@@ -32,9 +32,7 @@ export function CuriosityHeader({
   const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
   const baseXp = getCardXpFromDifficulty(experience.taxonomy.difficultyLevel);
   const xp =
-    isDailyChallenge
-      ? Math.round(baseXp * XP_CONFIG.DAILY_CHALLENGE_XP_MULTIPLIER)
-      : baseXp;
+    isDailyChallenge ? Math.round(baseXp * dailyMultiplier) : baseXp;
   const displayXp = completedState ? completedState.xpEarned : xp;
   const xpBadgeClass = completedState
     ? completedState.correct

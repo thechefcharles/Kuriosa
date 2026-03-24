@@ -18,8 +18,7 @@ function isPayload(
     typeof o.challengeCorrect === "boolean" &&
     typeof o.wasDailyFeature === "boolean" &&
     typeof o.wasRandomSpin === "boolean" &&
-    (o.bonusCorrect === undefined || typeof o.bonusCorrect === "boolean") &&
-    (o.firstTryCorrect === undefined || typeof o.firstTryCorrect === "boolean")
+    (o.bonusCorrect === undefined || typeof o.bonusCorrect === "boolean")
   );
 }
 
@@ -74,7 +73,6 @@ export async function POST(request: Request) {
     challengeAttempted: true,
     challengeCorrect: body.challengeCorrect,
     bonusCorrect: body.bonusCorrect,
-    firstTryCorrect: body.firstTryCorrect,
     wasDailyFeature: body.wasDailyFeature,
     wasRandomSpin: body.wasRandomSpin,
     usedListenMode,

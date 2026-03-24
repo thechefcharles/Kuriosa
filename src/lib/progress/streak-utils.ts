@@ -64,3 +64,30 @@ export function calculateNextStreak(
 
   return { nextStreak: 1, countedToday: true };
 }
+
+export type NextCorrectStreakResult = {
+  nextCorrectStreak: number;
+  longestCorrectStreak: number;
+};
+
+/**
+ * Correct-answer streak: increases on correct main quiz, resets on wrong.
+ * Used for "On a Roll", "Locked In", etc. badges.
+ */
+export function calculateNextCorrectStreak(
+  challengeCorrect: boolean,
+  currentCorrectStreak: number,
+  longestCorrectStreak: number
+): NextCorrectStreakResult {
+  if (challengeCorrect) {
+    const next = currentCorrectStreak + 1;
+    return {
+      nextCorrectStreak: next,
+      longestCorrectStreak: Math.max(longestCorrectStreak, next),
+    };
+  }
+  return {
+    nextCorrectStreak: 0,
+    longestCorrectStreak,
+  };
+}

@@ -20,14 +20,17 @@ import { cn } from "@/lib/utils";
 
 function xpBreakdownLines(b: RewardBreakdownPayload) {
   const lines: { label: string; xp: number }[] = [];
-  if (b.lessonXp > 0) lines.push({ label: "Lesson", xp: b.lessonXp });
-  if (b.challengeXp > 0) lines.push({ label: "Challenge", xp: b.challengeXp });
-  if (b.perfectBonusXp > 0) lines.push({ label: "Perfect run", xp: b.perfectBonusXp });
-  if (b.bonusQuestionXp > 0) lines.push({ label: "Bonus question", xp: b.bonusQuestionXp });
-  if (b.firstTryBonusXp > 0) lines.push({ label: "First-try correct", xp: b.firstTryBonusXp });
-  if (b.dailyBonusXp > 0) lines.push({ label: "Daily feature", xp: b.dailyBonusXp });
-  if (b.randomBonusXp > 0) lines.push({ label: "Spin discovery", xp: b.randomBonusXp });
-  if (b.listenBonusXp > 0) lines.push({ label: "Listen mode", xp: b.listenBonusXp });
+  const main = b.mainQuizXp ?? (b.lessonXp ?? 0) + (b.challengeXp ?? 0) + (b.perfectBonusXp ?? 0);
+  if (main > 0) {
+    const label = b.dailyMultiplierApplied
+      ? `Quiz (${b.dailyMultiplierApplied}× daily)`
+      : "Quiz";
+    lines.push({ label, xp: main });
+  }
+  if ((b.bonusQuestionXp ?? 0) > 0) lines.push({ label: "Bonus question", xp: b.bonusQuestionXp! });
+  if ((b.dailyBonusXp ?? 0) > 0) lines.push({ label: "Daily feature", xp: b.dailyBonusXp! });
+  if ((b.randomBonusXp ?? 0) > 0) lines.push({ label: "Spin discovery", xp: b.randomBonusXp! });
+  if ((b.listenBonusXp ?? 0) > 0) lines.push({ label: "Listen mode", xp: b.listenBonusXp! });
   return lines;
 }
 
@@ -84,12 +87,8 @@ export function CompletionCelebrationCard({
 
   const hasBonusXp =
     payload.breakdown &&
-    (payload.breakdown.perfectBonusXp > 0 ||
-      payload.breakdown.bonusQuestionXp > 0 ||
-      payload.breakdown.firstTryBonusXp > 0 ||
-      payload.breakdown.dailyBonusXp > 0 ||
-      payload.breakdown.randomBonusXp > 0 ||
-      payload.breakdown.listenBonusXp > 0);
+    ((payload.breakdown.bonusQuestionXp ?? 0) > 0 ||
+      (payload.breakdown.dailyMultiplierApplied ?? 0) > 0);
 
   const handleDiscover = () => {
     onDismiss();
