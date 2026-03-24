@@ -118,7 +118,7 @@ export function FeedMyCuriosityButton({
         ) : (
           <span className="inline-flex items-center gap-2">
             <Shuffle className="h-4 w-4 shrink-0" aria-hidden />
-            Feed my curiosity
+            Random curiosity
           </span>
         )}
       </Button>

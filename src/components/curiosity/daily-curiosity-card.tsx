@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Clock } from "lucide-react";
+import { Check } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants/routes";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
@@ -27,22 +27,32 @@ export function DailyCuriosityCard({
 }: DailyCuriosityCardProps) {
   const slug = experience.identity.slug;
   const href = ROUTES.curiosity(slug);
-  const minutes = experience.discoveryCard.estimatedMinutes;
   const category = experience.taxonomy.category;
   const difficulty = formatDifficulty(experience.taxonomy.difficultyLevel);
 
   return (
     <article
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-slate-200/90 bg-gradient-to-br from-white via-white to-violet-50/80 p-6 shadow-lg shadow-violet-950/10 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-kuriosa-deep-purple/20 dark:shadow-violet-950/25 sm:p-6",
-        className
+        "relative overflow-hidden rounded-3xl border p-6 shadow-lg sm:p-6",
+        isCompleted
+          ? "border-emerald-400/60 bg-emerald-50/90 dark:border-emerald-600/40 dark:bg-emerald-950/40 dark:shadow-emerald-950/20"
+          : "border-slate-200/90 bg-gradient-to-br from-white via-white to-violet-50/80 shadow-violet-950/10 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-kuriosa-deep-purple/20 dark:shadow-violet-950/25"
       )}
     >
-      {/* Single accent glow */}
-      <div
-        className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-kuriosa-electric-cyan/15 blur-3xl dark:bg-kuriosa-electric-cyan/10"
-        aria-hidden
-      />
+      {/* Black checkmark in top right when completed */}
+      {isCompleted ? (
+        <div
+          className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-black"
+          aria-hidden
+        >
+          <Check className="h-6 w-6 text-white" strokeWidth={2.5} />
+        </div>
+      ) : (
+        <div
+          className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-kuriosa-electric-cyan/15 blur-3xl dark:bg-kuriosa-electric-cyan/10"
+          aria-hidden
+        />
+      )}
 
       {/* Category · Difficulty row */}
       <p className="relative mb-2 text-xs font-medium text-muted-foreground">
@@ -50,31 +60,25 @@ export function DailyCuriosityCard({
         {difficulty ? ` · ${difficulty}` : ""}
       </p>
 
-      {/* Completed badge when applicable */}
-      {isCompleted ? (
-        <span className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-          <CheckCircle2 className="h-3 w-3" aria-hidden />
-          Completed
-        </span>
-      ) : null}
-
       {/* Large title */}
-      <h2 className="relative mb-3 text-2xl font-bold leading-tight tracking-tight text-kuriosa-midnight-blue dark:text-slate-50 sm:text-3xl">
+      <h2
+        className={cn(
+          "relative mb-3 text-2xl font-bold leading-tight tracking-tight sm:text-3xl",
+          isCompleted ? "text-emerald-900 dark:text-emerald-100" : "text-kuriosa-midnight-blue dark:text-slate-50"
+        )}
+      >
         {experience.identity.title}
       </h2>
 
       {/* Hook question */}
-      <p className="relative mb-5 text-base leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg">
+      <p
+        className={cn(
+          "relative mb-6 text-base leading-relaxed sm:text-lg",
+          isCompleted ? "text-emerald-800 dark:text-emerald-200" : "text-slate-600 dark:text-slate-300"
+        )}
+      >
         {experience.discoveryCard.hookQuestion}
       </p>
-
-      {/* Metadata row */}
-      <div className="relative mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Clock className="h-4 w-4 shrink-0" aria-hidden />
-        <span>
-          About {minutes} min{minutes === 1 ? "" : "s"}
-        </span>
-      </div>
 
       {/* Primary CTA */}
       <Link

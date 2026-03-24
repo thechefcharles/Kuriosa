@@ -8,36 +8,10 @@ import { DailyCuriosityCardSkeleton } from "@/components/curiosity/daily-curiosi
 import { HomeDailyEmpty, HomeDailyError } from "@/components/home/home-daily-states";
 import { FeedMyCuriosityButton } from "@/components/curiosity/feed-my-curiosity-button";
 import { ROUTES } from "@/lib/constants/routes";
-import { getSessionCompletionCount } from "@/lib/progress/session-completion-tracker";
 import { cn } from "@/lib/utils";
-
-function getHomeHeaderCopy(
-  sessionCount: number,
-  isDailyCompleted: boolean
-): { eyebrow: string; title: string } {
-  if (sessionCount >= 2) {
-    return {
-      eyebrow: "Today's curiosity",
-      title: "You're on a roll",
-    };
-  }
-  if (sessionCount === 1) {
-    return {
-      eyebrow: "Today's curiosity",
-      title: isDailyCompleted ? "Ready for another?" : "1 curiosity explored today",
-    };
-  }
-  return {
-    eyebrow: "Today's curiosity",
-    title: "Start with today's pick.",
-  };
-}
 
 export function HomeScreen() {
   const daily = useDailyCuriosity();
-  const sessionCount = getSessionCompletionCount();
-  const isDailyCompleted = daily.data?.isCompleted ?? false;
-  const { eyebrow, title } = getHomeHeaderCopy(sessionCount, isDailyCompleted);
 
   return (
     <div
@@ -49,14 +23,11 @@ export function HomeScreen() {
       <PageContainer className="max-w-md pb-10 pt-5 sm:pt-6">
         {/* 1. Compact header */}
         <header className="mb-4" aria-labelledby="home-daily-heading">
-          <p
+          <h1
             id="home-daily-heading"
-            className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            className="text-xl font-semibold tracking-tight text-kuriosa-midnight-blue dark:text-slate-100"
           >
-            {eyebrow}
-          </p>
-          <h1 className="mt-1 text-xl font-semibold tracking-tight text-kuriosa-midnight-blue dark:text-slate-100">
-            {title}
+            Today&apos;s curiosity
           </h1>
         </header>
 
@@ -82,7 +53,7 @@ export function HomeScreen() {
           aria-label="Random curiosity"
         >
           <p className="mb-3 text-sm font-medium text-muted-foreground">
-            {sessionCount >= 1 ? "Try a surprise" : "Prefer a surprise?"}
+            Random curiosity
           </p>
           <FeedMyCuriosityButton
             dailyTopicSlug={daily.data?.experience.identity.slug ?? null}
