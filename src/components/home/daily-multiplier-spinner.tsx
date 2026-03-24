@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Zap } from "lucide-react";
 import { XP_CONFIG } from "@/lib/progress/xp-config";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,14 +39,12 @@ export function DailyMultiplierSpinner({
 
   return (
     <div
+      id="daily-boost-spinner"
       className={cn(
-        "flex flex-col items-center gap-1.5",
+        "flex flex-col items-center",
         className
       )}
     >
-      <span className="text-[10px] font-semibold uppercase tracking-widest text-amber-600/90 dark:text-amber-400/80">
-        Today&apos;s boost
-      </span>
       <Button
         type="button"
         variant="ghost"
@@ -58,16 +57,22 @@ export function DailyMultiplierSpinner({
           "hover:border-amber-500/80 hover:from-amber-150/95 hover:to-amber-250/90",
           "disabled:pointer-events-none disabled:opacity-100",
           "dark:border-amber-500/40 dark:from-amber-950/80 dark:to-amber-900/60",
-          "dark:hover:border-amber-500/60"
+          "dark:hover:border-amber-500/60",
+          !hasSpun && "shadow-[0_0_24px_rgba(245,158,11,0.6)] dark:shadow-[0_0_24px_rgba(251,191,36,0.5)]",
+          !hasSpun && "animate-[spin-glow_2s_ease-in-out_infinite,boost-pulsate_1.8s_ease-in-out_infinite]"
         )}
       >
         <div
-          className="relative h-12 w-16 overflow-hidden rounded-lg"
+          className={cn(
+            "relative flex h-12 items-center justify-center overflow-hidden rounded-lg",
+            !hasSpun ? "min-w-[6rem] px-5" : "min-w-[6rem]"
+          )}
         >
           {!hasSpun ? (
-            <div className="flex h-full w-full flex-col items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center gap-1.5">
+              <Zap className="h-4 w-4 shrink-0 fill-amber-500 text-amber-600 group-hover:fill-amber-400 group-hover:text-amber-500 dark:fill-amber-400 dark:text-amber-400 dark:group-hover:fill-amber-300 dark:group-hover:text-amber-300" aria-hidden />
               <span className="text-sm font-bold uppercase tracking-wide text-amber-600 group-hover:text-amber-700 dark:text-amber-400 dark:group-hover:text-amber-300">
-                Spin
+                Boost
               </span>
             </div>
           ) : (

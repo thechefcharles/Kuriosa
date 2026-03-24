@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useDailyCuriosity } from "@/hooks/queries/useDailyCuriosity";
+import { useDailyBoostRevealed } from "@/hooks/useDailyBoostRevealed";
 import { PageContainer } from "@/components/shared/page-container";
 import { DailyChallengeCard } from "@/components/home/daily-challenge-card";
 import { DailyMultiplierSpinner } from "@/components/home/daily-multiplier-spinner";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 export function HomeScreen() {
   const daily = useDailyCuriosity();
-  const [boostRevealed, setBoostRevealed] = useState(false);
+  const [boostRevealed, setBoostRevealed] = useDailyBoostRevealed();
 
   return (
     <div

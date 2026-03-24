@@ -1,5 +1,6 @@
 "use client";
 
+import { Zap } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
@@ -10,6 +11,7 @@ export function NextStepCallout({
   experience,
   onClick,
   xpDisplay,
+  showBoost,
 }: {
   slug: string;
   experience: LoadedCuriosityExperience;
@@ -17,6 +19,8 @@ export function NextStepCallout({
   onClick?: () => void;
   /** XP to show in bottom right (optional) */
   xpDisplay?: number;
+  /** When true, show lightning bolt before XP to indicate boost applied */
+  showBoost?: boolean;
 }) {
   const theme = getCategoryTheme(experience.taxonomy.categorySlug);
   return (
@@ -35,10 +39,13 @@ export function NextStepCallout({
         {xpDisplay != null && (
           <span
             className={cn(
-              "shrink-0 rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
-              theme.bar
+              "inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+              showBoost ? "xp-badge-correct" : theme.bar
             )}
           >
+            {showBoost && (
+              <Zap className="h-3.5 w-3.5 shrink-0 fill-current" aria-hidden />
+            )}
             +{xpDisplay} XP
           </span>
         )}

@@ -2,13 +2,22 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Zap } from "lucide-react";
 import { CuriosityHeader } from "@/components/curiosity/curiosity-header";
 import { LessonContent } from "@/components/curiosity/lesson-content";
 import { AudioPlayer } from "@/components/curiosity/audio-player";
 import { NextStepCallout } from "@/components/curiosity/next-step-callout";
 import { InlineChallengeBlock } from "@/components/challenge/inline-challenge-block";
 import { CompletionCelebrationHost } from "@/components/curiosity/completion-celebration-host";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { CARD_BASE } from "@/lib/constants/card-styles";
 import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 import { initCuriosityModesSession } from "@/lib/services/progress/session-curiosity-modes";
@@ -21,6 +30,28 @@ import {
   XP_CONFIG,
   getCardXpFromDifficulty,
 } from "@/lib/progress/xp-config";
+
+const BOOST_REMINDER_KEY = "kuriosa-boost-reminder-shown";
+
+function getBoostReminderShown(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const today = new Date().toDateString();
+    return sessionStorage.getItem(`${BOOST_REMINDER_KEY}-${today}`) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function setBoostReminderShown(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const today = new Date().toDateString();
+    sessionStorage.setItem(`${BOOST_REMINDER_KEY}-${today}`, "true");
+  } catch {
+    // ignore
+  }
+}
 
 const DEFAULT_TEXT = "text-kuriosa-midnight-blue dark:text-slate-200";
 
@@ -51,6 +82,7 @@ export function DailyChallengeCard({
   const [hasJustCompleted, setHasJustCompleted] = useState(false);
   const [showInlineChallenge, setShowInlineChallenge] = useState(false);
   const [completionCheckKey, setCompletionCheckKey] = useState(0);
+  const [showBoostReminder, setShowBoostReminder] = useState(false);
 
   const hasCompletedChallenge =
     isCompletedFromData ?? (isCompleted(experience.identity.id) || hasJustCompleted);
@@ -66,6 +98,28 @@ export function DailyChallengeCard({
   }, []);
 
   const handleConsumed = useCallback(() => setHasJustCompleted(true), []);
+
+  const handleTakeQuizClick = useCallback(() => {
+    if (!boostRevealed && !getBoostReminderShown()) {
+      setBoostReminderShown();
+      setShowBoostReminder(true);
+      return;
+    }
+    setShowInlineChallenge(true);
+  }, [boostRevealed]);
+
+  const handleGoSpin = useCallback(() => {
+    setShowBoostReminder(false);
+    document.getElementById("daily-boost-spinner")?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, []);
+
+  const handleTakeQuizAnyway = useCallback(() => {
+    setShowBoostReminder(false);
+    setShowInlineChallenge(true);
+  }, []);
 
   const hasAudio = isAudioAvailable(experience.audio);
   const playButtonSlot =
@@ -111,8 +165,6 @@ export function DailyChallengeCard({
             ? { correct: completedState.correct, xpEarned: displayXpEarned }
             : undefined
         }
-        boostRevealed={boostRevealed}
-        boostMultiplier={dailyMultiplier}
       />
 
       <div className="space-y-6 p-5 sm:p-6">
@@ -134,8 +186,9 @@ export function DailyChallengeCard({
               <NextStepCallout
                 slug={slug}
                 experience={experience}
-                onClick={() => setShowInlineChallenge(true)}
+                onClick={() => handleTakeQuizClick()}
                 xpDisplay={boostRevealed ? baseXp : getCardXpFromDifficulty(experience.taxonomy.difficultyLevel)}
+                showBoost={boostRevealed}
               />
             )}
 
@@ -171,10 +224,13 @@ export function DailyChallengeCard({
                   </Link>
                   <span
                     className={cn(
-                      "shrink-0 rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+                      "inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
                       isRetry ? "xp-badge-wrong" : "xp-badge-correct"
                     )}
                   >
+                    {boostRevealed && !isRetry && (
+                      <Zap className="h-3.5 w-3.5 shrink-0 fill-current" aria-hidden />
+                    )}
                     +{displayXpEarned} XP
                   </span>
                 </div>
@@ -191,6 +247,23 @@ export function DailyChallengeCard({
           />
         </section>
       </div>
+
+      <Dialog open={showBoostReminder} onOpenChange={setShowBoostReminder}>
+        <DialogContent showCloseButton>
+          <DialogHeader>
+            <DialogTitle>Boost for extra XP!</DialogTitle>
+            <DialogDescription className="text-sm">
+              Click the Boost button above before taking the quiz to multiply your XP reward.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter showCloseButton={false}>
+            <Button variant="outline" onClick={handleGoSpin}>
+              Go boost
+            </Button>
+            <Button onClick={handleTakeQuizAnyway}>Take quiz anyway</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </article>
   );
 

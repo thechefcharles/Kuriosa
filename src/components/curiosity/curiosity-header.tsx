@@ -14,8 +14,6 @@ export function CuriosityHeader({
   isDailyChallenge,
   dailyMultiplier = 1.5,
   completedState,
-  boostRevealed,
-  boostMultiplier,
 }: {
   experience: LoadedCuriosityExperience;
   className?: string;
@@ -25,10 +23,6 @@ export function CuriosityHeader({
   dailyMultiplier?: number;
   /** When set, show completion XP styling (gold shimmer if correct, red if wrong) */
   completedState?: { correct: boolean; xpEarned: number };
-  /** When true, show "X× boost applied" badge (daily challenge only) */
-  boostRevealed?: boolean;
-  /** Multiplier value for boost badge (e.g. 1.5) */
-  boostMultiplier?: number;
 }) {
   const theme = getCategoryTheme(experience.taxonomy.categorySlug);
   const Icon = theme.icon;
@@ -51,11 +45,6 @@ export function CuriosityHeader({
             <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
             <span className="truncate max-w-[160px]">{experience.taxonomy.category}</span>
           </span>
-          {isDailyChallenge && boostRevealed && boostMultiplier != null && !completedState && (
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 rounded-md bg-amber-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-              {boostMultiplier}× boost applied
-            </span>
-          )}
         </div>
       </div>
       {/* Title + difficulty */}
