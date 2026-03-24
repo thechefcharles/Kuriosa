@@ -183,3 +183,31 @@ If `npx tsc --noEmit` fails with `.next` type errors:
 ```bash
 rm -rf .next && npm run build
 ```
+
+---
+
+## Troubleshooting: Supabase 401 "Failed to retrieve project's postgrest config"
+
+This error usually means Supabase cannot authenticate your app. Check these:
+
+### 1. **Project paused (free tier)**
+
+Free-tier Supabase projects pause after inactivity. In [Supabase Dashboard](https://supabase.com/dashboard), check if the project shows "Paused" and **Restore project** if needed.
+
+### 2. **Environment variables on Vercel**
+
+If deploying to Vercel, ensure these are set in **Project → Settings → Environment Variables**:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Values must match the **same** Supabase project (Settings → API). Redeploy after changing env vars.
+
+### 3. **Keys from the correct project**
+
+URL and keys must come from the same project. In Supabase: **Project Settings → API** → copy Project URL, anon key, and service_role key. Avoid mixing keys from different projects.
+
+### 4. **Rotated or invalid keys**
+
+If you regenerated keys in the dashboard, update all env vars (local and Vercel) with the new values.
