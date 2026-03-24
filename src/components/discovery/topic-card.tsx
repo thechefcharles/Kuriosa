@@ -41,30 +41,23 @@ export function TopicCard({
         className
       )}
     >
-      {/* Difficulty-colored banner with category + XP in category-colored boxes */}
+      {/* Difficulty-colored banner with category */}
       <div
         className={cn(
-          "flex items-center justify-between gap-2 px-3 py-2",
+          "flex min-w-0 items-center justify-center px-3 py-2.5",
           bannerBg
         )}
       >
         <span
           className={cn(
-            "inline-flex min-w-0 items-center gap-1.5 truncate rounded-lg px-2 py-0.5",
+            "inline-flex items-center gap-1 rounded-md px-2 py-0.5",
             theme.bar,
-            "text-xs font-bold uppercase tracking-wide text-white"
+            "text-[10px] font-bold uppercase leading-tight tracking-wide text-white"
           )}
+          title={topic.categoryName}
         >
-          <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} aria-hidden />
-          {topic.categoryName}
-        </span>
-        <span
-          className={cn(
-            "shrink-0 rounded-lg px-2 py-0.5 text-xs font-bold tabular-nums text-white",
-            theme.bar
-          )}
-        >
-          +{xp} XP
+          <Icon className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
+          <span className="truncate max-w-[120px]">{topic.categoryName}</span>
         </span>
       </div>
       <div className="flex flex-col p-4">
@@ -92,6 +85,17 @@ export function TopicCard({
               {minutes} min
             </span>
           ) : null}
+        </div>
+        {/* Footer: XP bottom right */}
+        <div className="mt-3 flex items-center justify-end border-t border-slate-200/80 pt-3 dark:border-slate-700/80">
+          <span
+            className={cn(
+              "rounded-md px-2 py-0.5 text-[10px] font-bold tabular-nums text-white",
+              theme.bar
+            )}
+          >
+            +{xp} XP
+          </span>
         </div>
       </div>
     </Link>

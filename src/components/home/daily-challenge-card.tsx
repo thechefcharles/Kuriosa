@@ -135,6 +135,7 @@ export function DailyChallengeCard({
                 slug={slug}
                 experience={experience}
                 onClick={() => setShowInlineChallenge(true)}
+                xpDisplay={boostRevealed ? baseXp : getCardXpFromDifficulty(experience.taxonomy.difficultyLevel)}
               />
             )}
 
@@ -161,13 +162,21 @@ export function DailyChallengeCard({
                     />
                   )}
                 </div>
-                <div className="flex justify-end">
+                <div className="flex items-center justify-between gap-4">
                   <Link
                     href={ROUTES.curiosity(slug)}
                     className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
                   >
                     Review
                   </Link>
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+                      isRetry ? "xp-badge-wrong" : "xp-badge-correct"
+                    )}
+                  >
+                    +{displayXpEarned} XP
+                  </span>
                 </div>
               </section>
             )}

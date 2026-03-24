@@ -35,25 +35,18 @@ export function CategoryProgressCard({
         className
       )}
     >
-      {/* Difficulty banner with category + XP */}
-      <div className={cn("flex items-center justify-between gap-2 px-4 py-2", bannerBg)}>
+      {/* Difficulty banner with category */}
+      <div className={cn("flex min-w-0 items-center justify-center px-3 py-2.5", bannerBg)}>
         <span
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1",
+            "inline-flex items-center gap-1 rounded-md px-2 py-0.5",
             theme.bar,
-            "text-xs font-bold uppercase tracking-wide text-white"
+            "text-[10px] font-bold uppercase leading-tight tracking-wide text-white"
           )}
+          title={topic.categoryName}
         >
-          <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
-          {topic.categoryName}
-        </span>
-        <span
-          className={cn(
-            "rounded-lg px-2.5 py-1 text-xs font-bold tabular-nums text-white",
-            xpBadgeClass
-          )}
-        >
-          +{topic.xpEarned} XP
+          <Icon className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
+          <span className="truncate max-w-[120px]">{topic.categoryName}</span>
         </span>
       </div>
       {/* Card body */}
@@ -71,12 +64,23 @@ export function CategoryProgressCard({
             <CheckCircle2 className="h-10 w-10 text-emerald-500" aria-hidden />
           )}
         </div>
-        <Link
-          href={ROUTES.curiosity(topic.slug)}
-          className="mt-4 inline-flex items-center rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-kuriosa-midnight-blue transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-        >
-          Review
-        </Link>
+        {/* Footer: Review left, XP right */}
+        <div className="mt-4 flex w-full items-center justify-between gap-4 px-2">
+          <Link
+            href={ROUTES.curiosity(topic.slug)}
+            className="inline-flex items-center rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-kuriosa-midnight-blue transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+          >
+            Review
+          </Link>
+          <span
+            className={cn(
+              "shrink-0 rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+              xpBadgeClass
+            )}
+          >
+            +{topic.xpEarned} XP
+          </span>
+        </div>
       </div>
     </article>
   );

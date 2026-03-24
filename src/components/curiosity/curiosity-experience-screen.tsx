@@ -19,7 +19,11 @@ import { cn } from "@/lib/utils";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { isAudioAvailable } from "@/lib/audio/is-audio-available";
 import { initCuriosityModesSession } from "@/lib/services/progress/session-curiosity-modes";
+import Link from "next/link";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { CARD_BASE } from "@/lib/constants/card-styles";
+import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
+import { ROUTES } from "@/lib/constants/routes";
 
 const DEFAULT_TEXT = "text-kuriosa-midnight-blue dark:text-slate-200";
 
@@ -155,7 +159,41 @@ function ExperienceView({
                   slug={experience.identity.slug}
                   experience={experience}
                   onClick={() => setShowInlineChallenge(true)}
+                  xpDisplay={getCardXpFromDifficulty(experience.taxonomy.difficultyLevel)}
                 />
+              )}
+
+              {hasCompletedChallenge && (
+                <section className="mt-8" aria-label="Challenge complete">
+                  <div className="flex flex-col items-center justify-center gap-3 py-6">
+                    <span className="text-lg font-semibold uppercase tracking-wide">
+                      Complete
+                    </span>
+                    {completionDetails?.xpEarned === 5 ? (
+                      <XCircle className="h-16 w-16 text-red-500" aria-hidden />
+                    ) : (
+                      <CheckCircle2 className="h-16 w-16 text-emerald-500" aria-hidden />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <Link
+                      href={ROUTES.curiosity(slug)}
+                      className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
+                    >
+                      Review
+                    </Link>
+                    {completionDetails?.xpEarned != null && (
+                      <span
+                        className={cn(
+                          "shrink-0 rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+                          completionDetails.xpEarned === 5 ? "xp-badge-wrong" : "xp-badge-correct"
+                        )}
+                      >
+                        +{completionDetails.xpEarned} XP
+                      </span>
+                    )}
+                  </div>
+                </section>
               )}
             </>
           )}

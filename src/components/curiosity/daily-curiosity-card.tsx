@@ -54,10 +54,10 @@ export function DailyCuriosityCard({
         className
       )}
     >
-      {/* Difficulty-colored banner with category + XP in category-colored boxes */}
+      {/* Difficulty-colored banner with category */}
       <div
         className={cn(
-          "flex items-center justify-between gap-2 px-4 py-3",
+          "flex min-w-0 items-center justify-center px-4 py-4",
           bannerBg
         )}
       >
@@ -67,17 +67,10 @@ export function DailyCuriosityCard({
             theme.bar,
             "text-sm font-bold uppercase tracking-wide text-white"
           )}
+          title={experience.taxonomy.category}
         >
           <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
-          {experience.taxonomy.category}
-        </span>
-        <span
-          className={cn(
-            "rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
-            theme.bar
-          )}
-        >
-          +{xp} XP
+          <span className="truncate max-w-[140px]">{experience.taxonomy.category}</span>
         </span>
       </div>
       {/* Card body - white */}
@@ -103,12 +96,22 @@ export function DailyCuriosityCard({
             {isCompleted ? (
               <span className="text-emerald-700 dark:text-emerald-300">
                 Complete
-                {xpEarned != null && xpEarned > 0 ? ` +${xpEarned} XP` : ""}
               </span>
             ) : (
               startLabel
             )}
           </div>
+        </div>
+        {/* Footer: XP bottom right */}
+        <div className="flex items-center justify-end border-t border-slate-200/80 px-4 pt-4 dark:border-slate-700/80">
+          <span
+            className={cn(
+              "rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+              isCompleted && xpEarned === 5 ? "xp-badge-wrong" : theme.bar
+            )}
+          >
+            +{isCompleted && xpEarned != null ? xpEarned : xp} XP
+          </span>
         </div>
       </div>
     </Link>

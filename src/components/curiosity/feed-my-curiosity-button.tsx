@@ -142,23 +142,24 @@ export function FeedMyCuriosityButton({
               CARD_BASE
             )}
           >
-            <div className={cn("flex items-center justify-between gap-3 px-3 py-2", bannerBg)}>
+            <div className={cn("relative flex min-w-0 items-center justify-center gap-2 px-3 py-1.5", bannerBg)}>
               {theme && Icon && (
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5",
+                    "inline-flex items-center gap-1 rounded-md px-2 py-0.5",
                     theme.bar,
-                    "text-xs font-bold uppercase tracking-wide text-white"
+                    "text-[10px] font-bold uppercase leading-tight tracking-wide text-white"
                   )}
+                  title={previewTopic.taxonomy.category}
                 >
-                  <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
-                  {previewTopic.taxonomy.category}
+                  <Icon className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
+                  <span className="truncate max-w-[100px]">{previewTopic.taxonomy.category}</span>
                 </span>
               )}
               <span
                 className={cn(
-                  "rounded-lg px-2 py-0.5 text-xs font-bold tabular-nums text-white",
-                  theme?.bar ?? "bg-white/20"
+                  "absolute right-3 top-1/2 -translate-y-1/2 shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold tabular-nums text-white",
+                  theme?.bar ?? "bg-slate-600"
                 )}
               >
                 +{getCardXpFromDifficulty(previewTopic.taxonomy.difficultyLevel)} XP

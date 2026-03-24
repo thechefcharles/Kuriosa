@@ -8,8 +8,6 @@ import {
   DEFAULT_BANNER,
 } from "@/lib/constants/card-styles";
 import { cn } from "@/lib/utils";
-import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
-
 export function CuriosityHeader({
   experience,
   className,
@@ -36,49 +34,28 @@ export function CuriosityHeader({
   const Icon = theme.icon;
   const diff = (experience.taxonomy.difficultyLevel ?? "").trim().toLowerCase();
   const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
-  const baseXp = getCardXpFromDifficulty(experience.taxonomy.difficultyLevel);
-  const xp =
-    isDailyChallenge ? Math.round(baseXp * dailyMultiplier) : baseXp;
-  const displayXp = completedState ? completedState.xpEarned : xp;
-  const xpBadgeClass = completedState
-    ? completedState.correct
-      ? "xp-badge-correct"
-      : "xp-badge-wrong"
-    : theme.bar;
 
   return (
     <header className={cn("space-y-4", className)}>
-      {/* Difficulty-colored banner with category + XP in category-colored boxes */}
-      <div className={cn("flex flex-col", bannerBg)}>
-        <div className="flex items-center justify-between gap-3 px-4 py-3">
+      {/* Difficulty-colored banner with category */}
+      <div className={cn("relative flex flex-col", bannerBg)}>
+        <div className="flex min-w-0 items-center justify-center gap-3 px-4 py-4">
           <span
             className={cn(
               "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1",
               theme.bar,
               "text-sm font-bold uppercase tracking-wide text-white"
             )}
+            title={experience.taxonomy.category}
           >
             <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
-            {experience.taxonomy.category}
+            <span className="truncate max-w-[160px]">{experience.taxonomy.category}</span>
           </span>
-          <div className="flex flex-col items-end gap-0.5">
-            {isDailyChallenge && boostRevealed && boostMultiplier != null && !completedState && (
-              <span className="rounded-md bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-950">
-                {boostMultiplier}× boost applied
-              </span>
-            )}
-            {isDailyChallenge && !boostRevealed && !completedState && (
-              <span className="text-[10px] text-white/80">Spin to reveal</span>
-            )}
-            <span
-              className={cn(
-                "rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
-                xpBadgeClass
-              )}
-            >
-              +{displayXp} XP
+          {isDailyChallenge && boostRevealed && boostMultiplier != null && !completedState && (
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 rounded-md bg-amber-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              {boostMultiplier}× boost applied
             </span>
-          </div>
+          )}
         </div>
       </div>
       {/* Title + difficulty */}
