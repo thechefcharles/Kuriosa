@@ -19,6 +19,32 @@ import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { isAudioAvailable } from "@/lib/audio/is-audio-available";
 import { initCuriosityModesSession } from "@/lib/services/progress/session-curiosity-modes";
 
+const DIFFICULTY_CARD_STYLES: Record<string, string> = {
+  beginner:
+    "border-emerald-400 bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/80",
+  easy:
+    "border-emerald-400 bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/80",
+  intermediate:
+    "border-amber-400 bg-amber-100 dark:border-amber-600 dark:bg-amber-900/80",
+  advanced:
+    "border-rose-400 bg-rose-100 dark:border-rose-600 dark:bg-rose-900/80",
+  expert:
+    "border-rose-400 bg-rose-100 dark:border-rose-600 dark:bg-rose-900/80",
+};
+
+const DEFAULT_CARD =
+  "border-slate-200/90 bg-white/90 dark:border-white/10 dark:bg-slate-900/60";
+
+const DIFFICULTY_TEXT_STYLES: Record<string, string> = {
+  beginner: "text-emerald-900 dark:text-emerald-100",
+  easy: "text-emerald-900 dark:text-emerald-100",
+  intermediate: "text-amber-900 dark:text-amber-100",
+  advanced: "text-rose-900 dark:text-rose-100",
+  expert: "text-rose-900 dark:text-rose-100",
+};
+
+const DEFAULT_TEXT = "text-kuriosa-midnight-blue dark:text-slate-200";
+
 function CuriosityEmpty() {
   return (
     <EmptyState
@@ -89,42 +115,61 @@ function ExperienceView({
       />
     ) : undefined;
 
-  return (
-    <article className="space-y-5">
-      <CuriosityHeader experience={experience} />
+  const diff = (experience.taxonomy.difficultyLevel ?? "").trim().toLowerCase();
+  const cardStyle = DIFFICULTY_CARD_STYLES[diff] ?? DEFAULT_CARD;
+  const textStyle = DIFFICULTY_TEXT_STYLES[diff] ?? DEFAULT_TEXT;
 
-      <div className="flex flex-wrap items-center gap-2">
+  return (
+    <>
+      {/* Share button fixed top right */}
+      <div className="fixed right-4 top-14 z-20">
         <ShareTopicButton
           topicId={experience.identity.id}
           slug={slug}
           title={experience.identity.title}
           hookQuestion={experience.discoveryCard.hookQuestion}
           shortSummary={experience.discoveryCard.shortSummary}
-          variant="default"
+          variant="outline"
           size="default"
+          className="shadow-md"
         />
       </div>
 
-      <LessonContent
-        experience={experience}
-        playButtonSlot={playButtonSlot}
-      />
+      <article
+        className={cn(
+          "overflow-hidden rounded-xl border shadow-lg",
+          cardStyle
+        )}
+      >
+        <CuriosityHeader experience={experience} />
 
-      {!hasCompletedChallenge && (
-        <NextStepCallout slug={experience.identity.slug} experience={experience} />
-      )}
+        <div className="space-y-6 p-5 sm:p-6">
+          <LessonContent
+            experience={experience}
+            playButtonSlot={playButtonSlot}
+            textClassName={textStyle}
+          />
 
-      <section id="whats-next" className="scroll-mt-24 space-y-6">
-        <CompletionCelebrationHost
-          topicSlug={slug}
-          onConsumed={handleConsumed}
-        />
-        <PostChallengeExploration
-          experience={experience}
-          hasCompletedChallenge={hasCompletedChallenge}
-        />
-      </section>
-    </article>
+          {!hasCompletedChallenge && (
+            <NextStepCallout
+              slug={experience.identity.slug}
+              experience={experience}
+            />
+          )}
+
+          <section id="whats-next" className="scroll-mt-24 space-y-6">
+            <CompletionCelebrationHost
+              topicSlug={slug}
+              onConsumed={handleConsumed}
+            />
+            <PostChallengeExploration
+              experience={experience}
+              hasCompletedChallenge={hasCompletedChallenge}
+            />
+          </section>
+        </div>
+      </article>
+    </>
   );
 }
 

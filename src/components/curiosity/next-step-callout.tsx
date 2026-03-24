@@ -29,11 +29,8 @@ export function NextStepCallout({
   const xp = getChallengeXp(experience);
 
   return (
-    <section
-      className="mt-8 rounded-2xl border border-kuriosa-electric-cyan/25 bg-kuriosa-electric-cyan/10 p-5 dark:border-kuriosa-electric-cyan/15"
-      aria-label="Earn XP"
-    >
-      <div className="flex justify-end">
+    <section className="mt-8" aria-label="Earn XP">
+      <div className="flex justify-center sm:justify-end">
         <Link
           href={ROUTES.challenge(slug)}
           className={cn(
