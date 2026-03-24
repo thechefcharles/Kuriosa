@@ -33,12 +33,14 @@ export function mapDraftToPrimaryQuiz(
       ? JSON.stringify(correctTexts)
       : null;
 
+  const topicDifficulty = experience.taxonomy.difficultyLevel ?? null;
+
   return {
     quiz: {
       quiz_type: c.quizType,
       question_text: c.questionText,
       explanation_text: c.explanationText ?? null,
-      difficulty_level: c.difficultyLevel ?? null,
+      difficulty_level: topicDifficulty,
       sort_order: 0,
       memory_recall_hints: hints,
     },

@@ -252,6 +252,9 @@ export async function loadCuriosityExperience(
   let challenge: CuriosityChallenge | undefined;
   let bonusChallenge: CuriosityChallenge | undefined;
 
+  const topicDifficulty =
+    topic.difficulty_level != null ? String(topic.difficulty_level) : "beginner";
+
   async function buildChallenge(q: { id: string; question_text: string; quiz_type: string; explanation_text: string | null; difficulty_level: string | null }): Promise<CuriosityChallenge> {
     const { data: optionRows } = await supabase
       .from("quiz_options")
@@ -275,7 +278,7 @@ export async function loadCuriosityExperience(
           ? options
           : [{ optionText: "(No options yet)", isCorrect: true }],
       explanationText: q.explanation_text != null ? String(q.explanation_text) : undefined,
-      difficultyLevel: q.difficulty_level != null ? String(q.difficulty_level) : undefined,
+      difficultyLevel: topicDifficulty,
     };
   }
 

@@ -24,6 +24,7 @@ export function ChallengeFeedback({
   bonusCorrect,
   firstTryCorrect = false,
   onContinueSlot,
+  inlineContinue,
 }: {
   slug: string;
   topicId: string;
@@ -39,6 +40,8 @@ export function ChallengeFeedback({
   firstTryCorrect?: boolean;
   /** Slot for Continue button when showBonusOffer (parent renders it) */
   onContinueSlot?: React.ReactNode;
+  /** When provided, use this instead of ChallengeContinueExploringButton (e.g. inline on curiosity page) */
+  inlineContinue?: React.ReactNode;
 }) {
   const ok = result.isCorrect;
 
@@ -115,13 +118,15 @@ export function ChallengeFeedback({
               Try again
             </Button>
           ) : null}
-          <ChallengeContinueExploringButton
-            slug={slug}
-            topicId={topicId}
-            challengeCorrect={ok}
-            bonusCorrect={bonusCorrect}
-            firstTryCorrect={firstTryCorrect}
-          />
+          {inlineContinue ?? (
+            <ChallengeContinueExploringButton
+              slug={slug}
+              topicId={topicId}
+              challengeCorrect={ok}
+              bonusCorrect={bonusCorrect}
+              firstTryCorrect={firstTryCorrect}
+            />
+          )}
         </div>
       ) : null}
 

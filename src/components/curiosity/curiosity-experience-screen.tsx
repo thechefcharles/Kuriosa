@@ -7,6 +7,7 @@ import { CuriosityHeader } from "@/components/curiosity/curiosity-header";
 import { LessonContent } from "@/components/curiosity/lesson-content";
 import { AudioPlayer } from "@/components/curiosity/audio-player";
 import { NextStepCallout } from "@/components/curiosity/next-step-callout";
+import { InlineChallengeBlock } from "@/components/challenge/inline-challenge-block";
 import { PostChallengeExploration } from "@/components/curiosity/post-challenge-exploration";
 import { ShareTopicButton } from "@/components/social/share-topic-button";
 import { CompletionCelebrationHost } from "@/components/curiosity/completion-celebration-host";
@@ -97,9 +98,17 @@ function ExperienceView({
 }) {
   const { isCompleted } = useCompletedTopicIds();
   const [hasJustCompleted, setHasJustCompleted] = useState(false);
+  const [showInlineChallenge, setShowInlineChallenge] = useState(false);
+  const [completionCheckKey, setCompletionCheckKey] = useState(0);
   const hasCompletedChallenge =
     isCompleted(experience.identity.id) || hasJustCompleted;
+
   const handleConsumed = useCallback(() => setHasJustCompleted(true), []);
+
+  const handleChallengeComplete = useCallback(() => {
+    setHasJustCompleted(true);
+    setCompletionCheckKey((k) => k + 1);
+  }, []);
 
   useEffect(() => {
     initCuriosityModesSession(slug);
@@ -150,15 +159,17 @@ function ExperienceView({
             textClassName={textStyle}
           />
 
-          {!hasCompletedChallenge && (
+          {!hasCompletedChallenge && experience.challenge && !showInlineChallenge && (
             <NextStepCallout
               slug={experience.identity.slug}
               experience={experience}
+              onClick={() => setShowInlineChallenge(true)}
             />
           )}
 
           <section id="whats-next" className="scroll-mt-24 space-y-6">
             <CompletionCelebrationHost
+              key={completionCheckKey}
               topicSlug={slug}
               onConsumed={handleConsumed}
             />
@@ -169,6 +180,15 @@ function ExperienceView({
           </section>
         </div>
       </article>
+
+      {showInlineChallenge && experience.challenge && (
+        <InlineChallengeBlock
+          experience={experience}
+          slug={slug}
+          onComplete={handleChallengeComplete}
+          className="mt-6"
+        />
+      )}
     </>
   );
 }

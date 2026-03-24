@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { ROUTES } from "@/lib/constants/routes";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -22,24 +20,28 @@ function getChallengeXp(experience: LoadedCuriosityExperience): number {
 export function NextStepCallout({
   slug,
   experience,
+  onClick,
 }: {
   slug: string;
   experience: LoadedCuriosityExperience;
+  /** When provided, used instead of linking to challenge page */
+  onClick?: () => void;
 }) {
   const xp = getChallengeXp(experience);
 
   return (
     <section className="mt-8" aria-label="Earn XP">
       <div className="flex justify-center sm:justify-end">
-        <Link
-          href={ROUTES.challenge(slug)}
+        <button
+          type="button"
+          onClick={onClick}
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
             "inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap bg-emerald-500 px-6 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500"
           )}
         >
           Earn +{xp} XP
-        </Link>
+        </button>
       </div>
     </section>
   );
