@@ -4,98 +4,138 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants/routes";
+import { getCategoryTheme } from "@/lib/constants/category-themes";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { cn } from "@/lib/utils";
 import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 
-function formatDifficulty(raw: string): string {
-  const s = raw.trim().toLowerCase().replace(/_/g, " ");
-  return s.length ? s.charAt(0).toUpperCase() + s.slice(1) : "";
-}
+const DIFFICULTY_CARD_STYLES: Record<string, string> = {
+  beginner:
+    "border-emerald-400 bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/80",
+  easy:
+    "border-emerald-400 bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/80",
+  intermediate:
+    "border-amber-400 bg-amber-100 dark:border-amber-600 dark:bg-amber-900/80",
+  advanced:
+    "border-rose-400 bg-rose-100 dark:border-rose-600 dark:bg-rose-900/80",
+  expert:
+    "border-rose-400 bg-rose-100 dark:border-rose-600 dark:bg-rose-900/80",
+};
+
+const DIFFICULTY_TEXT_STYLES: Record<string, string> = {
+  beginner: "text-emerald-900 dark:text-emerald-100",
+  easy: "text-emerald-900 dark:text-emerald-100",
+  intermediate: "text-amber-900 dark:text-amber-100",
+  advanced: "text-rose-900 dark:text-rose-100",
+  expert: "text-rose-900 dark:text-rose-100",
+};
+
+const DEFAULT_CARD =
+  "border-slate-200/90 bg-white/90 dark:border-white/10 dark:bg-slate-900/60";
+const DEFAULT_TEXT = "text-kuriosa-midnight-blue dark:text-white";
 
 export type DailyCuriosityCardProps = {
   experience: LoadedCuriosityExperience;
   /** True when user has already completed this topic (no new XP) */
   isCompleted?: boolean;
+  /** XP earned when completed (for display e.g. "+25 XP") */
+  xpEarned?: number;
+  /** How the user discovered this topic (for completion tracking) */
+  discoverySource?: { wasDailyFeature: boolean; wasRandomSpin: boolean };
+  /** Button label override when not completed */
+  startLabel?: string;
   className?: string;
 };
 
 export function DailyCuriosityCard({
   experience,
   isCompleted = false,
+  xpEarned,
+  discoverySource = { wasDailyFeature: true, wasRandomSpin: false },
+  startLabel = "Start today's curiosity",
   className,
 }: DailyCuriosityCardProps) {
   const slug = experience.identity.slug;
   const href = ROUTES.curiosity(slug);
-  const category = experience.taxonomy.category;
-  const difficulty = formatDifficulty(experience.taxonomy.difficultyLevel);
+  const diff = (experience.taxonomy.difficultyLevel ?? "").trim().toLowerCase();
+  const cardStyle = DIFFICULTY_CARD_STYLES[diff] ?? DEFAULT_CARD;
+  const textStyle = DIFFICULTY_TEXT_STYLES[diff] ?? DEFAULT_TEXT;
+  const theme = getCategoryTheme(experience.taxonomy.categorySlug);
+  const Icon = theme.icon;
 
   return (
     <article
       className={cn(
-        "relative overflow-hidden rounded-3xl border p-6 shadow-lg sm:p-6",
-        isCompleted
-          ? "border-emerald-400/60 bg-emerald-50/90 dark:border-emerald-600/40 dark:bg-emerald-950/40 dark:shadow-emerald-950/20"
-          : "border-slate-200/90 bg-gradient-to-br from-white via-white to-violet-50/80 shadow-violet-950/10 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-kuriosa-deep-purple/20 dark:shadow-violet-950/25"
+        "relative overflow-hidden rounded-xl border shadow-lg",
+        cardStyle,
+        className
       )}
     >
-      {/* Black checkmark in top right when completed */}
-      {isCompleted ? (
-        <div
-          className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-black"
-          aria-hidden
-        >
-          <Check className="h-6 w-6 text-white" strokeWidth={2.5} />
+      {/* Boardwalk-style category banner at top */}
+      <div
+        className={cn(
+          "flex items-center justify-between gap-2 px-4 py-3",
+          theme.bar,
+          "text-white"
+        )}
+      >
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-2">
+          <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} aria-hidden />
+          <span className="text-sm font-bold uppercase tracking-wide truncate">
+            {experience.taxonomy.category}
+          </span>
         </div>
-      ) : (
-        <div
-          className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-kuriosa-electric-cyan/15 blur-3xl dark:bg-kuriosa-electric-cyan/10"
-          aria-hidden
-        />
-      )}
+        {isCompleted ? (
+          <span
+            className="flex shrink-0 items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-semibold"
+            aria-label="Complete"
+          >
+            <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+            Complete
+            {xpEarned != null && xpEarned > 0 ? (
+              <span className="opacity-95">+{xpEarned} XP</span>
+            ) : null}
+          </span>
+        ) : null}
+      </div>
+      {/* Line underneath the category (Monopoly-style) */}
+      <div className={cn("h-1 w-full shrink-0", theme.bar)} aria-hidden />
+      {/* Card body - difficulty colored */}
+      <div className="relative p-6">
+        <div className="flex flex-col items-center text-center">
+          <h2
+            className={cn(
+              "mb-3 text-2xl font-bold leading-tight tracking-tight sm:text-3xl",
+              textStyle
+            )}
+          >
+            {experience.identity.title}
+          </h2>
 
-      {/* Category · Difficulty row */}
-      <p className="relative mb-2 text-xs font-medium text-muted-foreground">
-        {category}
-        {difficulty ? ` · ${difficulty}` : ""}
-      </p>
+          <p
+            className={cn(
+              "mb-6 text-base leading-relaxed sm:text-lg",
+              textStyle,
+              "opacity-90"
+            )}
+          >
+            {experience.discoveryCard.hookQuestion}
+          </p>
 
-      {/* Large title */}
-      <h2
-        className={cn(
-          "relative mb-3 text-2xl font-bold leading-tight tracking-tight sm:text-3xl",
-          isCompleted ? "text-emerald-900 dark:text-emerald-100" : "text-kuriosa-midnight-blue dark:text-slate-50"
-        )}
-      >
-        {experience.identity.title}
-      </h2>
-
-      {/* Hook question */}
-      <p
-        className={cn(
-          "relative mb-6 text-base leading-relaxed sm:text-lg",
-          isCompleted ? "text-emerald-800 dark:text-emerald-200" : "text-slate-600 dark:text-slate-300"
-        )}
-      >
-        {experience.discoveryCard.hookQuestion}
-      </p>
-
-      {/* Primary CTA */}
-      <Link
-        href={href}
-        onClick={() =>
-          setTopicDiscoveryContext(slug, {
-            wasDailyFeature: true,
-            wasRandomSpin: false,
-          })
-        }
-        className={cn(
-          buttonVariants({ variant: "default", size: "lg" }),
-          "relative inline-flex h-12 min-h-[48px] w-full items-center justify-center text-base font-semibold shadow-lg shadow-kuriosa-deep-purple/15 dark:shadow-kuriosa-electric-cyan/10"
-        )}
-      >
-        {isCompleted ? "Review" : "Start today's curiosity"}
-      </Link>
+          <Link
+            href={href}
+            onClick={() =>
+              setTopicDiscoveryContext(slug, discoverySource)
+            }
+            className={cn(
+              buttonVariants({ variant: "default", size: "lg" }),
+              "w-full min-h-[48px] items-center justify-center text-base font-semibold shadow-md"
+            )}
+          >
+            {isCompleted ? "Review" : startLabel}
+          </Link>
+        </div>
+      </div>
     </article>
   );
 }

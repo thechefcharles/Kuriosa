@@ -1,11 +1,15 @@
 import { Compass } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 
-export function HomeDailyEmpty() {
+export function HomeDailyEmpty({ isToday = true }: { isToday?: boolean }) {
   return (
     <EmptyState
-      title="No daily curiosity yet"
-      description="We're not featuring a topic today. Check back soon, or explore Discover for more."
+      title={isToday ? "No daily curiosity yet" : "No curiosity for this date"}
+      description={
+        isToday
+          ? "We're not featuring a topic today. Check back soon, or explore Discover for more."
+          : "Try another date or explore Discover for more."
+      }
       icon={<Compass className="mx-auto mb-3 h-10 w-10 text-kuriosa-electric-cyan/80" aria-hidden />}
       className="rounded-3xl border border-dashed border-violet-300/50 bg-white/80 px-6 py-10 dark:border-white/15 dark:bg-slate-900/50"
     />

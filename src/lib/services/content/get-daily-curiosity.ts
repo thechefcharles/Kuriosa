@@ -18,6 +18,8 @@ export type DailyCuriosityResult = {
   date: string;
   /** True when user has completed this topic (rewards_granted) */
   isCompleted: boolean;
+  /** XP earned when completed (from user_topic_history.xp_earned) */
+  xpEarned?: number;
 };
 
 export type GetDailyCuriosityOptions = {
@@ -55,15 +57,21 @@ export async function getDailyCuriosity(
   }
 
   let isCompleted = false;
+  let xpEarned: number | undefined;
   if (options?.userId?.trim()) {
     const { data: hist } = await supabase
       .from("user_topic_history")
-      .select("id")
+      .select("id, xp_earned")
       .eq("user_id", options.userId)
       .eq("topic_id", topicId)
       .eq("rewards_granted", true)
       .limit(1);
-    isCompleted = (hist?.length ?? 0) > 0;
+    if (hist?.length) {
+      isCompleted = true;
+      const xp = (hist[0] as { xp_earned?: number | null }).xp_earned;
+      xpEarned =
+        xp != null && Number.isFinite(Number(xp)) ? Math.max(0, Math.round(Number(xp))) : undefined;
+    }
   }
 
   return {
@@ -71,5 +79,6 @@ export async function getDailyCuriosity(
     theme: row.theme != null ? String(row.theme) : null,
     date: String(row.date ?? date),
     isCompleted,
+    ...(xpEarned !== undefined ? { xpEarned } : {}),
   };
 }

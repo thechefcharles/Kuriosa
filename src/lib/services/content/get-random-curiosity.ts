@@ -109,3 +109,50 @@ export async function getRandomCuriosity(
 
   return loadCuriosityExperience(supabase, { topicId: chosen.id });
 }
+
+export type RandomCuriosityForDisplay = {
+  experience: LoadedCuriosityExperience;
+  isCompleted: boolean;
+  /** XP earned when completed (from user_topic_history.xp_earned) */
+  xpEarned?: number;
+};
+
+export type GetRandomCuriosityForDisplayOptions = GetRandomCuriosityOptions & {
+  userId?: string | null;
+};
+
+/**
+ * Fetches a random curiosity with isCompleted flag for display (e.g. home carousel).
+ */
+export async function getRandomCuriosityForDisplay(
+  supabase: SupabaseClient,
+  options: GetRandomCuriosityForDisplayOptions = {}
+): Promise<RandomCuriosityForDisplay | null> {
+  const { userId, ...opts } = options;
+  const experience = await getRandomCuriosity(supabase, opts);
+  if (!experience) return null;
+
+  let isCompleted = false;
+  let xpEarned: number | undefined;
+  if (userId?.trim()) {
+    const { data: hist } = await supabase
+      .from("user_topic_history")
+      .select("xp_earned")
+      .eq("user_id", userId)
+      .eq("topic_id", experience.identity.id)
+      .eq("rewards_granted", true)
+      .maybeSingle();
+    if (hist) {
+      isCompleted = true;
+      const xp = (hist as { xp_earned?: number | null }).xp_earned;
+      xpEarned =
+        xp != null && Number.isFinite(Number(xp)) ? Math.max(0, Math.round(Number(xp))) : undefined;
+    }
+  }
+
+  return {
+    experience,
+    isCompleted,
+    ...(xpEarned !== undefined ? { xpEarned } : {}),
+  };
+}
