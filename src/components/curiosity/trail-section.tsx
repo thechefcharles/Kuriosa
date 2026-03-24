@@ -22,13 +22,13 @@ export function TrailSection({ trails, rawTrailCount }: TrailSectionProps) {
         <Route className="mx-auto mb-3 h-9 w-9 text-muted-foreground/70" aria-hidden />
         <p className="text-sm font-medium text-kuriosa-midnight-blue dark:text-slate-200">
           {brokenLinks
-            ? "Next-topic links aren’t available for this lesson yet"
-            : "No trail from here — yet"}
+            ? "Trails are being wired"
+            : "End of this thread"}
         </p>
         <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
           {brokenLinks
-            ? "Those paths will show up once they’re wired in the catalog. Meantime, keep exploring elsewhere."
-            : "This rabbit hole pauses here for now. Discover has plenty more to open."}
+            ? "Links will appear soon. Browse Discover in the meantime."
+            : "Pick a new curiosity from Discover — the rabbit hole continues there."}
         </p>
         <Link
           href={ROUTES.discover}

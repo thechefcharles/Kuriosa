@@ -10,6 +10,7 @@ import { getTopicDiscoveryContext } from "@/lib/services/progress/session-topic-
 import { getModeUsedLabel } from "@/lib/services/progress/session-curiosity-modes";
 import { cn } from "@/lib/utils";
 import { stashCompletionCelebration } from "@/lib/progress/completion-celebration-storage";
+import { incrementSessionCompletions } from "@/lib/progress/session-completion-tracker";
 
 /**
  * Records completion when the user leaves the challenge for post-challenge exploration.
@@ -50,6 +51,9 @@ export function ChallengeContinueExploringButton({
           d.wasCountedAsNewCompletion ||
           (d.unlockedBadges?.length ?? 0) > 0;
         if (worthCelebrating) {
+          if (d.wasCountedAsNewCompletion) {
+            incrementSessionCompletions();
+          }
           stashCompletionCelebration({
             topicSlug: slug,
             xpEarned: d.xpEarned,

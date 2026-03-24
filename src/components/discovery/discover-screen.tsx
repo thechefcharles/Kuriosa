@@ -70,9 +70,8 @@ export function DiscoverScreen() {
           <h1 className="bg-gradient-to-r from-kuriosa-midnight-blue via-kuriosa-deep-purple to-kuriosa-electric-cyan bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
             Discover
           </h1>
-          <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground sm:text-base">
-            A map of rabbit holes — search, categories, hand-picked curiosities, and where you
-            left off.
+          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+            Search, browse by category, or jump in.
           </p>
         </header>
 
@@ -148,7 +147,7 @@ export function DiscoverScreen() {
         >
           <DiscoverySectionHeader
             title="Browse by category"
-            description="Each lane leads to a pocket of the universe worth poking at."
+            description="Pick a lane."
           />
           {categories.isPending ? (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4" aria-busy="true">
@@ -181,8 +180,8 @@ export function DiscoverScreen() {
         {/* Featured */}
         <DiscoverySection className={cn("mb-14", searchActive && "opacity-90")}>
           <DiscoverySectionHeader
-            title="Jump in here"
-            description="Short curiosities worth your next coffee break."
+            title="Jump in"
+            description="Hand-picked curiosities."
           />
           {featured.isPending ? (
             <DiscoverySectionSkeleton rows={2} />
@@ -275,11 +274,7 @@ export function DiscoverScreen() {
           <DiscoverySection className={cn("mb-14", searchActive && "opacity-90")}>
             <DiscoverySectionHeader
               title="More to explore"
-              description={
-                recent.isAuthenticated && recent.data.length > 0
-                  ? "Beyond the row above — same simple rules, no fancy algorithm."
-                  : "Topics you may not have opened from Jump in — still hand-picked from the catalog."
-              }
+              description="More from the catalog."
             />
             {suggested.isPending ? (
               <DiscoverySectionSkeleton rows={2} />
@@ -306,15 +301,11 @@ export function DiscoverScreen() {
             </h2>
           </div>
           <p className="mb-4 text-sm text-muted-foreground">
-            Not sure where to start? Let the app pick a published curiosity.
+            Let the app pick one for you.
           </p>
           <FeedMyCuriosityButton />
         </DiscoverySection>
 
-        <p className="text-center text-xs text-muted-foreground">
-          <Sparkles className="mr-1 inline h-3 w-3 text-kuriosa-electric-cyan" aria-hidden />
-          Trails and follow-ups live inside each curiosity.
-        </p>
       </PageContainer>
     </div>
   );

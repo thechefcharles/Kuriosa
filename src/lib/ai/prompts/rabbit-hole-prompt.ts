@@ -26,8 +26,10 @@ export function buildRabbitHolePrompt(input: RabbitHoleGenerationInput): string 
     availableTopicTitles && availableTopicTitles.length > 0
       ? `
 
-Available Kuriosa topics (prefer these exact titles when relevant — learners can explore real content):
-${availableTopicTitles.slice(0, 40).join("\n")}`
+IMPORTANT — Prefer these exact topic titles when they fit. When matched, users get real content to explore:
+${availableTopicTitles.slice(0, 50).join("\n")}
+
+Avoid vague or redundant suggestions. Prefer specific, distinct angles.`
       : "";
 
   return `${SYSTEM_INSTRUCTIONS}

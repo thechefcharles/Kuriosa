@@ -21,9 +21,12 @@ function xpBreakdownLines(b: RewardBreakdownPayload) {
 export function CompletionCelebrationCard({
   payload,
   onDismiss,
+  sessionCompletionCount,
 }: {
   payload: CompletionCelebrationPayload;
   onDismiss: () => void;
+  /** Curiosities completed this session (today); for "You're on a roll" arc */
+  sessionCompletionCount?: number;
 }) {
   const leveledUp = payload.levelAfter > payload.levelBefore;
   const streakUp = payload.streakAfter > payload.streakBefore;
@@ -77,6 +80,11 @@ export function CompletionCelebrationCard({
               ? "Here’s what you earned."
               : "Your progress is up to date."}
           </p>
+          {sessionCompletionCount != null && sessionCompletionCount >= 2 ? (
+            <p className="mt-2 text-sm font-medium text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
+              {sessionCompletionCount === 2 ? "You're on a roll" : `${sessionCompletionCount} curiosities explored today`}
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -169,7 +177,7 @@ export function CompletionCelebrationCard({
       <Button
         type="button"
         className={cn(
-          "mt-4 w-full sm:w-auto",
+          "mt-4 min-h-11 w-full sm:w-auto",
           "bg-kuriosa-deep-purple hover:bg-kuriosa-deep-purple/90"
         )}
         onClick={onDismiss}

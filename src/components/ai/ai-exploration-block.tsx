@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useGuidedTopicExploration } from "@/hooks/queries/useGuidedTopicExploration";
 import { useAskManualQuestion } from "@/hooks/mutations/useAskManualQuestion";
 import { useAuthUserId } from "@/hooks/queries/useAuthUserId";
@@ -100,14 +100,7 @@ export function AIExplorationBlock({
   const hasRabbitHoles = data.rabbitHoles.length > 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 border-b border-slate-200/70 pb-2 dark:border-white/10">
-        <Sparkles className="h-5 w-5 text-kuriosa-electric-cyan" aria-hidden />
-        <h3 className="text-sm font-bold uppercase tracking-wide text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
-          Go deeper with AI
-        </h3>
-      </div>
-
+    <div className="space-y-5">
       {hasFollowups && (
         <AIFollowupSection
           followups={data.followups}
@@ -117,10 +110,7 @@ export function AIExplorationBlock({
         />
       )}
 
-      <div className="space-y-3">
-        <p className="text-sm text-muted-foreground">
-          Ask something about this topic
-        </p>
+      <div className="space-y-2">
         <ManualQuestionBox
           onSubmit={onManualSubmit}
           disabled={requireAuth}

@@ -5,6 +5,7 @@ import {
   consumeCompletionCelebration,
   type CompletionCelebrationPayload,
 } from "@/lib/progress/completion-celebration-storage";
+import { getSessionCompletionCount } from "@/lib/progress/session-completion-tracker";
 import { CompletionCelebrationCard } from "@/components/progress/completion-celebration-card";
 
 /**
@@ -24,6 +25,7 @@ export function CompletionCelebrationHost({ topicSlug }: { topicSlug: string }) 
     <CompletionCelebrationCard
       payload={payload}
       onDismiss={() => setPayload(null)}
+      sessionCompletionCount={getSessionCompletionCount()}
     />
   );
 }

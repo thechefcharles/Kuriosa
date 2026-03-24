@@ -127,9 +127,7 @@ export function ChallengeFeedback({
 
       {!showBonusOffer && !onContinueSlot ? (
         <p className="mt-3 text-center text-xs text-muted-foreground">
-          That&apos;s one more curiosity unlocked. Saves your visit and scrolls to{" "}
-          <strong>What&apos;s next</strong> — follow-ups and next curiosities on the lesson
-          page.
+          Saves your visit and scrolls to what&apos;s next.
         </p>
       ) : null}
     </div>
