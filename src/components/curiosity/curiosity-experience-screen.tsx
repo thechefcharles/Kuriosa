@@ -106,17 +106,17 @@ function ExperienceView({
 
   return (
     <article className={cn("space-y-5", listenMode && "space-y-6")}>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <CuriosityHeader experience={experience} compactHook={listenMode} className="min-w-0 flex-1" />
+      <CuriosityHeader experience={experience} compactHook={listenMode} />
+
+      <div className="flex flex-wrap items-center gap-2">
         <ShareTopicButton
           topicId={experience.identity.id}
           slug={slug}
           title={experience.identity.title}
           hookQuestion={experience.discoveryCard.hookQuestion}
           shortSummary={experience.discoveryCard.shortSummary}
-          variant="outline"
-          size="sm"
-          className="shrink-0"
+          variant="default"
+          size="default"
         />
       </div>
 

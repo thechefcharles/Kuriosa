@@ -45,6 +45,15 @@ export const discoveryQueryKeys = {
     ["discovery", "suggested", userId ?? "guest"] as const,
 } as const;
 
+/** Phase 10.3 — Leaderboard. */
+export const leaderboardQueryKeys = {
+  all: ["leaderboard"] as const,
+  list: (window: string, limit?: number, offset?: number) =>
+    [...leaderboardQueryKeys.all, "list", window, limit ?? 50, offset ?? 0] as const,
+  position: (window: string) =>
+    [...leaderboardQueryKeys.all, "position", window] as const,
+} as const;
+
 /** Phase 9.4 — AI exploration (guided follow-ups, rabbit holes). */
 export const aiExplorationQueryKeys = {
   topicExploration: (slugOrId: string) =>

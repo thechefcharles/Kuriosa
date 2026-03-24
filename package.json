@@ -26,7 +26,8 @@
     "ai:topic-followups": "npx tsx src/lib/services/ai/examples/run-topic-followups-example.ts",
     "ai:rabbit-holes": "npx tsx src/lib/services/ai/examples/run-topic-rabbit-holes-example.ts",
     "ai:manual-question": "npx tsx src/lib/services/ai/examples/run-manual-question-example.ts",
-    "social:record-activity": "npx tsx src/lib/services/social/examples/run-record-activity-example.ts"
+    "social:record-activity": "npx tsx src/lib/services/social/examples/run-record-activity-example.ts",
+    "social:leaderboard-example": "npx tsx src/lib/services/social/examples/run-leaderboard-example.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
