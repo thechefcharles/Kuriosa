@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import confetti from "canvas-confetti";
 import type {
   CompletionCelebrationPayload,
   RewardBreakdownPayload,
@@ -18,33 +16,6 @@ import { ROUTES } from "@/lib/constants/routes";
 import { useFeedRandomCuriosity, writeLastRandomSlug } from "@/hooks/mutations/useFeedRandomCuriosity";
 import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 import { cn } from "@/lib/utils";
-
-function fireConfetti() {
-  const count = 120;
-  const defaults = {
-    origin: { y: 0.7 },
-    spread: 100,
-    startVelocity: 35,
-    zIndex: 9999,
-  };
-  confetti({
-    ...defaults,
-    particleCount: count,
-    colors: ["#8B5CF6", "#06B6D4", "#F59E0B", "#10B981", "#EC4899"],
-  });
-  confetti({
-    ...defaults,
-    particleCount: Math.floor(count * 0.25),
-    spread: 120,
-    origin: { x: 0.2, y: 0.6 },
-  });
-  confetti({
-    ...defaults,
-    particleCount: Math.floor(count * 0.25),
-    spread: 120,
-    origin: { x: 0.8, y: 0.6 },
-  });
-}
 
 function xpBreakdownLines(b: RewardBreakdownPayload) {
   const lines: { label: string; xp: number }[] = [];
@@ -71,14 +42,6 @@ export function CompletionCelebrationCard({
 }) {
   const router = useRouter();
   const { mutateAsync: fetchRandom, isPending: isRandomPending } = useFeedRandomCuriosity();
-  const confettiFired = useRef(false);
-
-  useEffect(() => {
-    if (!confettiFired.current) {
-      confettiFired.current = true;
-      fireConfetti();
-    }
-  }, []);
 
   const leveledUp = payload.levelAfter > payload.levelBefore;
   const streakUp = payload.streakAfter > payload.streakBefore;

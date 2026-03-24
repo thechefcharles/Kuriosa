@@ -223,7 +223,10 @@ function InlineChallengeContinueButton({
         type="button"
         size="lg"
         disabled={isPending}
-        className="inline-flex min-h-12 w-full items-center justify-center gap-2 bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 sm:w-auto"
+        className={cn(
+          "inline-flex min-h-12 w-full items-center justify-center gap-2 sm:w-auto",
+          !isPending && "btn-jackpot"
+        )}
         onClick={() => void handleClick()}
       >
         {isPending ? (

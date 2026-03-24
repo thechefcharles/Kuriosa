@@ -1,10 +1,39 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import confetti from "canvas-confetti";
 import { CheckCircle2, XCircle, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ChallengeValidationResult } from "@/lib/services/challenge/validate-challenge-answer";
 import { ChallengeContinueExploringButton } from "@/components/challenge/challenge-continue-exploring-button";
 import { cn } from "@/lib/utils";
+
+function fireConfetti() {
+  const count = 120;
+  const defaults = {
+    origin: { y: 0.7 },
+    spread: 100,
+    startVelocity: 35,
+    zIndex: 9999,
+  };
+  confetti({
+    ...defaults,
+    particleCount: count,
+    colors: ["#8B5CF6", "#06B6D4", "#F59E0B", "#10B981", "#EC4899"],
+  });
+  confetti({
+    ...defaults,
+    particleCount: Math.floor(count * 0.25),
+    spread: 120,
+    origin: { x: 0.2, y: 0.6 },
+  });
+  confetti({
+    ...defaults,
+    particleCount: Math.floor(count * 0.25),
+    spread: 120,
+    origin: { x: 0.8, y: 0.6 },
+  });
+}
 
 function lessonSnippet(lessonText: string, maxChars = 180): string {
   const cleaned = lessonText.replace(/\s+/g, " ").trim();
@@ -35,6 +64,14 @@ export function ChallengeFeedback({
   inlineContinue?: React.ReactNode;
 }) {
   const ok = result.isCorrect;
+  const confettiFired = useRef(false);
+
+  useEffect(() => {
+    if (ok && !confettiFired.current) {
+      confettiFired.current = true;
+      fireConfetti();
+    }
+  }, [ok]);
 
   return (
     <div
@@ -61,20 +98,15 @@ export function ChallengeFeedback({
         )}
         <div className="min-w-0 flex-1 space-y-2">
           <p className="text-base font-semibold text-foreground">
-            {ok ? "Nice — you've got it." : "Not quite — here's the idea."}
+            {ok ? "Correct!" : "Not quite — here's the idea."}
           </p>
-          {ok ? (
-            <p className="text-xs text-muted-foreground">
-              Tap below to claim your XP and see your progress
-            </p>
-          ) : null}
           {!ok && result.correctAnswerDisplay && result.correctAnswerDisplay !== "—" ? (
             <p className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">Answer: </span>
               {result.correctAnswerDisplay}
             </p>
           ) : null}
-          {result.explanation ? (
+          {!ok && result.explanation ? (
             <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200">
               {result.explanation}
             </p>
@@ -110,6 +142,7 @@ export function ChallengeFeedback({
             topicId={topicId}
             challengeCorrect={ok}
             firstTryCorrect={firstTryCorrect}
+            jackpot={ok}
           />
         )}
       </div>

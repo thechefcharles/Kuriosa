@@ -20,12 +20,15 @@ export function ChallengeContinueExploringButton({
   topicId,
   challengeCorrect,
   firstTryCorrect = false,
+  jackpot = false,
 }: {
   slug: string;
   topicId: string;
   challengeCorrect: boolean;
   /** True when main challenge correct on first try (no retry). */
   firstTryCorrect?: boolean;
+  /** Gold shimmering jackpot style for the claim button */
+  jackpot?: boolean;
 }) {
   const router = useRouter();
   const { mutateAsync, isPending } = useRecordCuriosityCompletion();
@@ -89,7 +92,8 @@ export function ChallengeContinueExploringButton({
         size="lg"
         disabled={isPending}
         className={cn(
-          "inline-flex min-h-12 w-full items-center justify-center gap-2 sm:w-auto"
+          "inline-flex min-h-12 w-full items-center justify-center gap-2 sm:w-auto",
+          jackpot && !isPending && "btn-jackpot"
         )}
         onClick={() => void handleClick()}
       >
