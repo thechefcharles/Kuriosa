@@ -152,6 +152,14 @@ export function DailyChallengeCard({
                     />
                   )}
                 </div>
+                <div className="flex justify-end">
+                  <Link
+                    href={ROUTES.curiosity(slug)}
+                    className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
+                  >
+                    Review
+                  </Link>
+                </div>
               </section>
             )}
           </>
@@ -167,18 +175,6 @@ export function DailyChallengeCard({
       </div>
     </article>
   );
-
-  if (hasCompletedChallenge) {
-    return (
-      <Link
-        href={ROUTES.curiosity(slug)}
-        className="block"
-        aria-label={`Review: ${experience.identity.title}`}
-      >
-        {cardContent}
-      </Link>
-    );
-  }
 
   return cardContent;
 }
