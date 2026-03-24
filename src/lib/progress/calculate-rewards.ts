@@ -43,10 +43,6 @@ export function calculateRewards(
   const randomBase = event.wasRandomSpin
     ? XP_CONFIG.RANDOM_COMPLETION_BONUS_XP
     : 0;
-  const listenBase =
-    event.usedListenMode && event.lessonCompleted
-      ? XP_CONFIG.LISTEN_MODE_BONUS_XP
-      : 0;
 
   const lessonXp = roundXp(lessonBase * mult);
   const challengeXp = roundXp(challengeBase * mult);
@@ -54,7 +50,6 @@ export function calculateRewards(
   const bonusQuestionXp = roundXp(bonusQuestionBase * mult);
   const dailyBonusXp = roundXp(dailyBase * mult);
   const randomBonusXp = roundXp(randomBase * mult);
-  const listenBonusXp = roundXp(listenBase * mult);
 
   const firstTryBonusXp =
     event.firstTryCorrect && event.challengeCorrect
@@ -69,7 +64,7 @@ export function calculateRewards(
     firstTryBonusXp,
     dailyBonusXp,
     randomBonusXp,
-    listenBonusXp,
+    listenBonusXp: 0,
   };
 
   const xpEarned =
@@ -79,8 +74,7 @@ export function calculateRewards(
     bonusQuestionXp +
     firstTryBonusXp +
     dailyBonusXp +
-    randomBonusXp +
-    listenBonusXp;
+    randomBonusXp;
 
   return {
     xpEarned,

@@ -14,8 +14,6 @@ export const XP_CONFIG = {
   BONUS_QUESTION_XP: 10,
   DAILY_COMPLETION_BONUS_XP: 5,
   RANDOM_COMPLETION_BONUS_XP: 5,
-  /** Small nod for using narration */
-  LISTEN_MODE_BONUS_XP: 3,
   /** Main challenge correct on first try (no retry) */
   FIRST_TRY_CORRECT_BONUS_XP: 5,
 } as const;
