@@ -15,10 +15,15 @@ import type {
   ProgressUpdateSuccess,
 } from "@/types/progress";
 import { calculateRewards } from "@/lib/progress/calculate-rewards";
-import { getLevelFromXP } from "@/lib/progress/level-config";
+import { getLevelFromXP, getXPForNextLevel } from "@/lib/progress/level-config";
 import { calculateCuriosityScore } from "@/lib/progress/curiosity-score";
-import { calculateNextStreak } from "@/lib/progress/streak-utils";
+import {
+  calculateNextStreak,
+  calculateNextCorrectStreak,
+} from "@/lib/progress/streak-utils";
 import { applyCompletionBadgeUnlocks } from "@/lib/services/progress/apply-completion-badges";
+import { recordActivityEvent } from "@/lib/services/social/record-activity-event";
+import { getDailyMultiplier } from "@/lib/services/progress/get-daily-multiplier";
 
 function mergeModeUsed(
   previous: string | null | undefined,
@@ -43,14 +48,28 @@ function mergeModeUsed(
   return "read";
 }
 
-function toRewardEvent(p: CuriosityCompletionPayload): CompletionEventInput {
+async function toRewardEvent(
+  supabase: SupabaseClient,
+  p: CuriosityCompletionPayload,
+  topicDifficultyLevel: string | null | undefined,
+  completedAtIso: string,
+  firstTryCorrect: boolean
+): Promise<CompletionEventInput> {
+  let dailyMultiplier: number | undefined;
+  if (p.wasDailyFeature) {
+    dailyMultiplier = await getDailyMultiplier(supabase, completedAtIso);
+  }
   return {
     lessonCompleted: p.lessonCompleted,
     challengeAttempted: p.challengeAttempted,
     challengeCorrect: p.challengeCorrect,
+    firstTryCorrect,
+    bonusCorrect: p.bonusCorrect,
     wasDailyFeature: p.wasDailyFeature,
     wasRandomSpin: p.wasRandomSpin,
     usedListenMode: p.usedListenMode,
+    difficultyLevel: p.difficultyLevel ?? topicDifficultyLevel,
+    dailyMultiplier,
   };
 }
 
@@ -144,7 +163,7 @@ export async function processCuriosityCompletion(
 
   const { data: topic, error: topicErr } = await supabase
     .from("topics")
-    .select("id, slug")
+    .select("id, slug, difficulty_level, category_id")
     .eq("id", topicId)
     .maybeSingle();
 
@@ -181,7 +200,7 @@ export async function processCuriosityCompletion(
   const { data: histRows } = await supabase
     .from("user_topic_history")
     .select(
-      "id, rewards_granted, started_at, mode_used, was_daily_feature, was_random_spin"
+      "id, rewards_granted, challenge_correct, started_at, mode_used, was_daily_feature, was_random_spin"
     )
     .eq("user_id", userId)
     .eq("topic_id", topicId)
@@ -191,6 +210,7 @@ export async function processCuriosityCompletion(
     | {
         id: string;
         rewards_granted: boolean;
+        challenge_correct: boolean | null;
         started_at: string | null;
         mode_used: string | null;
         was_daily_feature: boolean;
@@ -231,6 +251,55 @@ export async function processCuriosityCompletion(
     };
   }
 
+  if (!payload.challengeCorrect) {
+    if (!existing) {
+      const { error: insErr } = await supabase.from("user_topic_history").insert({
+        user_id: userId,
+        topic_id: topicId,
+        rewards_granted: false,
+        started_at: completedAtIso,
+        completed_at: completedAtIso,
+        mode_used: mode_used ?? undefined,
+        was_daily_feature: was_daily,
+        was_random_spin: was_random,
+        quiz_score: 0,
+        challenge_correct: false,
+        xp_earned: 0,
+      });
+      if (insErr) {
+        if (insErr.code === "23505") {
+          const { data: dup } = await supabase
+            .from("user_topic_history")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("topic_id", topicId)
+            .maybeSingle();
+          if (dup) {
+            await supabase
+              .from("user_topic_history")
+              .update({ ...historyPatch, completed_at: completedAtIso })
+              .eq("id", (dup as { id: string }).id);
+          }
+        } else {
+          return { ok: false, message: insErr.message };
+        }
+      }
+    } else {
+      const { error: upErr } = await supabase
+        .from("user_topic_history")
+        .update({
+          ...historyPatch,
+          completed_at: completedAtIso,
+        })
+        .eq("id", existing.id);
+      if (upErr) return { ok: false, message: upErr.message };
+    }
+    return {
+      ok: true,
+      data: emptySuccessBase(p, ["Wrong answer — try again to claim XP."]),
+    };
+  }
+
   if (!existing) {
     const { error: insErr } = await supabase.from("user_topic_history").insert({
       user_id: userId,
@@ -251,7 +320,16 @@ export async function processCuriosityCompletion(
     }
   }
 
-  const rewards = calculateRewards(toRewardEvent(payload));
+  const topicDifficulty = (topic as { difficulty_level?: string | null })?.difficulty_level;
+  const hadPreviousWrongAttempt = existing?.challenge_correct === false;
+  const rewardEvent = await toRewardEvent(
+    supabase,
+    payload,
+    topicDifficulty,
+    completedAtIso,
+    !hadPreviousWrongAttempt
+  );
+  const rewards = calculateRewards(rewardEvent);
 
   const { data: claimed, error: claimErr } = await supabase
     .from("user_topic_history")
@@ -315,18 +393,60 @@ export async function processCuriosityCompletion(
     streakLength: streak,
   });
 
+  const profileUpdate: Record<string, unknown> = {
+    total_xp: newXp,
+    current_level: levelAfter,
+    curiosity_score: curiosityScoreAfter,
+    current_streak: streak,
+    longest_streak: longest,
+    last_active_date: today,
+    updated_at: completedAtIso,
+  };
+
+  const { data: profileWithCorrect } = await supabase
+    .from("profiles")
+    .select("correct_streak, longest_correct_streak")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profileWithCorrect && "correct_streak" in profileWithCorrect) {
+    const currCorrect = Number(profileWithCorrect.correct_streak) || 0;
+    const longCorrect = Number(profileWithCorrect.longest_correct_streak) || 0;
+    const correctResult = calculateNextCorrectStreak(
+      payload.challengeCorrect,
+      currCorrect,
+      longCorrect
+    );
+    profileUpdate.correct_streak = correctResult.nextCorrectStreak;
+    profileUpdate.longest_correct_streak = correctResult.longestCorrectStreak;
+  }
+
   const { error: profUp } = await supabase
     .from("profiles")
-    .update({
-      total_xp: newXp,
-      current_level: levelAfter,
-      curiosity_score: curiosityScoreAfter,
-      current_streak: streak,
-      longest_streak: longest,
-      last_active_date: today,
-      updated_at: completedAtIso,
-    })
+    .update(profileUpdate)
     .eq("id", userId);
+
+  const categoryId = (topic as { category_id?: string | null }).category_id;
+  if (categoryId && rewards.xpEarned > 0) {
+    const { data: catRow, error: catErr } = await supabase
+      .from("user_category_xp")
+      .select("total_xp")
+      .eq("user_id", userId)
+      .eq("category_id", categoryId)
+      .maybeSingle();
+    if (!catErr) {
+      const prev = (catRow as { total_xp?: number } | null)?.total_xp ?? 0;
+      await supabase.from("user_category_xp").upsert(
+        {
+          user_id: userId,
+          category_id: categoryId,
+          total_xp: prev + rewards.xpEarned,
+          updated_at: completedAtIso,
+        },
+        { onConflict: "user_id,category_id" }
+      );
+    }
+  }
 
   if (profUp) {
     await supabase
@@ -344,13 +464,23 @@ export async function processCuriosityCompletion(
     };
   }
 
-  const badgeOutcome = await applyCompletionBadgeUnlocks(supabase, userId);
+  const badgeOutcome = await applyCompletionBadgeUnlocks(
+    supabase,
+    userId,
+    completedAtIso,
+    {
+      hitLuckyMultiplier:
+        payload.wasDailyFeature &&
+        (rewardEvent.dailyMultiplier ?? 0) >= 2.5,
+    }
+  );
 
   const data: ProgressUpdateSuccess = {
     xpEarned: rewards.xpEarned,
     wasCountedAsNewCompletion: true,
     levelBefore,
     levelAfter,
+    xpToNextLevel: getXPForNextLevel(newXp),
     streakBefore: p.current_streak,
     streakAfter: streak,
     curiosityScoreBefore: p.curiosity_score,
@@ -362,6 +492,29 @@ export async function processCuriosityCompletion(
     unlockedBadges: badgeOutcome.unlockedBadges,
     badgeEvaluationRan: true,
   };
+
+  recordActivityEvent({
+    userId,
+    type: "topic_completed",
+    topicId,
+    metadata: { slug: topic.slug },
+  }).catch(() => {});
+
+  if (levelBefore !== levelAfter) {
+    recordActivityEvent({
+      userId,
+      type: "level_up",
+      metadata: { levelBefore, levelAfter },
+    }).catch(() => {});
+  }
+
+  for (const badge of badgeOutcome.unlockedBadges) {
+    recordActivityEvent({
+      userId,
+      type: "badge_unlocked",
+      metadata: { badgeId: badge.badgeId, badgeSlug: badge.slug },
+    }).catch(() => {});
+  }
 
   return { ok: true, data };
 }

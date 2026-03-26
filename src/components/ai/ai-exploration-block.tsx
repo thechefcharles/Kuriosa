@@ -1,0 +1,170 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { useGuidedTopicExploration } from "@/hooks/queries/useGuidedTopicExploration";
+import { useAskManualQuestion } from "@/hooks/mutations/useAskManualQuestion";
+import { useAuthUserId } from "@/hooks/queries/useAuthUserId";
+import { AIFollowupSection } from "./ai-followup-section";
+import { ManualQuestionBox } from "./manual-question-box";
+import { AIAnswerCard } from "./ai-answer-card";
+import { AIAnswerLoading } from "./ai-answer-loading";
+import { AIAnswerError } from "./ai-answer-error";
+import { RabbitHoleSection } from "./rabbit-hole-section";
+import { ROUTES } from "@/lib/constants/routes";
+import type { ManualQuestionResult } from "@/types/ai";
+import type { TopicRabbitHoleItem } from "@/types/ai";
+
+export function AIExplorationBlock({
+  slug,
+  topicId,
+  topicTitle,
+}: {
+  slug: string;
+  topicId: string;
+  topicTitle: string;
+}) {
+  const { data: userId } = useAuthUserId();
+  const { data, isLoading, isError, error } = useGuidedTopicExploration({
+    slug,
+    topicId,
+  });
+  const askQuestion = useAskManualQuestion();
+
+  const [manualAnswer, setManualAnswer] = useState<{
+    question: string;
+    result: ManualQuestionResult;
+  } | null>(null);
+
+  useEffect(() => {
+    setManualAnswer(null);
+  }, [slug, topicId]);
+
+  const router = useRouter();
+  const requireAuth = !userId;
+  const handleAuthRequired = () => {
+    const redirect = `${window.location.pathname}${window.location.hash || "#whats-next"}`;
+    window.location.href = `${ROUTES.signIn}?redirect=${encodeURIComponent(redirect)}`;
+  };
+
+  const onManualSubmit = (question: string) => {
+    setManualAnswer(null);
+    askQuestion.mutate(
+      { slug, topicId, questionText: question, interactionType: "manual" },
+      {
+        onSuccess: (result) => {
+          setManualAnswer({ question, result });
+        },
+      }
+    );
+  };
+
+  const onRabbitHoleSelect = (item: TopicRabbitHoleItem) => {
+    if (item.topicSlug) {
+      router.push(ROUTES.curiosity(item.topicSlug));
+      return;
+    }
+    setManualAnswer(null);
+    const questionText = item.title;
+    askQuestion.mutate(
+      { slug, topicId, questionText, interactionType: "rabbit_hole" },
+      {
+        onSuccess: (result) => {
+          setManualAnswer({ question: questionText, result });
+        },
+      }
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-3 rounded-xl border border-dashed border-violet-200/60 bg-violet-50/20 px-5 py-8 dark:border-white/10 dark:bg-violet-950/20">
+        <Loader2 className="h-6 w-6 animate-spin text-kuriosa-electric-cyan" />
+        <p className="text-sm text-muted-foreground">Loading AI suggestions…</p>
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="rounded-xl border border-dashed border-violet-200/60 bg-violet-50/20 px-5 py-6 text-center dark:border-white/10 dark:bg-violet-950/20">
+        <p className="text-sm text-muted-foreground">
+          {error?.message ?? "Couldn't load AI exploration."}
+        </p>
+      </div>
+    );
+  }
+
+  const hasFollowups = data.followups.length > 0;
+  const hasRabbitHoles = data.rabbitHoles.length > 0;
+
+  return (
+    <div className="space-y-5">
+      {hasFollowups && (
+        <AIFollowupSection
+          followups={data.followups}
+          topicId={data.topicContext.topicId}
+          slug={data.topicContext.slug}
+          userId={userId ?? null}
+        />
+      )}
+
+      <div className="space-y-2">
+        <ManualQuestionBox
+          onSubmit={onManualSubmit}
+          disabled={requireAuth}
+          isLoading={askQuestion.isPending}
+          topicTitle={topicTitle}
+          requireAuth={requireAuth}
+          onAuthRequired={handleAuthRequired}
+        />
+      </div>
+
+      {manualAnswer ? (
+        <div className="space-y-4">
+          {manualAnswer.result.ok ? (
+            <AIAnswerCard
+              question={manualAnswer.result.question}
+              answerText={manualAnswer.result.answerText}
+            />
+          ) : (
+            <AIAnswerError
+              result={manualAnswer.result}
+              onRetry={() =>
+                askQuestion.mutate(
+                  {
+                    slug,
+                    topicId,
+                    questionText: manualAnswer.question,
+                    interactionType: "manual",
+                  },
+                  {
+                    onSuccess: (r) =>
+                      setManualAnswer({
+                        question: manualAnswer.question,
+                        result: r,
+                      }),
+                  }
+                )
+              }
+            />
+          )}
+
+          {hasRabbitHoles && (
+            <RabbitHoleSection
+              rabbitHoles={data.rabbitHoles}
+              onSelectRabbitHole={onRabbitHoleSelect}
+            />
+          )}
+        </div>
+      ) : null}
+      {hasRabbitHoles && !manualAnswer && (
+        <RabbitHoleSection
+          rabbitHoles={data.rabbitHoles}
+          onSelectRabbitHole={onRabbitHoleSelect}
+        />
+      )}
+    </div>
+  );
+}

@@ -6,30 +6,33 @@ import { FolderOpen } from "lucide-react";
 export function CategoryCard({
   category,
   href,
+  compact = false,
   className,
 }: {
   category: CategoryView;
   /** When omitted, renders a non-link card (7.2 will pass category route). */
   href?: string;
+  /** Compact: hide description, smaller for strips */
+  compact?: boolean;
   className?: string;
 }) {
   const count =
     typeof category.topicCount === "number" ? category.topicCount : null;
-  const desc = category.description?.trim();
+  const desc = !compact && category.description?.trim();
 
   const body = (
     <>
       <div className="flex items-center gap-2">
         <FolderOpen
-          className="h-5 w-5 shrink-0 text-kuriosa-electric-cyan"
+          className={cn("shrink-0 text-kuriosa-electric-cyan", compact ? "h-4 w-4" : "h-5 w-5")}
           aria-hidden
         />
-        <h3 className="font-semibold text-kuriosa-midnight-blue dark:text-white">
+        <h3 className={cn("font-semibold text-kuriosa-midnight-blue dark:text-white", compact && "text-sm")}>
           {category.name}
         </h3>
       </div>
       {count != null ? (
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className={cn("text-muted-foreground", compact ? "mt-0.5 text-xs" : "mt-1 text-sm")}>
           {count} topic{count === 1 ? "" : "s"}
         </p>
       ) : null}

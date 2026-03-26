@@ -13,6 +13,7 @@ import { ChallengeEmptyState } from "@/components/challenge/challenge-empty-stat
 import { ChallengeCard } from "@/components/challenge/challenge-card";
 import { ChallengeOptionList } from "@/components/challenge/challenge-option-list";
 import { ChallengeFeedback } from "@/components/challenge/challenge-feedback";
+import { ChallengeContinueExploringButton } from "@/components/challenge/challenge-continue-exploring-button";
 import {
   isMemoryRecallChallenge,
   validateChallengeAnswer,
@@ -25,11 +26,14 @@ export function ChallengeScreen({ slug }: { slug: string }) {
   const { data, isLoading, isError, error } = useCuriosityExperience(slug);
 
   const challenge = data?.challenge;
+  const lessonText = data?.lesson?.lessonText ?? "";
+
   const recall = challenge ? isMemoryRecallChallenge(challenge) : false;
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [recallText, setRecallText] = useState("");
   const [result, setResult] = useState<ChallengeValidationResult | null>(null);
+  const [hasRetried, setHasRetried] = useState(false);
 
   const canSubmit = useMemo(() => {
     if (!challenge) return false;
@@ -59,6 +63,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
   );
 
   const handleRetry = useCallback(() => {
+    setHasRetried(true);
     setResult(null);
     setSelectedIndex(null);
     setRecallText("");
@@ -104,19 +109,19 @@ export function ChallengeScreen({ slug }: { slug: string }) {
       </div>
 
       <header>
-        <p className="text-xs font-semibold uppercase tracking-wide text-kuriosa-electric-cyan">
-          {data.identity.title}
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Step 2 of 3 · {data.identity.title}
         </p>
         <h1 className="mt-1 text-2xl font-bold text-kuriosa-midnight-blue dark:text-slate-50">
           Quick challenge
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          One question — see how much stuck.
+          One question — then claim your XP.
         </p>
       </header>
 
       <form id={formId} onSubmit={handleSubmit}>
-        <ChallengeCard challenge={challenge}>
+        <ChallengeCard challenge={challenge!}>
           {recall ? (
             <label className="block">
               <span className="sr-only">Your answer</span>
@@ -131,11 +136,11 @@ export function ChallengeScreen({ slug }: { slug: string }) {
             </label>
           ) : (
             <ChallengeOptionList
-              options={challenge.options}
+              options={challenge!.options}
               selectedIndex={selectedIndex}
               onSelect={setSelectedIndex}
               disabled={result !== null}
-              name={`challenge-${challenge.id}`}
+              name={`challenge-${challenge!.id}`}
             />
           )}
 
@@ -145,7 +150,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
                 type="submit"
                 size="lg"
                 disabled={!canSubmit}
-                className="h-12 min-h-[48px] w-full sm:w-auto"
+                className="h-12 min-h-[48px] w-full bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-500 sm:w-auto"
               >
                 Check answer
               </Button>
@@ -160,6 +165,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
           topicId={data.identity.id}
           result={result}
           onRetry={handleRetry}
+          lessonText={lessonText}
         />
       ) : null}
     </div>

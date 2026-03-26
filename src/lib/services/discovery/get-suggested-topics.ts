@@ -20,6 +20,7 @@ import type { TopicCardView } from "@/types/discovery";
 import { mapTopicToTopicCardView } from "@/lib/services/discovery/read/discovery-read-helpers";
 import { getRecentTopics } from "@/lib/services/discovery/get-recent-topics";
 import { getFeaturedTopics } from "@/lib/services/discovery/get-featured-topics";
+import { getCompletedTopicIds } from "@/lib/services/progress/get-completed-topic-ids";
 
 const CAP = 8;
 const SAME_CATEGORY_MAX = 7;
@@ -53,16 +54,19 @@ async function loadCategoryMap(
 
 async function rowsToCards(
   supabase: SupabaseClient,
-  rows: TopicRow[]
+  rows: TopicRow[],
+  completedTopicIds: string[] = []
 ): Promise<TopicCardView[]> {
   const catIds = [...new Set(rows.map((r) => String(r.category_id)))];
   const catMap = await loadCategoryMap(supabase, catIds);
+  const completedSet = new Set(completedTopicIds);
   const out: TopicCardView[] = [];
   for (const row of rows) {
     const c = catMap.get(String(row.category_id));
     const v = mapTopicToTopicCardView(row, {
       categoryName: c?.name,
       categorySlug: c?.slug,
+      isCompleted: completedSet.has(String(row.id)),
     });
     if (v) out.push(v);
   }
@@ -156,7 +160,7 @@ export async function getSuggestedTopics(
   }
 
   if (ordered.length < CAP) {
-    const featured = await getFeaturedTopics(supabase);
+    const featured = await getFeaturedTopics(supabase, { userId: uid || null });
     const slugs = featured.map((f) => f.slug);
     if (slugs.length) {
       const { data: featRows } = await supabase
@@ -181,7 +185,7 @@ export async function getSuggestedTopics(
   }
 
   if (!ordered.length) {
-    const featured = await getFeaturedTopics(supabase);
+    const featured = await getFeaturedTopics(supabase, { userId: uid || null });
     const slugs = featured.slice(0, CAP).map((f) => f.slug);
     if (!slugs.length) return [];
     const { data: rows } = await supabase
@@ -200,5 +204,6 @@ export async function getSuggestedTopics(
     }
   }
 
-  return rowsToCards(supabase, ordered.slice(0, CAP));
+  const completedIds = uid ? await getCompletedTopicIds(supabase, uid) : [];
+  return rowsToCards(supabase, ordered.slice(0, CAP), completedIds);
 }

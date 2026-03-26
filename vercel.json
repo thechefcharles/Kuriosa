@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/roll-daily-curiosity",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

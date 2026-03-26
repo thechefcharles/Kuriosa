@@ -61,9 +61,6 @@ export function TrailCard({ trail }: { trail: CuriosityTrail }) {
           <ChevronRight className="h-5 w-5" />
         </span>
       </div>
-      <span className="text-xs font-semibold text-kuriosa-electric-cyan dark:text-kuriosa-electric-cyan/90">
-        Tap to open →
-      </span>
     </Link>
   );
 }

@@ -12,6 +12,13 @@ export const BADGE_CRITERIA_TYPES = [
   "quiz_perfect_scores",
   "random_completions",
   "category_completions",
+  "categories_in_one_day",
+  "comeback_gap",
+  "advanced_in_row",
+  "total_xp",
+  "correct_streak",
+  "category_xp",
+  "daily_multiplier_hit",
 ] as const;
 
 export type BadgeCriteriaType = (typeof BADGE_CRITERIA_TYPES)[number];
@@ -41,6 +48,22 @@ export type BadgeEvaluationContext = {
   randomCompletionCount: number;
   /** Rewarded completions per category slug, e.g. { science: 3 }. */
   completionsByCategorySlug: Record<string, number>;
+  /** Category XP per slug from user_category_xp. */
+  categoryXpBySlug: Record<string, number>;
+  /** Max distinct categories in any single calendar day. */
+  maxCategoriesInOneDay: number;
+  /** Days since last activity before this completion (0 = same day or yesterday). */
+  comebackGapDays: number;
+  /** Longest run of intermediate/advanced/expert topics in a row (by completed_at). */
+  advancedInRowMax: number;
+  /** Total XP from profiles.total_xp. */
+  totalXp: number;
+  /** Correct answer streak. */
+  correctStreak: number;
+  /** Longest correct streak. */
+  longestCorrectStreak: number;
+  /** True when this completion hit 2.5x daily multiplier. */
+  hitLuckyMultiplier?: boolean;
 };
 
 function parsePositiveInt(raw: string | null | undefined): number | null {
@@ -48,6 +71,22 @@ function parsePositiveInt(raw: string | null | undefined): number | null {
   const n = parseInt(String(raw).trim(), 10);
   if (!Number.isFinite(n) || n < 0) return null;
   return n;
+}
+
+/**
+ * category_completions value format: "<category_slug>:<count>" e.g. science:5
+ * category_xp value format: "<category_slug>:<xp>" e.g. science:200
+ */
+export function parseCategoryXpCriteria(
+  criteriaValue: string | null | undefined
+): { categorySlug: string; required: number } | null {
+  if (!criteriaValue?.trim()) return null;
+  const parts = criteriaValue.trim().split(":");
+  if (parts.length !== 2) return null;
+  const [slug, num] = parts;
+  const required = parsePositiveInt(num);
+  if (required == null || !slug?.trim()) return null;
+  return { categorySlug: slug.trim().toLowerCase(), required };
 }
 
 /**
@@ -109,6 +148,34 @@ export function isBadgeEligible(
       const n = ctx.completionsByCategorySlug[parsed.categorySlug] ?? 0;
       return n >= parsed.required;
     }
+
+    case "categories_in_one_day":
+      return threshold != null && ctx.maxCategoriesInOneDay >= threshold;
+
+    case "comeback_gap":
+      return threshold != null && ctx.comebackGapDays >= threshold;
+
+    case "advanced_in_row":
+      return threshold != null && ctx.advancedInRowMax >= threshold;
+
+    case "total_xp":
+      return threshold != null && ctx.totalXp >= threshold;
+
+    case "correct_streak":
+      return (
+        threshold != null &&
+        (ctx.correctStreak >= threshold || ctx.longestCorrectStreak >= threshold)
+      );
+
+    case "category_xp": {
+      const parsed = parseCategoryXpCriteria(def.criteria_value);
+      if (!parsed) return false;
+      const xp = ctx.categoryXpBySlug[parsed.categorySlug] ?? 0;
+      return xp >= parsed.required;
+    }
+
+    case "daily_multiplier_hit":
+      return ctx.hitLuckyMultiplier === true;
 
     default:
       return false;

@@ -28,6 +28,8 @@ export type AudioPlayerProps = {
   onPlaybackEnded?: () => void;
   /** Fires when user starts or resumes playback (e.g. clear “finished” state). */
   onPlaybackBegan?: () => void;
+  /** Show only play/pause button (for inline in lesson text) */
+  compact?: boolean;
 };
 
 export function AudioPlayer({
@@ -36,6 +38,7 @@ export function AudioPlayer({
   title = "Curiosity narration",
   onPlaybackEnded,
   onPlaybackBegan,
+  compact = false,
 }: AudioPlayerProps) {
   const scrubId = useId();
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -198,6 +201,40 @@ export function AudioPlayer({
   const progressMax = effectiveDuration > 0 ? effectiveDuration : 100;
   const progressValue =
     effectiveDuration > 0 ? Math.min(displayTime, effectiveDuration) : 0;
+
+  if (compact) {
+    return (
+      <div className={cn("inline-flex", className)}>
+        <audio
+          ref={audioRef}
+          src={src}
+          preload="metadata"
+          playsInline
+          className="hidden"
+        />
+        <button
+          type="button"
+          onClick={() => void togglePlay()}
+          disabled={false}
+          aria-label={playing ? "Pause narration" : "Play narration"}
+          aria-pressed={playing}
+          title={playing ? "Pause" : "Play"}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-kuriosa-midnight-blue shadow-sm active:scale-[0.98] hover:bg-slate-50 dark:border-white/15 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+        >
+          {buffering && !playing ? (
+            <span
+              className="h-4 w-4 animate-spin rounded-full border-2 border-kuriosa-deep-purple border-t-transparent dark:border-kuriosa-electric-cyan dark:border-t-transparent"
+              aria-hidden
+            />
+          ) : playing ? (
+            <Pause className="h-5 w-5" fill="currentColor" aria-hidden />
+          ) : (
+            <Play className="h-5 w-5 translate-x-0.5" fill="currentColor" aria-hidden />
+          )}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("space-y-4", className)}>

@@ -1,26 +1,34 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCuriosityExperience } from "@/hooks/queries/useCuriosityExperience";
-import type { CuriosityMode } from "@/components/curiosity/mode-toggle";
-import { ModeToggle } from "@/components/curiosity/mode-toggle";
+import { useCompletedTopicIds } from "@/hooks/queries/useCompletedTopicIds";
+import { useTopicCompletionDetails } from "@/hooks/queries/useTopicCompletionDetails";
+import { useFeedRandomCuriosity, writeLastRandomSlug } from "@/hooks/mutations/useFeedRandomCuriosity";
 import { CuriosityHeader } from "@/components/curiosity/curiosity-header";
 import { LessonContent } from "@/components/curiosity/lesson-content";
-import { AudioPanel } from "@/components/curiosity/audio-panel";
+import { AudioPlayer } from "@/components/curiosity/audio-player";
 import { NextStepCallout } from "@/components/curiosity/next-step-callout";
-import { PostChallengeExploration } from "@/components/curiosity/post-challenge-exploration";
+import { InlineChallengeBlock } from "@/components/challenge/inline-challenge-block";
 import { CompletionCelebrationHost } from "@/components/curiosity/completion-celebration-host";
 import { LoadingState } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageContainer } from "@/components/shared/page-container";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { isAudioAvailable } from "@/lib/audio/is-audio-available";
-import {
-  initCuriosityModesSession,
-  markListenModeUsed,
-} from "@/lib/services/progress/session-curiosity-modes";
+import { initCuriosityModesSession } from "@/lib/services/progress/session-curiosity-modes";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
+import { CARD_BASE } from "@/lib/constants/card-styles";
+import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
+import { ROUTES } from "@/lib/constants/routes";
+
+const DEFAULT_TEXT = "text-kuriosa-midnight-blue dark:text-slate-200";
 
 function CuriosityEmpty() {
   return (
@@ -33,9 +41,13 @@ function CuriosityEmpty() {
   );
 }
 
-export function CuriosityExperienceScreen({ slug }: { slug: string }) {
-  const [mode, setMode] = useState<CuriosityMode>("read");
-
+export function CuriosityExperienceScreen({
+  slug,
+  fromDiscover = false,
+}: {
+  slug: string;
+  fromDiscover?: boolean;
+}) {
   const { data, isLoading, isError, error } = useCuriosityExperience(slug);
 
   const hasAudio = data ? isAudioAvailable(data.audio) : false;
@@ -47,13 +59,12 @@ export function CuriosityExperienceScreen({ slug }: { slug: string }) {
     return (
       <ExperienceView
         experience={data}
-        mode={mode}
-        setMode={setMode}
         hasAudio={hasAudio}
         slug={slug}
+        fromDiscover={fromDiscover}
       />
     );
-  }, [data, error, hasAudio, isError, isLoading, mode]);
+  }, [data, error, hasAudio, isError, isLoading, slug, fromDiscover]);
 
   return (
     <div
@@ -69,66 +80,208 @@ export function CuriosityExperienceScreen({ slug }: { slug: string }) {
 
 function ExperienceView({
   experience,
-  mode,
-  setMode,
   hasAudio,
   slug,
+  fromDiscover,
 }: {
   experience: LoadedCuriosityExperience;
-  mode: CuriosityMode;
-  setMode: (next: CuriosityMode) => void;
   hasAudio: boolean;
   slug: string;
+  fromDiscover: boolean;
 }) {
+  const router = useRouter();
+  const randomMutation = useFeedRandomCuriosity();
+
+  const handleBack = useCallback(() => {
+    router.back();
+  }, [router]);
+
+  const handleSkip = useCallback(() => {
+    randomMutation.mutate(
+      { excludeSlug: slug },
+      {
+        onSuccess: (data) => {
+          if (data?.identity.slug) {
+            writeLastRandomSlug(data.identity.slug);
+            router.push(`${ROUTES.curiosity(data.identity.slug)}?from=discover`);
+          }
+        },
+      }
+    );
+  }, [slug, router, randomMutation]);
+
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const SWIPE_THRESHOLD = 50;
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? 0;
+    touchEndX.current = touchStartX.current;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0]?.clientX ?? 0;
+  }, []);
+
+  const onTouchEnd = useCallback(() => {
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) > SWIPE_THRESHOLD) {
+      if (diff > 0) handleSkip();
+      else handleBack();
+    }
+  }, [handleSkip, handleBack]);
+
+  const { isCompleted } = useCompletedTopicIds();
+  const { data: completionDetails } = useTopicCompletionDetails(experience.identity.id);
+  const [hasJustCompleted, setHasJustCompleted] = useState(false);
+  const [showInlineChallenge, setShowInlineChallenge] = useState(false);
+  const [completionCheckKey, setCompletionCheckKey] = useState(0);
+  const hasCompletedChallenge =
+    isCompleted(experience.identity.id) || hasJustCompleted;
+
+  const handleConsumed = useCallback(() => setHasJustCompleted(true), []);
+
+  const handleChallengeComplete = useCallback(() => {
+    setHasJustCompleted(true);
+    setCompletionCheckKey((k) => k + 1);
+  }, []);
+
   useEffect(() => {
     initCuriosityModesSession(slug);
   }, [slug]);
 
-  useEffect(() => {
-    if (mode === "listen") markListenModeUsed(slug);
-  }, [mode, slug]);
+  const playButtonSlot =
+    hasAudio && experience.audio ? (
+      <AudioPlayer
+        key={experience.identity.slug}
+        src={experience.audio.audioUrl}
+        title={experience.identity.title}
+        compact
+      />
+    ) : undefined;
 
-  useEffect(() => {
-    if (!hasAudio && mode === "listen") setMode("read");
-  }, [hasAudio, mode, setMode]);
-
-  const [audioPlaybackFinished, setAudioPlaybackFinished] = useState(false);
-  useEffect(() => {
-    setAudioPlaybackFinished(false);
-  }, [slug]);
-
-  const onAudioPlaybackEnded = useCallback(() => setAudioPlaybackFinished(true), []);
-  const onAudioPlaybackBegan = useCallback(() => setAudioPlaybackFinished(false), []);
-
-  const listenMode = mode === "listen";
+  const textStyle = DEFAULT_TEXT;
 
   return (
-    <article className={cn("space-y-5", listenMode && "space-y-6")}>
-      <CuriosityHeader experience={experience} compactHook={listenMode} />
+    <>
+      {/* Discover nav: arrows on sides of card, vertically centered */}
+      {fromDiscover && (
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={handleBack}
+            aria-label="Go back"
+            className="fixed left-4 top-1/2 z-20 h-11 w-11 -translate-y-1/2 rounded-full bg-white/95 shadow-md dark:bg-slate-900/95"
+          >
+            <ChevronLeft className="h-6 w-6 text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={handleSkip}
+            disabled={randomMutation.isPending}
+            aria-label="Skip to next random topic"
+            className="fixed right-4 top-1/2 z-20 h-11 w-11 -translate-y-1/2 rounded-full bg-white/95 shadow-md dark:bg-slate-900/95"
+          >
+            <ChevronRight className="h-6 w-6 text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan" />
+          </Button>
+        </>
+      )}
 
-      <ModeToggle
-        mode={mode}
-        onModeChange={setMode}
-        hasAudio={hasAudio}
-      />
+      <article
+        className={cn(
+          "overflow-hidden rounded-xl shadow-lg",
+          CARD_BASE,
+          fromDiscover && "touch-pan-y"
+        )}
+        onTouchStart={fromDiscover ? onTouchStart : undefined}
+        onTouchMove={fromDiscover ? onTouchMove : undefined}
+        onTouchEnd={fromDiscover ? onTouchEnd : undefined}
+      >
+        <CuriosityHeader
+          experience={experience}
+          completedState={
+            completionDetails
+              ? {
+                  correct: completionDetails.xpEarned !== 5,
+                  xpEarned: completionDetails.xpEarned,
+                }
+              : undefined
+          }
+        />
 
-      <AudioPanel
-        experience={experience}
-        audioMode={listenMode}
-        audioPlaybackFinished={audioPlaybackFinished}
-        onAudioPlaybackEnded={onAudioPlaybackEnded}
-        onAudioPlaybackBegan={onAudioPlaybackBegan}
-      />
+        <div className="space-y-6 p-5 sm:p-6">
+          {showInlineChallenge && experience.challenge ? (
+            <InlineChallengeBlock
+              experience={experience}
+              slug={slug}
+              onComplete={handleChallengeComplete}
+            />
+          ) : (
+            <>
+              <LessonContent
+                experience={experience}
+                playButtonSlot={playButtonSlot}
+                textClassName={textStyle}
+              />
 
-      <LessonContent experience={experience} listenMode={listenMode} />
+              {!hasCompletedChallenge && experience.challenge && (
+                <NextStepCallout
+                  slug={experience.identity.slug}
+                  experience={experience}
+                  onClick={() => setShowInlineChallenge(true)}
+                  xpDisplay={getCardXpFromDifficulty(experience.taxonomy.difficultyLevel)}
+                />
+              )}
 
-      <NextStepCallout slug={experience.identity.slug} />
+              {hasCompletedChallenge && (
+                <section className="mt-8" aria-label="Challenge complete">
+                  <div className="flex flex-col items-center justify-center gap-3 py-6">
+                    <span className="text-lg font-semibold uppercase tracking-wide">
+                      Complete
+                    </span>
+                    {completionDetails?.xpEarned === 5 ? (
+                      <XCircle className="h-16 w-16 text-red-500" aria-hidden />
+                    ) : (
+                      <CheckCircle2 className="h-16 w-16 text-emerald-500" aria-hidden />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <Link
+                      href={ROUTES.curiosity(slug)}
+                      className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
+                    >
+                      Review
+                    </Link>
+                    {completionDetails?.xpEarned != null && (
+                      <span
+                        className={cn(
+                          "shrink-0 rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+                          completionDetails.xpEarned === 5 ? "xp-badge-wrong" : "xp-badge-correct"
+                        )}
+                      >
+                        +{completionDetails.xpEarned} XP
+                      </span>
+                    )}
+                  </div>
+                </section>
+              )}
+            </>
+          )}
 
-      <section id="whats-next" className="scroll-mt-24 space-y-6">
-        <CompletionCelebrationHost topicSlug={slug} />
-        <PostChallengeExploration experience={experience} />
-      </section>
-    </article>
+          <section id="whats-next" className="scroll-mt-24 space-y-6">
+            <CompletionCelebrationHost
+              key={completionCheckKey}
+              topicSlug={slug}
+              onConsumed={handleConsumed}
+            />
+          </section>
+        </div>
+      </article>
+    </>
   );
 }
 

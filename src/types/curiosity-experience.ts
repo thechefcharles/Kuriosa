@@ -152,6 +152,8 @@ export type LoadedCuriosityExperience = Omit<
   "challenge" | "audio"
 > & {
   challenge?: CuriosityChallenge;
+  /** Optional second (bonus) question; sort_order 1. Grants bonus XP when correct. */
+  bonusChallenge?: CuriosityChallenge;
   /** null = no valid audio URL; object = Listen Mode ready */
   audio: CuriosityAudioBlock | null;
 };

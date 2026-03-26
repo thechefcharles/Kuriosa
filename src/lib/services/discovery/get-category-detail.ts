@@ -3,12 +3,18 @@ import type { CategoryDetailView } from "@/types/discovery";
 import { mapCategoryToCategoryView } from "@/lib/services/discovery/read/discovery-read-helpers";
 import { getTopicsByCategory } from "@/lib/services/discovery/get-topics-by-category";
 
+export type GetCategoryDetailOptions = {
+  userId?: string | null;
+};
+
 /**
  * Category metadata + published topics. Returns null if slug does not exist.
+ * Excludes completed topics when userId is provided.
  */
 export async function getCategoryDetail(
   supabase: SupabaseClient,
-  categorySlug: string
+  categorySlug: string,
+  options?: GetCategoryDetailOptions
 ): Promise<CategoryDetailView | null> {
   const slug = categorySlug.trim().toLowerCase();
   if (!slug) return null;
@@ -21,7 +27,9 @@ export async function getCategoryDetail(
 
   if (error || !cat) return null;
 
-  const topics = await getTopicsByCategory(supabase, slug);
+  const topics = await getTopicsByCategory(supabase, slug, {
+    userId: options?.userId ?? null,
+  });
   const row = cat as {
     id: string;
     name: string;

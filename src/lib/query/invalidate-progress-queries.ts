@@ -1,5 +1,9 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { discoveryQueryKeys, progressQueryKeys } from "@/lib/query/query-keys";
+import {
+  curiosityQueryKeys,
+  discoveryQueryKeys,
+  progressQueryKeys,
+} from "@/lib/query/query-keys";
 
 /**
  * Refetch progress-related queries after completion, badge unlock, etc.
@@ -15,6 +19,9 @@ export function invalidateProgressQueries(
     return;
   }
   void queryClient.invalidateQueries({
+    queryKey: progressQueryKeys.completedTopicIds(id),
+  });
+  void queryClient.invalidateQueries({
     queryKey: progressQueryKeys.summary(id),
   });
   void queryClient.invalidateQueries({
@@ -24,12 +31,28 @@ export function invalidateProgressQueries(
     queryKey: progressQueryKeys.stats(id),
   });
   void queryClient.invalidateQueries({
+    queryKey: progressQueryKeys.categoryXp(id),
+  });
+  void queryClient.invalidateQueries({
     queryKey: progressQueryKeys.profileProgress(id),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: [...progressQueryKeys.all, "category-progress"],
+  });
+  void queryClient.invalidateQueries({
+    queryKey: [...progressQueryKeys.all, "topic-completion-details"],
   });
   void queryClient.invalidateQueries({
     queryKey: discoveryQueryKeys.recent(id),
   });
   void queryClient.invalidateQueries({
     queryKey: discoveryQueryKeys.suggestedTopics(id),
+  });
+  void queryClient.invalidateQueries({
+    queryKey: curiosityQueryKeys.daily(),
+  });
+  // Refetch discover topic lists so completed cards are hidden
+  void queryClient.invalidateQueries({
+    queryKey: ["discovery"],
   });
 }

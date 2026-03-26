@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { TopicCardView } from "@/types/discovery";
 import { mapTopicToTopicCardView } from "@/lib/services/discovery/read/discovery-read-helpers";
+import { getCompletedTopicIds } from "@/lib/services/progress/get-completed-topic-ids";
 
 const LIMIT = 24;
 
@@ -31,11 +32,17 @@ async function loadCategoryMap(
   return map;
 }
 
+export type GetFeaturedTopicsOptions = {
+  /** When set, populates isCompleted from user_topic_history */
+  userId?: string | null;
+};
+
 /**
  * Prefer random-featured published topics; fallback to recently updated.
  */
 export async function getFeaturedTopics(
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  options?: GetFeaturedTopicsOptions
 ): Promise<TopicCardView[]> {
   const { data: featured, error: e1 } = await supabase
     .from("topics")
@@ -65,12 +72,19 @@ export async function getFeaturedTopics(
   const catIds = [...new Set(rows.map((r) => String(r.category_id)))];
   const catMap = await loadCategoryMap(supabase, catIds);
 
+  const completedIds = options?.userId?.trim()
+    ? await getCompletedTopicIds(supabase, options.userId)
+    : [];
+  const completedSet = new Set(completedIds);
+
   const out: TopicCardView[] = [];
   for (const row of rows) {
+    if (completedSet.has(String(row.id))) continue;
     const c = catMap.get(String(row.category_id));
     const mapped = mapTopicToTopicCardView(row, {
       categoryName: c?.name,
       categorySlug: c?.slug,
+      isCompleted: false,
     });
     if (mapped) out.push(mapped);
   }

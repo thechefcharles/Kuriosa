@@ -1,20 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Compass, Sparkles } from "lucide-react";
 import { useDailyCuriosity } from "@/hooks/queries/useDailyCuriosity";
+import { useDailyBoostRevealed } from "@/hooks/useDailyBoostRevealed";
 import { PageContainer } from "@/components/shared/page-container";
-import { DailyCuriosityCard } from "@/components/curiosity/daily-curiosity-card";
+import { DailyChallengeCard } from "@/components/home/daily-challenge-card";
+import { DailyMultiplierSpinner } from "@/components/home/daily-multiplier-spinner";
 import { DailyCuriosityCardSkeleton } from "@/components/curiosity/daily-curiosity-card-skeleton";
 import { HomeDailyEmpty, HomeDailyError } from "@/components/home/home-daily-states";
-import { buttonVariants } from "@/components/ui/button";
-import { FeedMyCuriosityButton } from "@/components/curiosity/feed-my-curiosity-button";
 import { ROUTES } from "@/lib/constants/routes";
-import { APP_NAME, TAGLINE } from "@/lib/constants/brand";
 import { cn } from "@/lib/utils";
 
 export function HomeScreen() {
   const daily = useDailyCuriosity();
+  const [boostRevealed, setBoostRevealed] = useDailyBoostRevealed();
 
   return (
     <div
@@ -23,74 +22,54 @@ export function HomeScreen() {
         "dark:from-kuriosa-midnight-blue dark:via-slate-950 dark:to-slate-950"
       )}
     >
-      <PageContainer className="pb-10 pt-6 sm:pt-10">
-        <header className="mb-10 text-center sm:mb-12">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
-            {APP_NAME}
-          </p>
-          <h1 className="bg-gradient-to-r from-kuriosa-midnight-blue via-kuriosa-deep-purple to-kuriosa-electric-cyan bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
-            {TAGLINE}
+      <PageContainer className="max-w-md pb-10 pt-5 sm:pt-6">
+        <header className="mb-4 flex items-start justify-between gap-4" aria-labelledby="home-daily-heading">
+          <h1
+            id="home-daily-heading"
+            className="text-xl font-semibold tracking-tight text-kuriosa-midnight-blue dark:text-slate-100"
+          >
+            Daily Challenge
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
-            Open the app and discover something fascinating — starting with today&apos;s pick.
-          </p>
+          {daily.data && (
+            <DailyMultiplierSpinner
+              multiplier={daily.data.dailyMultiplier ?? 1.5}
+              hasSpun={boostRevealed}
+              onSpin={() => setBoostRevealed(true)}
+              className="shrink-0"
+            />
+          )}
         </header>
 
-        <section aria-labelledby="home-daily-heading" className="mb-10">
-          <div className="mb-4 flex items-center gap-2 sm:mb-5">
-            <Sparkles
-              className="h-5 w-5 text-kuriosa-electric-cyan"
-              aria-hidden
-            />
-            <h2
-              id="home-daily-heading"
-              className="text-lg font-semibold text-kuriosa-midnight-blue dark:text-slate-100"
-            >
-              Today&apos;s curiosity
-            </h2>
-          </div>
-
+        <section className="mb-6">
           {daily.isLoading ? (
             <DailyCuriosityCardSkeleton />
           ) : daily.isError ? (
             <HomeDailyError message={daily.error.message} />
           ) : !daily.data ? (
-            <HomeDailyEmpty />
+            <HomeDailyEmpty isToday />
           ) : (
-            <DailyCuriosityCard
+            <DailyChallengeCard
               experience={daily.data.experience}
-              themeLabel={daily.data.theme}
+              isCompleted={daily.data.isCompleted}
+              challengeCorrect={daily.data.challengeCorrect}
+              xpEarned={daily.data.xpEarned}
+              dailyMultiplier={daily.data.dailyMultiplier}
+              boostRevealed={boostRevealed}
             />
           )}
         </section>
 
-        <section
-          aria-label="More ways to explore"
-          className="space-y-5 rounded-2xl border border-slate-200/80 bg-white/60 p-5 dark:border-white/10 dark:bg-slate-900/40 sm:p-6"
-        >
-          <div>
-            <p className="mb-1 text-center text-sm font-semibold text-kuriosa-midnight-blue dark:text-slate-100">
-              Or go random
-            </p>
-            <p className="text-center text-xs text-muted-foreground">
-              Not in the mood for today&apos;s pick? Spin up a surprise.
-            </p>
-          </div>
-          <FeedMyCuriosityButton
-            dailyTopicSlug={daily.data?.experience.identity.slug ?? null}
-          />
-          <div className="flex justify-center border-t border-slate-200/60 pt-4 dark:border-white/10">
-            <Link
-              href={ROUTES.discover}
-              className={cn(
-                buttonVariants({ variant: "default", size: "lg" }),
-                "inline-flex h-11 min-h-[44px] items-center justify-center gap-2 bg-kuriosa-midnight-blue/90 text-white hover:bg-kuriosa-midnight-blue dark:bg-kuriosa-electric-cyan dark:text-kuriosa-midnight-blue dark:hover:bg-kuriosa-electric-cyan/90"
-              )}
-            >
-              <Compass className="h-4 w-4" aria-hidden />
-              Browse Discover
-            </Link>
-          </div>
+        <section aria-label="Discover more">
+          <Link
+            href={ROUTES.discover}
+            className={cn(
+              "block w-full rounded-xl border-2 border-kuriosa-deep-purple bg-kuriosa-deep-purple py-4 text-center text-lg font-semibold text-white shadow-md transition-all",
+              "hover:bg-kuriosa-deep-purple/90 hover:shadow-lg active:scale-[0.99]",
+              "dark:border-kuriosa-electric-cyan dark:bg-kuriosa-electric-cyan dark:text-kuriosa-midnight-blue dark:hover:bg-kuriosa-electric-cyan/90"
+            )}
+          >
+            Discover
+          </Link>
         </section>
       </PageContainer>
     </div>

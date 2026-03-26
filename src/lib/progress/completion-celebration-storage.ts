@@ -7,6 +7,23 @@ const KEY = "kuriosa:completionCelebration";
 /** Drop celebration if not shown within this window (avoids surprise pop-ins days later). */
 export const COMPLETION_CELEBRATION_TTL_MS = 15 * 60 * 1000;
 
+export type RewardBreakdownPayload = {
+  /** New format: main quiz XP (correct = difficulty × mult, wrong = 5) */
+  mainQuizXp?: number;
+  /** New format: bonus question correct = +10 */
+  bonusQuestionXp?: number;
+  /** New format: daily multiplier applied (e.g. 1.5) */
+  dailyMultiplierApplied?: number;
+  /** Legacy fields (for backwards compat with stashed payloads) */
+  lessonXp?: number;
+  challengeXp?: number;
+  perfectBonusXp?: number;
+  firstTryBonusXp?: number;
+  dailyBonusXp?: number;
+  randomBonusXp?: number;
+  listenBonusXp?: number;
+};
+
 export type CompletionCelebrationPayload = {
   topicSlug: string;
   storedAtMs: number;
@@ -14,10 +31,14 @@ export type CompletionCelebrationPayload = {
   wasCountedAsNewCompletion: boolean;
   levelBefore: number;
   levelAfter: number;
+  /** XP still needed for next level (for "close to level" hint). */
+  xpToNextLevel?: number;
   streakBefore: number;
   streakAfter: number;
   curiosityScoreBefore: number;
   curiosityScoreAfter: number;
+  /** XP breakdown for display (lesson, challenge, bonus, etc.) */
+  breakdown: RewardBreakdownPayload | null;
   unlockedBadges: { slug: string; name: string; description: string | null }[];
 };
 
@@ -44,6 +65,23 @@ function normalizePayload(raw: unknown): CompletionCelebrationPayload | null {
   ) {
     return null;
   }
+  let breakdown: CompletionCelebrationPayload["breakdown"] = null;
+  if (o.breakdown && typeof o.breakdown === "object") {
+    const b = o.breakdown as Record<string, unknown>;
+    const def = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : 0);
+    breakdown = {
+      mainQuizXp: def(b.mainQuizXp),
+      bonusQuestionXp: def(b.bonusQuestionXp),
+      dailyMultiplierApplied: def(b.dailyMultiplierApplied) || undefined,
+      lessonXp: def(b.lessonXp),
+      challengeXp: def(b.challengeXp),
+      perfectBonusXp: def(b.perfectBonusXp),
+      firstTryBonusXp: def(b.firstTryBonusXp),
+      dailyBonusXp: def(b.dailyBonusXp),
+      randomBonusXp: def(b.randomBonusXp),
+      listenBonusXp: def(b.listenBonusXp),
+    };
+  }
   const badges = o.unlockedBadges;
   if (!Array.isArray(badges)) return null;
   const unlockedBadges = badges.map((b) => {
@@ -61,6 +99,8 @@ function normalizePayload(raw: unknown): CompletionCelebrationPayload | null {
   });
   if (unlockedBadges.some((x) => x === null)) return null;
 
+  const xpToNextLevel = isFiniteNumber(o.xpToNextLevel) ? o.xpToNextLevel : undefined;
+
   return {
     topicSlug: o.topicSlug.trim(),
     storedAtMs,
@@ -68,10 +108,12 @@ function normalizePayload(raw: unknown): CompletionCelebrationPayload | null {
     wasCountedAsNewCompletion: o.wasCountedAsNewCompletion,
     levelBefore: o.levelBefore,
     levelAfter: o.levelAfter,
+    xpToNextLevel,
     streakBefore: o.streakBefore,
     streakAfter: o.streakAfter,
     curiosityScoreBefore: o.curiosityScoreBefore,
     curiosityScoreAfter: o.curiosityScoreAfter,
+    breakdown,
     unlockedBadges: unlockedBadges as CompletionCelebrationPayload["unlockedBadges"],
   };
 }

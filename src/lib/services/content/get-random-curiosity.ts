@@ -12,19 +12,38 @@ import { loadCuriosityExperience } from "@/lib/services/content/load-curiosity-e
 
 export type GetRandomCuriosityOptions = {
   difficultyLevel?: string;
+  /** If set, restricts to topics in this category (by slug) */
+  categorySlug?: string;
   /** If set, excluded from the candidate pool when alternatives exist */
   excludeSlug?: string;
+  /** Topic IDs to exclude (e.g. completed) — when alternatives exist */
+  excludeTopicIds?: string[];
 };
 
 async function fetchCandidateIds(
   supabase: SupabaseClient,
   opts: GetRandomCuriosityOptions & { featuredOnly: boolean }
 ): Promise<{ id: string; slug: string }[]> {
+  let categoryId: string | undefined;
+  if (opts.categorySlug?.trim()) {
+    const { data: cat } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("slug", opts.categorySlug.trim().toLowerCase())
+      .maybeSingle();
+    if (cat && (cat as { id: string }).id) {
+      categoryId = (cat as { id: string }).id;
+    }
+  }
+
   let q = supabase
     .from("topics")
     .select("id, slug")
     .eq("status", "published");
 
+  if (categoryId) {
+    q = q.eq("category_id", categoryId);
+  }
   if (opts.difficultyLevel?.trim()) {
     q = q.eq("difficulty_level", opts.difficultyLevel.trim());
   }
@@ -78,8 +97,62 @@ export async function getRandomCuriosity(
     }
   }
 
-  const chosen = pickRandom(pool);
+  let poolFiltered = pool;
+  if (options.excludeTopicIds?.length) {
+    const excludeSet = new Set(options.excludeTopicIds);
+    poolFiltered = pool.filter((p) => !excludeSet.has(p.id));
+  }
+  if (!poolFiltered.length) poolFiltered = pool;
+
+  const chosen = pickRandom(poolFiltered);
   if (!chosen) return null;
 
   return loadCuriosityExperience(supabase, { topicId: chosen.id });
+}
+
+export type RandomCuriosityForDisplay = {
+  experience: LoadedCuriosityExperience;
+  isCompleted: boolean;
+  /** XP earned when completed (from user_topic_history.xp_earned) */
+  xpEarned?: number;
+};
+
+export type GetRandomCuriosityForDisplayOptions = GetRandomCuriosityOptions & {
+  userId?: string | null;
+};
+
+/**
+ * Fetches a random curiosity with isCompleted flag for display (e.g. home carousel).
+ */
+export async function getRandomCuriosityForDisplay(
+  supabase: SupabaseClient,
+  options: GetRandomCuriosityForDisplayOptions = {}
+): Promise<RandomCuriosityForDisplay | null> {
+  const { userId, ...opts } = options;
+  const experience = await getRandomCuriosity(supabase, opts);
+  if (!experience) return null;
+
+  let isCompleted = false;
+  let xpEarned: number | undefined;
+  if (userId?.trim()) {
+    const { data: hist } = await supabase
+      .from("user_topic_history")
+      .select("xp_earned")
+      .eq("user_id", userId)
+      .eq("topic_id", experience.identity.id)
+      .eq("rewards_granted", true)
+      .maybeSingle();
+    if (hist) {
+      isCompleted = true;
+      const xp = (hist as { xp_earned?: number | null }).xp_earned;
+      xpEarned =
+        xp != null && Number.isFinite(Number(xp)) ? Math.max(0, Math.round(Number(xp))) : undefined;
+    }
+  }
+
+  return {
+    experience,
+    isCompleted,
+    ...(xpEarned !== undefined ? { xpEarned } : {}),
+  };
 }

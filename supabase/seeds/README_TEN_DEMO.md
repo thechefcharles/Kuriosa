@@ -4,6 +4,8 @@
 
 10 **published** topics with a short lesson + **multiple-choice challenge** each. They are flagged **`is_random_featured = true`** so random spin prefers them when present.
 
+**Content expansion:** After ten-demo, run migrations to add 20 more topics, trails, bonus questions, and followups. See `20260328120000_content_expansion_trails.sql` and `CONTENT_EXPANSION_AND_TRAILS_ARCHITECTURE.md`.
+
 | # | Slug | Title |
 |---|------|--------|
 | 1 | `why-sky-blue` | Why is the sky blue? |
@@ -26,6 +28,8 @@
 **Requirement:** `categories` must already include `science`, `history`, `nature`, `technology`, `culture` (default Kuriosa migrations).
 
 Re-running the script is safe: existing slugs are skipped (`ON CONFLICT` / `NOT EXISTS`).
+
+**Then set today's daily pick:** `npm run seed:daily` (or run `supabase/seeds/seed-daily-curiosity.sql` in SQL Editor).
 
 ## Optional: set today’s daily curiosity
 

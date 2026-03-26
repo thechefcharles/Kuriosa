@@ -3,6 +3,13 @@ import { Clock, CheckCircle2 } from "lucide-react";
 import type { TopicCardView } from "@/types/discovery";
 import { DifficultyLabel } from "@/components/curiosity/difficulty-label";
 import { ROUTES } from "@/lib/constants/routes";
+import { getCategoryTheme } from "@/lib/constants/category-themes";
+import {
+  DIFFICULTY_BANNER,
+  DEFAULT_BANNER,
+  CARD_BASE,
+} from "@/lib/constants/card-styles";
+import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
 import { cn } from "@/lib/utils";
 
 export function TopicCard({
@@ -16,52 +23,81 @@ export function TopicCard({
 }) {
   const to = href ?? ROUTES.curiosity(topic.slug);
   const minutes = topic.estimatedMinutes;
-
-  const inner = (
-    <>
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="line-clamp-2 min-h-[2.5rem] text-base font-semibold leading-snug text-kuriosa-midnight-blue dark:text-white">
-          {topic.title}
-        </h3>
-        {topic.isCompleted ? (
-          <CheckCircle2
-            className="h-5 w-5 shrink-0 text-emerald-500"
-            aria-label="Completed"
-          />
-        ) : null}
-      </div>
-      <p className="mt-2 line-clamp-2 min-h-[2.5rem] text-sm text-muted-foreground">
-        {topic.hook}
-      </p>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex max-w-full truncate rounded-full border border-violet-200/70 bg-violet-50/80 px-2.5 py-0.5 text-xs font-medium text-kuriosa-deep-purple dark:border-white/15 dark:bg-white/10 dark:text-kuriosa-electric-cyan">
-          {topic.categoryName}
-        </span>
-        {topic.difficulty ? (
-          <DifficultyLabel level={topic.difficulty} />
-        ) : null}
-        {minutes != null ? (
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock className="h-3.5 w-3.5" aria-hidden />
-            {minutes} min
-          </span>
-        ) : null}
-      </div>
-    </>
-  );
+  const diff = (topic.difficulty ?? "").trim().toLowerCase();
+  const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
+  const theme = getCategoryTheme(topic.categorySlug);
+  const Icon = theme.icon;
+  const xp = getCardXpFromDifficulty(topic.difficulty);
 
   return (
     <Link
       href={to}
       className={cn(
-        "block min-h-[176px] rounded-xl border border-slate-200/90 bg-white/90 p-4 shadow-sm ring-offset-background transition-all",
-        "hover:border-kuriosa-electric-cyan/45 hover:shadow-md hover:ring-1 hover:ring-kuriosa-electric-cyan/25 active:scale-[0.99]",
-        "dark:border-white/10 dark:bg-slate-900/60 dark:hover:border-kuriosa-electric-cyan/30",
+        "block min-h-[176px] overflow-hidden rounded-xl border shadow-sm ring-offset-background transition-all",
+        "hover:shadow-md hover:ring-1 hover:ring-kuriosa-electric-cyan/25 active:scale-[0.99]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kuriosa-electric-cyan",
+        "hover:border-kuriosa-electric-cyan/45 dark:hover:border-kuriosa-electric-cyan/30",
+        CARD_BASE,
         className
       )}
     >
-      {inner}
+      {/* Difficulty-colored banner with category */}
+      <div
+        className={cn(
+          "flex min-w-0 items-center justify-center px-3 py-2.5",
+          bannerBg
+        )}
+      >
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 rounded-md px-2 py-0.5",
+            theme.bar,
+            "text-[10px] font-bold uppercase leading-tight tracking-wide text-white"
+          )}
+          title={topic.categoryName}
+        >
+          <Icon className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
+          <span className="truncate max-w-[120px]">{topic.categoryName}</span>
+        </span>
+      </div>
+      <div className="flex flex-col p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-2 min-h-[2.5rem] flex-1 text-base font-semibold leading-snug text-kuriosa-midnight-blue dark:text-white">
+            {topic.title}
+          </h3>
+          {topic.isCompleted ? (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+              Done
+            </span>
+          ) : null}
+        </div>
+        <p className="mt-2 line-clamp-2 min-h-[2.5rem] text-sm text-muted-foreground">
+          {topic.hook}
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {topic.difficulty ? (
+            <DifficultyLabel level={topic.difficulty} />
+          ) : null}
+          {minutes != null ? (
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" aria-hidden />
+              {minutes} min
+            </span>
+          ) : null}
+        </div>
+        {/* Footer: XP bottom right */}
+        <div className="mt-3 flex items-center justify-end border-t border-slate-200/80 pt-3 dark:border-slate-700/80">
+          <span
+            className={cn(
+              "rounded-md px-2 py-0.5 text-[10px] font-bold tabular-nums text-white",
+              theme.bar
+            )}
+          >
+            +{xp} XP
+          </span>
+        </div>
+      </div>
     </Link>
   );
 }

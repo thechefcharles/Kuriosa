@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles } from "lucide-react";
 import { ROUTES } from "@/lib/constants/routes";
 import { Button } from "@/components/ui/button";
 import { useRecordCuriosityCompletion } from "@/hooks/mutations/useRecordCuriosityCompletion";
@@ -10,6 +9,7 @@ import { getTopicDiscoveryContext } from "@/lib/services/progress/session-topic-
 import { getModeUsedLabel } from "@/lib/services/progress/session-curiosity-modes";
 import { cn } from "@/lib/utils";
 import { stashCompletionCelebration } from "@/lib/progress/completion-celebration-storage";
+import { incrementSessionCompletions } from "@/lib/progress/session-completion-tracker";
 
 /**
  * Records completion when the user leaves the challenge for post-challenge exploration.
@@ -19,10 +19,13 @@ export function ChallengeContinueExploringButton({
   slug,
   topicId,
   challengeCorrect,
+  jackpot = false,
 }: {
   slug: string;
   topicId: string;
   challengeCorrect: boolean;
+  /** Gold shimmering jackpot style for the claim button */
+  jackpot?: boolean;
 }) {
   const router = useRouter();
   const { mutateAsync, isPending } = useRecordCuriosityCompletion();
@@ -46,16 +49,21 @@ export function ChallengeContinueExploringButton({
           d.wasCountedAsNewCompletion ||
           (d.unlockedBadges?.length ?? 0) > 0;
         if (worthCelebrating) {
+          if (d.wasCountedAsNewCompletion) {
+            incrementSessionCompletions();
+          }
           stashCompletionCelebration({
             topicSlug: slug,
             xpEarned: d.xpEarned,
             wasCountedAsNewCompletion: d.wasCountedAsNewCompletion,
             levelBefore: d.levelBefore,
             levelAfter: d.levelAfter,
+            xpToNextLevel: d.xpToNextLevel,
             streakBefore: d.streakBefore,
             streakAfter: d.streakAfter,
             curiosityScoreBefore: d.curiosityScoreBefore,
             curiosityScoreAfter: d.curiosityScoreAfter,
+            breakdown: d.breakdown ?? null,
             unlockedBadges: (d.unlockedBadges ?? []).map((b) => ({
               slug: b.slug,
               name: b.name,
@@ -80,7 +88,8 @@ export function ChallengeContinueExploringButton({
         size="lg"
         disabled={isPending}
         className={cn(
-          "inline-flex min-h-12 w-full items-center justify-center gap-2 sm:w-auto"
+          "inline-flex min-h-12 w-full items-center justify-center gap-2 sm:w-auto",
+          jackpot && !isPending && "btn-jackpot"
         )}
         onClick={() => void handleClick()}
       >
@@ -93,10 +102,7 @@ export function ChallengeContinueExploringButton({
             Saving…
           </span>
         ) : (
-          <>
-            <Sparkles className="h-4 w-4" aria-hidden />
-            See what&apos;s next
-          </>
+          <>Claim your XP</>
         )}
       </Button>
       {syncMissed ? (

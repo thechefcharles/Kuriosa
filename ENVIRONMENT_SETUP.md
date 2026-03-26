@@ -10,6 +10,26 @@
 | `OPENAI_API_KEY` | OpenAI API key |
 | `INTERNAL_CONTENT_WORKFLOW_ALLOWLIST_EMAILS` | Comma-separated developer emails allowed to access internal preview + publish/reject endpoints (Phase 4.10). Server-only. |
 
+## Daily challenge — automatic rotation (Vercel Cron)
+
+The home **Daily Challenge** reads one row per UTC date from `daily_curiosity`. To roll a **new topic every day** without manual SQL:
+
+1. Deploy with **`vercel.json`** in the repo (defines cron `0 0 * * *` = **00:00 UTC** daily).
+2. On Vercel, set **`SUPABASE_SERVICE_ROLE_KEY`** (same as local) so the cron route can upsert `daily_curiosity`.
+3. Optional: set **`CRON_SECRET`**. If set, manual triggers must use  
+   `curl -H "Authorization: Bearer $CRON_SECRET" "https://your-app.vercel.app/api/cron/roll-daily-curiosity"`.  
+   Scheduled Vercel runs still work via the `x-vercel-cron` header when `CRON_SECRET` is unset.
+
+**Timezone:** The cron uses **UTC midnight**, which matches `getDailyCuriosity` (today = UTC date). For “midnight in New York” you’d change the schedule in `vercel.json` (e.g. `0 5 * * *` for ~midnight EST) or use a different host for scheduling.
+
+**Logic:** Picks a random **published** topic, preferring `is_random_featured`, and avoids repeating topics used as daily in the **last 30 days** when possible. Assigns a random `daily_multiplier` from the app config. Same logic as **`npm run seed:daily`** locally.
+
+## Optional — Share links (Phase 10.2)
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_APP_URL` | App base URL for share links (e.g. `https://yourdomain.com`). Falls back to `localhost:3005` in dev. |
+
 ## Optional — Phase 8 audio Storage
 
 | Variable | Description |
@@ -98,6 +118,8 @@ Sentry captures runtime errors (client and server), stack traces, and helps debu
 
 **Phase 6 E2E (manual)**: Sign in → complete one curiosity (challenge → Continue) → check **`/progress`** and celebration on **`#whats-next`**. Repeat same topic: no extra XP. See **`PHASE_6_PROGRESS_SYSTEM_INVENTORY.md`**.
 
+**Phase 9 AI (curiosity engine)**: `npm run ai:topic-followups -- --slug=why-sky-blue` — get or generate topic follow-ups (persists to ai_followups). `npm run ai:rabbit-holes -- --slug=why-sky-blue` — rabbit-hole suggestions (cached). Requires migrations `20260325120000_phase91_ai_engine.sql`, `20260325120001_phase92_ai_followups_unique.sql`. See **`GUIDED_CURIOSITY_EXPLORATION_ARCHITECTURE.md`**.
+
 ## Auth Redirect URLs (Supabase Dashboard)
 
 For email confirmation and OAuth (if added later), configure in **Authentication → URL Configuration**:
@@ -113,3 +135,114 @@ For email confirmation and OAuth (if added later), configure in **Authentication
    ```
 2. Edit `.env.local` and replace placeholders with your values
 3. Restart the dev server after changes
+
+---
+
+## Quick Start — Full App Verification
+
+Get Kuriosa running end-to-end in under 5 minutes.
+
+### 1. Prerequisites
+
+- Supabase project (migrations applied: `supabase db push`)
+- `.env.local` with `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`
+
+### 2. Seed topics
+
+**Option A — Ten demo topics (fast, no API):**  
+Open Supabase Dashboard → SQL Editor → paste and run `supabase/seeds/ten-demo-curiosities.sql`
+
+**Option B — AI-generated content:**  
+```bash
+npm run seed:phase4
+```
+
+### 3. Set today's daily curiosity
+
+```bash
+npm run seed:daily
+```
+
+Or run `supabase/seeds/seed-daily-curiosity.sql` in the SQL Editor.
+
+### 4. (Optional) Generate audio for Listen Mode
+
+```bash
+npm run audio:generate-example -- --slug=why-sky-blue
+```
+
+Requires `OPENAI_API_KEY`. Listen Mode depends on `topics.audio_url` being set.
+
+### 5. Run the app
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3005`. Sign in → Home → Today's curiosity → full loop.
+
+### 6. Verify key routes
+
+- `/` → Enter Kuriosa → sign in
+- `/home` → daily curiosity card
+- `/curiosity/<slug>` → lesson, Read/Listen toggle, challenge
+- `/challenge/<slug>` → answer → See what's next
+- `/progress` → XP, level, streak
+- `/discover` → categories, search, featured
+
+### Build issues
+
+If `npx tsc --noEmit` fails with `.next` type errors:
+
+```bash
+rm -rf .next && npm run build
+```
+
+---
+
+## Troubleshooting: Supabase 401 "Failed to retrieve project's postgrest config"
+
+This error usually means Supabase cannot authenticate your app. Check these:
+
+### 1. **Project paused (free tier)**
+
+Free-tier Supabase projects pause after inactivity. In [Supabase Dashboard](https://supabase.com/dashboard), check if the project shows "Paused" and **Restore project** if needed.
+
+### 2. **Environment variables on Vercel**
+
+If deploying to Vercel, ensure these are set in **Project → Settings → Environment Variables**:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Values must match the **same** Supabase project (Settings → API). Redeploy after changing env vars.
+
+### 3. **Keys from the correct project**
+
+URL and keys must come from the same project. In Supabase: **Project Settings → API** → copy Project URL, anon key, and service_role key. Avoid mixing keys from different projects.
+
+### 4. **Rotated or invalid keys**
+
+If you regenerated keys in the dashboard, update all env vars (local and Vercel) with the new values.
+
+---
+
+## Vercel: “Claim XP” / completion fails locally but not in production
+
+The `/api/progress/complete-curiosity` route needs **all** of these on Vercel (same values as `.env.local`):
+
+| Variable | Why |
+|----------|-----|
+| `NEXT_PUBLIC_SUPABASE_URL` | Browser + server |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Auth session cookies |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Required** — writes progress/XP (server-only; never prefix with `NEXT_PUBLIC_`) |
+
+If `SUPABASE_SERVICE_ROLE_KEY` is missing, production returns an error mentioning it. After adding it, **redeploy**.
+
+**Auth on your production domain:** In Supabase → **Authentication** → **URL configuration**:
+
+- **Site URL**: your Vercel URL (e.g. `https://your-app.vercel.app`)
+- **Redirect URLs**: include `https://your-app.vercel.app/**` (and `http://localhost:3005/**` for local)
+
+Without this, `getUser()` in API routes may see no session on Vercel even when you appear signed in.

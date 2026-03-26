@@ -1,7 +1,19 @@
 "use client";
 
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { cn } from "@/lib/utils";
+
+export type LessonContentProps = {
+  experience: LoadedCuriosityExperience;
+  className?: string;
+  listenMode?: boolean;
+  /** Optional play button to show at the start of the main text */
+  playButtonSlot?: React.ReactNode;
+  /** Text color class (e.g. from difficulty theme) */
+  textClassName?: string;
+};
 
 function splitIntoParagraphs(text: string): string[] {
   // Prefer blank-line paragraph breaks; fallback to line breaks.
@@ -16,11 +28,10 @@ export function LessonContent({
   experience,
   className,
   listenMode = false,
-}: {
-  experience: LoadedCuriosityExperience;
-  className?: string;
-  listenMode?: boolean;
-}) {
+  playButtonSlot,
+  textClassName = "text-slate-800 dark:text-slate-200",
+}: LessonContentProps) {
+  const [surprisingFactOpen, setSurprisingFactOpen] = useState(false);
   const lessonParagraphs = splitIntoParagraphs(experience.lesson.lessonText);
 
   return (
@@ -37,6 +48,30 @@ export function LessonContent({
           Written lesson
         </h2>
       ) : null}
+      {playButtonSlot ? (
+        <div className="flex items-start gap-3">
+          <div className="pt-0.5">{playButtonSlot}</div>
+          <div className="min-w-0 flex-1 space-y-3">
+            {lessonParagraphs.length ? (
+              lessonParagraphs.map((p, i) => (
+                <p
+                  key={`${i}-${p.slice(0, 12)}`}
+                  className={cn(
+                    textClassName,
+                    listenMode ? "text-sm leading-6" : "text-[15px] leading-7"
+                  )}
+                >
+                  {p}
+                </p>
+              ))
+            ) : (
+              <p className={cn("text-[15px] leading-7", textClassName)}>
+                Lesson content isn&apos;t available yet.
+              </p>
+            )}
+          </div>
+        </div>
+      ) : (
       <div
         className={cn(
           "space-y-3",
@@ -49,7 +84,7 @@ export function LessonContent({
             <p
               key={`${i}-${p.slice(0, 12)}`}
               className={cn(
-                "text-slate-800 dark:text-slate-200",
+                textClassName,
                 listenMode ? "text-sm leading-6" : "text-[15px] leading-7"
               )}
             >
@@ -57,33 +92,42 @@ export function LessonContent({
             </p>
           ))
         ) : (
-          <p className="text-[15px] leading-7 text-slate-800 dark:text-slate-200">
+          <p className={cn("text-[15px] leading-7", textClassName)}>
             Lesson content isn’t available yet.
           </p>
         )}
       </div>
+      )}
 
       {experience.lesson.surprisingFact ? (
-        <section className="rounded-2xl border border-violet-200/80 bg-violet-50/60 p-5 dark:border-violet-900/40 dark:bg-violet-950/20">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-kuriosa-electric-cyan dark:text-kuriosa-electric-cyan/90">
-            Surprising fact
-          </div>
-          <p className="text-base leading-7 text-slate-800 dark:text-slate-100">
-            {experience.lesson.surprisingFact}
-          </p>
+        <section className="overflow-hidden rounded-2xl border border-white/30 bg-white/40 dark:border-white/10 dark:bg-white/5">
+          <button
+            type="button"
+            onClick={() => setSurprisingFactOpen((v) => !v)}
+            className="flex w-full items-center justify-between gap-2 px-5 py-4 text-left"
+            aria-expanded={surprisingFactOpen}
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide opacity-80">
+              Surprising fact
+            </span>
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 shrink-0 transition-transform",
+                surprisingFactOpen && "rotate-180"
+              )}
+              aria-hidden
+            />
+          </button>
+          {surprisingFactOpen && (
+            <div className="border-t border-white/20 px-5 pb-5 pt-2 dark:border-white/10">
+              <p className={cn("text-base leading-7", textClassName)}>
+                {experience.lesson.surprisingFact}
+              </p>
+            </div>
+          )}
         </section>
       ) : null}
 
-      {experience.lesson.realWorldRelevance ? (
-        <section className="rounded-2xl border border-slate-200/80 bg-white/60 p-5 dark:border-white/10 dark:bg-slate-900/30">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan">
-            Why it matters
-          </div>
-          <p className="text-base leading-7 text-slate-700 dark:text-slate-200">
-            {experience.lesson.realWorldRelevance}
-          </p>
-        </section>
-      ) : null}
     </div>
   );
 }

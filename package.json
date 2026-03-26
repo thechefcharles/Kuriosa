@@ -19,9 +19,15 @@
     "ai:assemble-draft": "npx tsx src/lib/ai/examples/run-curiosity-draft-assembly-example.ts",
     "persist:draft": "npx tsx src/lib/ai/examples/run-persist-curiosity-draft-example.ts",
     "seed:phase4": "npx tsx src/lib/content/seeds/run-phase-4-seed.ts",
+    "seed:daily": "npx tsx src/lib/content/seeds/run-seed-daily-curiosity.ts",
     "seed:verify": "npx tsx src/lib/content/seeds/run-phase-4-seed-verification.ts",
     "progress:complete-example": "npx tsx src/lib/services/progress/examples/run-process-completion-example.ts",
-    "progress:badges-example": "npx tsx src/lib/services/progress/examples/run-badge-evaluation-example.ts"
+    "progress:badges-example": "npx tsx src/lib/services/progress/examples/run-badge-evaluation-example.ts",
+    "ai:topic-followups": "npx tsx src/lib/services/ai/examples/run-topic-followups-example.ts",
+    "ai:rabbit-holes": "npx tsx src/lib/services/ai/examples/run-topic-rabbit-holes-example.ts",
+    "ai:manual-question": "npx tsx src/lib/services/ai/examples/run-manual-question-example.ts",
+    "social:record-activity": "npx tsx src/lib/services/social/examples/run-record-activity-example.ts",
+    "social:leaderboard-example": "npx tsx src/lib/services/social/examples/run-leaderboard-example.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
@@ -29,6 +35,7 @@
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.98.0",
     "@tanstack/react-query": "^5.90.21",
+    "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
@@ -45,6 +52,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",

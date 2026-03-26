@@ -1,96 +1,119 @@
 "use client";
 
 import Link from "next/link";
-import { Clock, Sparkles } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants/routes";
+import { getCategoryTheme } from "@/lib/constants/category-themes";
+import {
+  DIFFICULTY_BANNER,
+  DEFAULT_BANNER,
+  CARD_BASE,
+} from "@/lib/constants/card-styles";
 import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
-import { DifficultyLabel } from "@/components/curiosity/difficulty-label";
+import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
 import { cn } from "@/lib/utils";
 import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 
 export type DailyCuriosityCardProps = {
   experience: LoadedCuriosityExperience;
-  /** Optional theme from `daily_curiosity.theme` */
-  themeLabel?: string | null;
+  /** True when user has already completed this topic (no new XP) */
+  isCompleted?: boolean;
+  /** XP earned when completed (for display e.g. "+25 XP") */
+  xpEarned?: number;
+  /** How the user discovered this topic (for completion tracking) */
+  discoverySource?: { wasDailyFeature: boolean; wasRandomSpin: boolean };
+  /** Button label override when not completed */
+  startLabel?: string;
   className?: string;
 };
 
 export function DailyCuriosityCard({
   experience,
-  themeLabel,
+  isCompleted = false,
+  xpEarned,
+  discoverySource = { wasDailyFeature: true, wasRandomSpin: false },
+  startLabel = "Start today's curiosity",
   className,
 }: DailyCuriosityCardProps) {
   const slug = experience.identity.slug;
   const href = ROUTES.curiosity(slug);
-  const minutes = experience.discoveryCard.estimatedMinutes;
+  const diff = (experience.taxonomy.difficultyLevel ?? "").trim().toLowerCase();
+  const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
+  const theme = getCategoryTheme(experience.taxonomy.categorySlug);
+  const Icon = theme.icon;
+  const xp = getCardXpFromDifficulty(experience.taxonomy.difficultyLevel);
 
   return (
-    <article
+    <Link
+      href={href}
+      onClick={() => setTopicDiscoveryContext(slug, discoverySource)}
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white via-white to-violet-50/80 p-6 shadow-md shadow-violet-950/5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-kuriosa-deep-purple/20 dark:shadow-violet-950/20 sm:p-8",
+        "block overflow-hidden rounded-xl border shadow-lg transition-all",
+        "hover:shadow-xl active:scale-[0.99]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kuriosa-electric-cyan",
+        CARD_BASE,
         className
       )}
     >
+      {/* Difficulty-colored banner with category */}
       <div
-        className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-kuriosa-electric-cyan/15 blur-2xl dark:bg-kuriosa-electric-cyan/10"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-kuriosa-deep-purple/10 blur-2xl dark:bg-kuriosa-deep-purple/25"
-        aria-hidden
-      />
-
-      <header className="relative mb-5 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-kuriosa-electric-cyan/25 bg-kuriosa-electric-cyan/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-kuriosa-midnight-blue dark:text-kuriosa-electric-cyan">
-          <Sparkles className="h-3.5 w-3.5" aria-hidden />
-          Today&apos;s curiosity
-        </span>
-        {themeLabel?.trim() ? (
-          <span className="text-xs text-muted-foreground">{themeLabel.trim()}</span>
-        ) : null}
-      </header>
-
-      <p className="relative mb-1 text-xs font-medium uppercase tracking-wider text-kuriosa-electric-cyan dark:text-kuriosa-electric-cyan/90">
-        {experience.taxonomy.category}
-      </p>
-      <h2 className="relative mb-3 text-2xl font-bold leading-tight tracking-tight text-kuriosa-midnight-blue dark:text-slate-50 sm:text-3xl">
-        {experience.identity.title}
-      </h2>
-      <p className="relative mb-6 text-base leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg">
-        {experience.discoveryCard.hookQuestion}
-      </p>
-
-      <div className="relative mb-8 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5">
-          <Clock className="h-4 w-4 shrink-0 text-kuriosa-deep-purple dark:text-kuriosa-electric-cyan" aria-hidden />
-          <span>
-            About {minutes} min{minutes === 1 ? "" : "s"}
-          </span>
-        </span>
-        <DifficultyLabel level={experience.taxonomy.difficultyLevel} />
-      </div>
-
-      <div className="relative">
-        <Link
-          href={href}
-          onClick={() =>
-            setTopicDiscoveryContext(slug, {
-              wasDailyFeature: true,
-              wasRandomSpin: false,
-            })
-          }
+        className={cn(
+          "flex min-w-0 items-center justify-center px-4 py-4",
+          bannerBg
+        )}
+      >
+        <span
           className={cn(
-            buttonVariants({ variant: "default", size: "lg" }),
-            "inline-flex h-12 min-h-[48px] w-full items-center justify-center text-base font-semibold shadow-lg shadow-kuriosa-deep-purple/15 dark:shadow-kuriosa-electric-cyan/10 sm:h-14 sm:text-lg"
+            "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1",
+            theme.bar,
+            "text-sm font-bold uppercase tracking-wide text-white"
           )}
+          title={experience.taxonomy.category}
         >
-          Start experience
-        </Link>
-        <p className="mt-3 text-center text-xs text-muted-foreground">
-          Lesson, challenge, and more — all in one flow.
-        </p>
+          <Icon className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
+          <span className="truncate max-w-[140px]">{experience.taxonomy.category}</span>
+        </span>
       </div>
-    </article>
+      {/* Card body - white */}
+      <div className="relative p-6">
+        <div className="flex flex-col items-center text-center">
+          <h2 className="mb-3 text-2xl font-bold leading-tight tracking-tight text-kuriosa-midnight-blue dark:text-slate-50 sm:text-3xl">
+            {experience.identity.title}
+          </h2>
+
+          <p className="mb-6 text-base leading-relaxed text-slate-700 dark:text-slate-200 sm:text-lg">
+            {experience.discoveryCard.hookQuestion}
+          </p>
+
+          {/* CTA area: green when not completed, gray with green text when completed */}
+          <div
+            className={cn(
+              "flex w-full min-h-[48px] items-center justify-center rounded-xl text-base font-semibold",
+              isCompleted
+                ? "bg-slate-200/80 dark:bg-slate-700/80"
+                : "bg-emerald-500 text-white shadow-md dark:bg-emerald-600"
+            )}
+          >
+            {isCompleted ? (
+              <span className="text-emerald-700 dark:text-emerald-300">
+                Complete
+              </span>
+            ) : (
+              startLabel
+            )}
+          </div>
+        </div>
+        {/* Footer: XP bottom right */}
+        <div className="flex items-center justify-end border-t border-slate-200/80 px-4 pt-4 dark:border-slate-700/80">
+          <span
+            className={cn(
+              "rounded-lg px-2.5 py-1 text-sm font-bold tabular-nums text-white",
+              isCompleted && xpEarned === 5 ? "xp-badge-wrong" : theme.bar
+            )}
+          >
+            +{isCompleted && xpEarned != null ? xpEarned : xp} XP
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }

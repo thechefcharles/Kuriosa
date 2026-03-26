@@ -21,11 +21,19 @@ export default async function ProfilePage() {
         <div className="mt-8">
           <ProfileProgressHub />
         </div>
-        <p className="mt-10 text-center text-xs text-muted-foreground">
+        <div className="mt-10 flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
           <Link href={ROUTES.progress} className="font-medium text-kuriosa-electric-cyan hover:underline">
             Full progress dashboard
           </Link>
-        </p>
+          <span>·</span>
+          <Link href={ROUTES.profilePublic(profile.id)} className="font-medium text-kuriosa-electric-cyan hover:underline">
+            View public profile
+          </Link>
+          <span>·</span>
+          <Link href={ROUTES.settingsSocial} className="font-medium text-kuriosa-electric-cyan hover:underline">
+            Privacy settings
+          </Link>
+        </div>
       </PageContainer>
     </div>
   );

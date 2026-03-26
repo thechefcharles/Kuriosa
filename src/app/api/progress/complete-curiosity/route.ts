@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getSupabaseServiceRoleClient } from "@/lib/supabase/supabase-service-client";
 import { processCuriosityCompletion } from "@/lib/services/progress/process-curiosity-completion";
 import type { CompleteCuriosityClientPayload } from "@/types/progress";
 
@@ -17,7 +18,8 @@ function isPayload(
     MODES.has(o.modeUsed as "read") &&
     typeof o.challengeCorrect === "boolean" &&
     typeof o.wasDailyFeature === "boolean" &&
-    typeof o.wasRandomSpin === "boolean"
+    typeof o.wasRandomSpin === "boolean" &&
+    (o.bonusCorrect === undefined || typeof o.bonusCorrect === "boolean")
   );
 }
 
@@ -47,38 +49,62 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const authClient = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await authClient.auth.getUser();
 
-  if (!user?.id) {
+    if (!user?.id) {
+      return NextResponse.json(
+        { ok: false as const, message: "Sign in to save progress." },
+        { status: 401 }
+      );
+    }
+
+    const usedListenMode =
+      body.modeUsed === "listen" || body.modeUsed === "read_listen";
+
+    let supabase;
+    try {
+      supabase = getSupabaseServiceRoleClient();
+    } catch {
+      return NextResponse.json(
+        {
+          ok: false as const,
+          message:
+            "Server missing SUPABASE_SERVICE_ROLE_KEY — add it in Vercel env and redeploy.",
+        },
+        { status: 503 }
+      );
+    }
+
+    const result = await processCuriosityCompletion(supabase, {
+      userId: user.id,
+      topicId: body.topicId.trim(),
+      slug: body.slug.trim(),
+      completedAt: new Date().toISOString(),
+      modeUsed: body.modeUsed,
+      lessonCompleted: true,
+      challengeAttempted: true,
+      challengeCorrect: body.challengeCorrect,
+      bonusCorrect: body.bonusCorrect,
+      wasDailyFeature: body.wasDailyFeature,
+      wasRandomSpin: body.wasRandomSpin,
+      usedListenMode,
+    });
+
+    if (!result.ok) {
+      return NextResponse.json(result, { status: 400 });
+    }
+
+    return NextResponse.json(result);
+  } catch (e) {
+    const message =
+      e instanceof Error ? e.message : "Unexpected error saving progress.";
     return NextResponse.json(
-      { ok: false as const, message: "Sign in to save progress." },
-      { status: 401 }
+      { ok: false as const, message },
+      { status: 500 }
     );
   }
-
-  const usedListenMode =
-    body.modeUsed === "listen" || body.modeUsed === "read_listen";
-
-  const result = await processCuriosityCompletion(supabase, {
-    userId: user.id,
-    topicId: body.topicId.trim(),
-    slug: body.slug.trim(),
-    completedAt: new Date().toISOString(),
-    modeUsed: body.modeUsed,
-    lessonCompleted: true,
-    challengeAttempted: true,
-    challengeCorrect: body.challengeCorrect,
-    wasDailyFeature: body.wasDailyFeature,
-    wasRandomSpin: body.wasRandomSpin,
-    usedListenMode,
-  });
-
-  if (!result.ok) {
-    return NextResponse.json(result, { status: 400 });
-  }
-
-  return NextResponse.json(result);
 }

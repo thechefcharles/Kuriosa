@@ -4,13 +4,25 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /** Loading / empty / error shells for discovery sections. */
-export function DiscoverySectionSkeleton({ rows = 2 }: { rows?: number }) {
+export function DiscoverySectionSkeleton({
+  rows = 2,
+  count,
+}: { rows?: number; count?: number }) {
+  const length = count ?? rows * 3;
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
-      {Array.from({ length: rows * 3 }).map((_, i) => (
+    <div
+      className={cn(
+        "grid gap-3",
+        length <= 4
+          ? "grid-cols-1 sm:grid-cols-2"
+          : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+      )}
+      aria-busy="true"
+    >
+      {Array.from({ length }).map((_, i) => (
         <div
           key={i}
-          className="h-[180px] animate-pulse rounded-xl bg-muted/80"
+          className="h-[220px] animate-pulse rounded-xl bg-muted/80"
         />
       ))}
     </div>

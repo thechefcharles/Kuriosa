@@ -33,13 +33,13 @@ export function FollowupSection({
         />
         <p className="text-sm font-medium text-kuriosa-midnight-blue dark:text-slate-200">
           {awaitingContent
-            ? "Follow-up questions aren’t ready to show yet"
-            : "No bonus questions here yet"}
+            ? "Questions are on their way"
+            : "No extra questions yet"}
         </p>
         <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
           {awaitingContent
-            ? "They’ll appear here once the lesson is fully wired. Skip down to the next curiosities, or browse Discover."
-            : "Check back later — or open another topic from Discover."}
+            ? "They’ll appear here once the lesson is fully wired. Explore the next curiosity below."
+            : "Dig deeper on another topic — Discover has plenty."}
         </p>
         <Link
           href={ROUTES.discover}
