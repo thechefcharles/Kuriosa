@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { leaderboardQueryKeys } from "@/lib/query/query-keys";
 import type { LeaderboardWindow } from "@/types/leaderboard";
 import type { LeaderboardSummaryView } from "@/types/leaderboard";
-import { fetchApi } from "@/lib/network/fetch-api";
+import { fetchApiWithOptionalAuth } from "@/lib/network/fetch-api-session";
 
 export type UseLeaderboardOptions = {
   limit?: number;
@@ -26,7 +26,7 @@ export function useLeaderboard(
         limit: String(limit),
         offset: String(offset),
       });
-      const res = await fetchApi(`/api/social/leaderboard?${params}`);
+      const res = await fetchApiWithOptionalAuth(`/api/social/leaderboard?${params}`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err?.error ?? `Leaderboard fetch failed: ${res.status}`);
