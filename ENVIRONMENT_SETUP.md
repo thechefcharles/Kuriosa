@@ -10,6 +10,20 @@
 | `OPENAI_API_KEY` | OpenAI API key |
 | `INTERNAL_CONTENT_WORKFLOW_ALLOWLIST_EMAILS` | Comma-separated developer emails allowed to access internal preview + publish/reject endpoints (Phase 4.10). Server-only. |
 
+## Daily challenge — automatic rotation (Vercel Cron)
+
+The home **Daily Challenge** reads one row per UTC date from `daily_curiosity`. To roll a **new topic every day** without manual SQL:
+
+1. Deploy with **`vercel.json`** in the repo (defines cron `0 0 * * *` = **00:00 UTC** daily).
+2. On Vercel, set **`SUPABASE_SERVICE_ROLE_KEY`** (same as local) so the cron route can upsert `daily_curiosity`.
+3. Optional: set **`CRON_SECRET`**. If set, manual triggers must use  
+   `curl -H "Authorization: Bearer $CRON_SECRET" "https://your-app.vercel.app/api/cron/roll-daily-curiosity"`.  
+   Scheduled Vercel runs still work via the `x-vercel-cron` header when `CRON_SECRET` is unset.
+
+**Timezone:** The cron uses **UTC midnight**, which matches `getDailyCuriosity` (today = UTC date). For “midnight in New York” you’d change the schedule in `vercel.json` (e.g. `0 5 * * *` for ~midnight EST) or use a different host for scheduling.
+
+**Logic:** Picks a random **published** topic, preferring `is_random_featured`, and avoids repeating topics used as daily in the **last 30 days** when possible. Assigns a random `daily_multiplier` from the app config. Same logic as **`npm run seed:daily`** locally.
+
 ## Optional — Share links (Phase 10.2)
 
 | Variable | Description |
