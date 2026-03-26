@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { TopicCardView } from "@/types/discovery";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES } from "@/lib/constants/routes";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
 import {
   DIFFICULTY_BANNER,
@@ -21,7 +21,7 @@ export function JumpInTopicCard({
   href?: string;
   className?: string;
 }) {
-  const to = href ?? ROUTES.curiosity(topic.slug);
+  const to = href ?? MOBILE_SAFE_ROUTES.curiosity(topic.slug);
   const diff = (topic.difficulty ?? "").trim().toLowerCase();
   const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
   const theme = getCategoryTheme(topic.categorySlug);

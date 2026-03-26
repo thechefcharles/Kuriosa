@@ -1,3 +1,5 @@
+import { Capacitor } from "@capacitor/core";
+
 /**
  * Single source of truth for the **browser** base URL of Kuriosa's Next.js Route Handlers.
  *
@@ -32,6 +34,11 @@ export function getClientApiOrigin(): string {
   }
 
   if (typeof window !== "undefined" && window.location?.origin) {
+    if (Capacitor.isNativePlatform()) {
+      throw new Error(
+        "NEXT_PUBLIC_API_ORIGIN is required for the native app (e.g. https://your-app.vercel.app). Add it to .env.local, then npm run build:export and cap sync. Without it, /api calls hit capacitor://localhost and fail."
+      );
+    }
     return window.location.origin;
   }
 
@@ -50,15 +57,3 @@ export function resolveClientApiUrl(apiPathWithQuery: string): string {
   return `${base}${path}`;
 }
 
-/**
- * When the resolved API origin differs from the page origin, cookie-based session must use
- * `credentials: "include"` (and the API must allow CORS credentials if cross-site).
- */
-export function shouldSendCrossOriginApiCredentials(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return getClientApiOrigin() !== window.location.origin;
-  } catch {
-    return false;
-  }
-}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { History } from "lucide-react";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import type { RecentTopicView } from "@/types/discovery";
 import { cn } from "@/lib/utils";
 
@@ -127,7 +127,7 @@ export function DiscoverRecentStrip({
         {items.map((r) => (
           <li key={r.id}>
             <Link
-              href={ROUTES.curiosity(r.slug)}
+              href={MOBILE_SAFE_ROUTES.curiosity(r.slug)}
               className="flex min-h-[44px] items-center gap-3 rounded-xl border border-slate-200/90 bg-white/90 px-4 py-3 transition-colors hover:border-kuriosa-electric-cyan/35 hover:bg-white dark:border-white/10 dark:bg-slate-900/60 dark:hover:border-kuriosa-electric-cyan/30"
             >
               <History

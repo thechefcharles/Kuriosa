@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Clock, CheckCircle2 } from "lucide-react";
 import type { TopicCardView } from "@/types/discovery";
 import { DifficultyLabel } from "@/components/curiosity/difficulty-label";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES } from "@/lib/constants/routes";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
 import {
   DIFFICULTY_BANNER,
@@ -21,7 +21,7 @@ export function TopicCard({
   href?: string;
   className?: string;
 }) {
-  const to = href ?? ROUTES.curiosity(topic.slug);
+  const to = href ?? MOBILE_SAFE_ROUTES.curiosity(topic.slug);
   const minutes = topic.estimatedMinutes;
   const diff = (topic.difficulty ?? "").trim().toLowerCase();
   const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;

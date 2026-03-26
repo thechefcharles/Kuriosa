@@ -1,11 +1,13 @@
-import { resolveClientApiUrl, shouldSendCrossOriginApiCredentials } from "@/lib/config/api-origin";
+import { resolveClientApiUrl } from "@/lib/config/api-origin";
 
 /**
- * Default `RequestCredentials` for hosted API calls: same-origin in dev web, `include` when
- * the API base differs from `window.location` (e.g. Capacitor → Vercel).
+ * Always `same-origin`: cookies attach only for real same-origin (e.g. `next dev` → `/api`).
+ * Cross-origin (Capacitor → Vercel) sends no cookies — use `Authorization: Bearer` instead.
+ * Avoids credentialed CORS (`credentials: "include"`), which often breaks in WKWebView when
+ * `Origin` is missing or not reflected exactly.
  */
 function defaultApiCredentials(): RequestCredentials {
-  return shouldSendCrossOriginApiCredentials() ? "include" : "same-origin";
+  return "same-origin";
 }
 
 /**

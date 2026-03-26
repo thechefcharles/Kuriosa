@@ -208,9 +208,13 @@ function InlineChallengeContinueButton({
         setSyncMissed(true);
         setSyncError(res.message);
       }
-    } catch {
+    } catch (err) {
       setSyncMissed(true);
-      setSyncError("Network or server error — check Vercel env and Supabase Auth URL.");
+      const detail =
+        err instanceof Error ? err.message : "Network or server error.";
+      setSyncError(
+        `${detail} If this is the app, confirm NEXT_PUBLIC_API_ORIGIN is your Vercel URL, redeploy this commit, then rebuild build:export.`
+      );
     } finally {
       setIsPending(false);
     }

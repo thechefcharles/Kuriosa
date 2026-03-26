@@ -22,6 +22,9 @@ export const ROUTES = {
 export const MOBILE_SAFE_ROUTES = {
   curiosity: (slug: string) =>
     `/curiosity?slug=${encodeURIComponent(slug)}`,
+  /** Discover cards, skip/next — same as `curiosity` plus `from` for back/swipe UX. */
+  curiosityFromDiscover: (slug: string) =>
+    `/curiosity?slug=${encodeURIComponent(slug)}&from=discover`,
   challenge: (slug: string) =>
     `/challenge?slug=${encodeURIComponent(slug)}`,
   discoverCategory: (slug: string) =>

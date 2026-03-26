@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getUserForApiRoute } from "@/lib/supabase/get-user-for-api-route";
 import { getSupabaseServiceRoleClient } from "@/lib/supabase/supabase-service-client";
 import { processCuriosityCompletion } from "@/lib/services/progress/process-curiosity-completion";
+import { withApiCors } from "@/lib/network/api-route-cors";
 import type { CompleteCuriosityClientPayload } from "@/types/progress";
 
 const MODES = new Set(["read", "listen", "read_listen"] as const);
@@ -23,6 +24,10 @@ function isPayload(
   );
 }
 
+export async function OPTIONS(request: Request) {
+  return withApiCors(request, new NextResponse(null, { status: 204 }));
+}
+
 /**
  * Authenticated completion: runs the real progress engine (XP, streak, score, history).
  * Thin wrapper — logic lives in processCuriosityCompletion.
@@ -32,33 +37,39 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { ok: false as const, message: "Invalid JSON" },
-      { status: 400 }
+    return withApiCors(
+      request,
+      NextResponse.json(
+        { ok: false as const, message: "Invalid JSON" },
+        { status: 400 }
+      )
     );
   }
 
   if (!isPayload(body)) {
-    return NextResponse.json(
-      {
-        ok: false as const,
-        message:
-          "Invalid body: topicId, slug, modeUsed, challengeCorrect, wasDailyFeature, wasRandomSpin required",
-      },
-      { status: 400 }
+    return withApiCors(
+      request,
+      NextResponse.json(
+        {
+          ok: false as const,
+          message:
+            "Invalid body: topicId, slug, modeUsed, challengeCorrect, wasDailyFeature, wasRandomSpin required",
+        },
+        { status: 400 }
+      )
     );
   }
 
   try {
-    const authClient = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await authClient.auth.getUser();
+    const user = await getUserForApiRoute(request);
 
     if (!user?.id) {
-      return NextResponse.json(
-        { ok: false as const, message: "Sign in to save progress." },
-        { status: 401 }
+      return withApiCors(
+        request,
+        NextResponse.json(
+          { ok: false as const, message: "Sign in to save progress." },
+          { status: 401 }
+        )
       );
     }
 
@@ -69,13 +80,16 @@ export async function POST(request: Request) {
     try {
       supabase = getSupabaseServiceRoleClient();
     } catch {
-      return NextResponse.json(
-        {
-          ok: false as const,
-          message:
-            "Server missing SUPABASE_SERVICE_ROLE_KEY — add it in Vercel env and redeploy.",
-        },
-        { status: 503 }
+      return withApiCors(
+        request,
+        NextResponse.json(
+          {
+            ok: false as const,
+            message:
+              "Server missing SUPABASE_SERVICE_ROLE_KEY — add it in Vercel env and redeploy.",
+          },
+          { status: 503 }
+        )
       );
     }
 
@@ -95,16 +109,16 @@ export async function POST(request: Request) {
     });
 
     if (!result.ok) {
-      return NextResponse.json(result, { status: 400 });
+      return withApiCors(request, NextResponse.json(result, { status: 400 }));
     }
 
-    return NextResponse.json(result);
+    return withApiCors(request, NextResponse.json(result));
   } catch (e) {
     const message =
       e instanceof Error ? e.message : "Unexpected error saving progress.";
-    return NextResponse.json(
-      { ok: false as const, message },
-      { status: 500 }
+    return withApiCors(
+      request,
+      NextResponse.json({ ok: false as const, message }, { status: 500 })
     );
   }
 }
