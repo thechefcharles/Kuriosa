@@ -5,7 +5,7 @@
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon (public) key |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon (public) key — used by **browser** auth (`auth-client.ts`, `ProtectedAppRoute`) and all client Supabase calls |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role — **server-only**; content persistence (Phase 4.9). Never expose to client. |
 | `OPENAI_API_KEY` | OpenAI API key |
 | `INTERNAL_CONTENT_WORKFLOW_ALLOWLIST_EMAILS` | Comma-separated developer emails allowed to access internal preview + publish/reject endpoints (Phase 4.10). Server-only. |
@@ -55,6 +55,12 @@ The home **Daily Challenge** reads one row per UTC date from `daily_curiosity`. 
 **CORS / cookies:** Cross-origin API calls use `credentials: "include"`. Hosted Next must respond with appropriate `Access-Control-Allow-*` headers if the web and API origins differ. Stage 2 may add explicit CORS on Route Handlers if needed.
 
 See **`KURIOSA_MOBILE_NETWORKING_PREP.md`**.
+
+## Client auth (mobile prep — Stage 2)
+
+Sign-in, sign-up, and sign-out use the **Supabase JS client in the browser** (`auth-client.ts`). No extra env vars beyond **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**.
+
+For **Capacitor** or cross-origin API hosts, combine with **`NEXT_PUBLIC_API_ORIGIN`** (Stage 1) and review **`KURIOSA_MOBILE_AUTH_AND_GUARDS.md`** (middleware vs client guard, future CORS).
 
 ## Optional — Phase 8 audio Storage
 

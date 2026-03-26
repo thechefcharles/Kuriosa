@@ -87,9 +87,9 @@ Some **GET** flows could eventually call **Supabase directly** from `createSupab
 
 ## 6. Auth / network (light review — no auth rewrite)
 
-### Still depend on Server Actions (Next server)
+### Server Actions (legacy)
 
-- `src/lib/services/user/auth-actions.ts` — `signIn`, `signUp`, `signOut` (`"use server"`), used from auth pages and `auth-status.tsx`.
+- `src/lib/services/user/auth-actions.ts` — retained but **no longer** used by sign-in/up or `AuthStatus`. Prefer **`auth-client.ts`**; see **`KURIOSA_MOBILE_AUTH_AND_GUARDS.md`**.
 
 ### Still depend on middleware (Edge)
 

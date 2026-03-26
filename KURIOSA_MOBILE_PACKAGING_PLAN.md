@@ -19,27 +19,28 @@ Checklist derived from the codebase audit. Use with **`KURIOSA_CAPACITOR_TESTFLI
 
 ### Auth (Server Actions → client-safe)
 
-- [ ] Replace **`signIn` / `signUp` / `signOut`** Server Actions (`src/lib/services/user/auth-actions.ts`) with **client** Supabase auth using `createSupabaseBrowserClient` (or equivalent), **or** dedicated hosted JSON endpoints that set session cookies in a way that works from the WebView.
-- [ ] Update **`auth/sign-in`**, **`auth/sign-up`**, **`auth-status.tsx`** to use the new flow.
+- [x] **Client path:** `auth-client.ts` (`clientSignIn` / `clientSignUp` / `clientSignOut`) + auth pages + `auth-status.tsx`. **`auth-actions.ts`** kept as legacy (unused by UI).
+- [x] Docs: **`KURIOSA_MOBILE_AUTH_AND_GUARDS.md`**, **`STAGE_2_MOBILE_AUTH_PREP_SUMMARY.md`**.
 
-**Files:** `src/lib/services/user/auth-actions.ts`, `src/app/auth/**/*.tsx`, `src/components/shared/auth-status.tsx`
+**Files:** `src/lib/services/user/auth-client.ts`, `src/app/auth/**/*.tsx`, `src/components/shared/auth-status.tsx`, `src/lib/services/user/auth-actions.ts` (legacy)
 
 ### Middleware parity
 
-- [ ] Implement **client-side guards** for the same paths protected in `src/lib/supabase/supabase-middleware.ts` (redirect to `/auth/sign-in` when no session).
+- [x] **`ProtectedAppRoute`** in **`src/app/(app)/layout.tsx`** (with `Suspense` for `useSearchParams`) mirrors protected routes; public **`/profile/:userId`** excluded.
+- [x] Middleware extended for **`/leaderboard`**, **`/settings/social`**, with same public-profile rule.
 
-**Files:** `src/middleware.ts` (keep for web; duplicate logic client-side for static), `src/components/layout/app-shell.tsx` (or `(app)/layout.tsx` client wrapper)
+**Files:** `src/components/auth/protected-app-route.tsx`, `src/hooks/use-require-auth.ts`, `src/lib/supabase/supabase-middleware.ts`, `src/middleware.ts`
 
 ### Server Component pages that require cookies
 
-- [ ] **`(app)/profile/page.tsx`** — stop depending on `getCurrentProfile()` for gating only, or load profile **client-side** after session is known.
-- [ ] **`(app)/settings/social/page.tsx`** — same for `getCurrentUser()`.
+- [x] **`(app)/profile/page.tsx`** — client page; **`useAuthUserId`** for links; **`ProfileProgressHub`** unchanged.
+- [x] **`(app)/settings/social/page.tsx`** — client page; guard only.
 
-**Files:** `src/app/(app)/profile/page.tsx`, `src/app/(app)/settings/social/page.tsx`, `src/lib/services/user/auth.ts`
+**Files:** `src/app/(app)/profile/page.tsx`, `src/app/(app)/settings/social/page.tsx`, `src/lib/services/user/auth.ts` (server helpers for API/internal only)
 
 ### Relative `/api` fetches
 
-- [ ] Centralize `fetch` to **`${API_ORIGIN}/api/...`** for hooks/services listed in the audit (`useRecordCuriosityCompletion`, leaderboard, activity feed, AI hooks, etc.).
+- [x] Done in Stage 1 — **`fetchApi`** / **`NEXT_PUBLIC_API_ORIGIN`** (see **`KURIOSA_MOBILE_NETWORKING_PREP.md`**).
 
 ### Metadata
 
@@ -47,7 +48,7 @@ Checklist derived from the codebase audit. Use with **`KURIOSA_CAPACITOR_TESTFLI
 
 **Files:** `src/app/(app)/curiosity/[slug]/page.tsx`, `src/lib/services/social/get-curiosity-page-metadata.ts`
 
-**Success:** App logic no longer **requires** Next middleware, Server Actions, or server cookies for core user flows; APIs reachable via absolute origin.
+**Success (target):** Core UX does not **only** rely on middleware / Server Actions for auth; APIs reachable via absolute origin (Stage 1). Remaining: static export, CORS if cross-origin API, metadata.
 
 ---
 
