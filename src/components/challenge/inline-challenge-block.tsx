@@ -181,9 +181,11 @@ function InlineChallengeContinueButton({
   const { mutateAsync } = useRecordCuriosityCompletion();
   const [isPending, setIsPending] = useState(false);
   const [syncMissed, setSyncMissed] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   const handleClick = async () => {
     setSyncMissed(false);
+    setSyncError(null);
     setIsPending(true);
     try {
       const { wasDailyFeature, wasRandomSpin } = getTopicDiscoveryContext(slug);
@@ -204,9 +206,11 @@ function InlineChallengeContinueButton({
         onComplete?.();
       } else {
         setSyncMissed(true);
+        setSyncError(res.message);
       }
     } catch {
       setSyncMissed(true);
+      setSyncError("Network or server error — check Vercel env and Supabase Auth URL.");
     } finally {
       setIsPending(false);
     }
@@ -239,6 +243,9 @@ function InlineChallengeContinueButton({
       {syncMissed ? (
         <p className="mt-1 text-xs text-muted-foreground" role="status">
           Couldn&apos;t save — you can still explore below.
+          {syncError ? (
+            <span className="mt-1 block text-[11px] opacity-90">{syncError}</span>
+          ) : null}
         </p>
       ) : null}
     </div>

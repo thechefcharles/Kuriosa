@@ -211,3 +211,24 @@ URL and keys must come from the same project. In Supabase: **Project Settings �
 ### 4. **Rotated or invalid keys**
 
 If you regenerated keys in the dashboard, update all env vars (local and Vercel) with the new values.
+
+---
+
+## Vercel: “Claim XP” / completion fails locally but not in production
+
+The `/api/progress/complete-curiosity` route needs **all** of these on Vercel (same values as `.env.local`):
+
+| Variable | Why |
+|----------|-----|
+| `NEXT_PUBLIC_SUPABASE_URL` | Browser + server |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Auth session cookies |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Required** — writes progress/XP (server-only; never prefix with `NEXT_PUBLIC_`) |
+
+If `SUPABASE_SERVICE_ROLE_KEY` is missing, production returns an error mentioning it. After adding it, **redeploy**.
+
+**Auth on your production domain:** In Supabase → **Authentication** → **URL configuration**:
+
+- **Site URL**: your Vercel URL (e.g. `https://your-app.vercel.app`)
+- **Redirect URLs**: include `https://your-app.vercel.app/**` (and `http://localhost:3005/**` for local)
+
+Without this, `getUser()` in API routes may see no session on Vercel even when you appear signed in.
