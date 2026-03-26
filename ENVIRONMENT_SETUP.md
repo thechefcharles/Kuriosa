@@ -64,6 +64,17 @@ For **Capacitor** or cross-origin API hosts, combine with **`NEXT_PUBLIC_API_ORI
 
 **Deep links (Stage 3):** Prefer pretty URLs on the web; packaged shells can use **`MOBILE_SAFE_ROUTES`** (`src/lib/constants/routes.ts`) — e.g. `/curiosity?slug=…`. See **`KURIOSA_MOBILE_ROUTING_AND_EXPORT_PREP.md`**.
 
+## Static export for Capacitor (`out/`)
+
+| Command | Purpose |
+|---------|---------|
+| `npm run build` | Normal production build (Vercel): includes **API routes** and **middleware**. |
+| `npm run build:export` | Emits **`out/`** for Capacitor: temporarily moves aside API, middleware, and pretty dynamic segments (see **`KURIOSA_STATIC_EXPORT_ENABLEMENT.md`**). |
+
+Set the same **`NEXT_PUBLIC_*`** values in the environment used for **`build:export`** (especially **`NEXT_PUBLIC_SUPABASE_*`**, **`NEXT_PUBLIC_API_ORIGIN`** when the shell is cross-origin).
+
+**Capacitor:** `webDir` is **`out`** — run **`npm run build:export`** before **`npx cap sync`**.
+
 ## Optional — Phase 8 audio Storage
 
 | Variable | Description |

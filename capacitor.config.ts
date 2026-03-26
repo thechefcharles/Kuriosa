@@ -1,13 +1,13 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 // Placeholder: set appId to your Apple-registered Bundle ID before TestFlight.
-// webDir must be the Next static export directory (e.g. out/), not public/ — see
-// KURIOSA_CAPACITOR_TESTFLIGHT_READINESS_AUDIT.md
+// Run `npm run build:export` so `out/` exists before `npx cap sync`. See
+// KURIOSA_STATIC_EXPORT_ENABLEMENT.md
 
 const config: CapacitorConfig = {
   appId: 'com.yourname.kuriosa',
   appName: 'Kuriosa',
-  webDir: 'public'
+  webDir: 'out'
 };
 
 export default config;

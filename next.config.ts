@@ -1,50 +1,37 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+const staticExport = process.env.STATIC_EXPORT === "1";
+
 /**
- * Static export (`output: "export"`) is **not** enabled yet — Route Handlers, middleware,
- * and some server metadata remain. Stage 3 adds mobile-safe **query** routes so `out/` can
- * eventually cover a finite set of shells; see `KURIOSA_MOBILE_ROUTING_AND_EXPORT_PREP.md`.
+ * **Default `next build` (Vercel):** standard Node server, API routes, middleware.
  *
- * When enabling export, re-validate: Sentry wrapper, dynamic `[slug]` siblings, API routes
- * (they will not ship in the bundle; keep hosted backend + `NEXT_PUBLIC_API_ORIGIN`).
+ * **`STATIC_EXPORT=1` + `npm run build:export`:** `output: "export"` → `out/`.
+ * Route Handlers and `middleware.ts` are moved aside for that run only — see
+ * `scripts/static-export-build.mjs` and `KURIOSA_STATIC_EXPORT_ENABLEMENT.md`.
  */
 const nextConfig: NextConfig = {
-  /* config options here */
+  ...(staticExport
+    ? {
+        output: "export" as const,
+        images: { unoptimized: true },
+      }
+    : {}),
 };
 
 export default withSentryConfig(nextConfig, {
-  // For all available options, see:
-  // https://www.npmjs.com/package/@sentry/webpack-plugin#options
-
   org: "tagvault",
 
   project: "javascript-nextjs-1p",
 
-  // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
 
-  // For all available options, see:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
   widenClientFileUpload: true,
 
-  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // Commented out to test direct sending; uncomment if tunnel causes 401/488.
-  // tunnelRoute: "/monitoring",
-
   webpack: {
-    // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-    // See the following for more information:
-    // https://docs.sentry.io/product/crons/
-    // https://vercel.com/docs/cron-jobs
     automaticVercelMonitors: true,
-
-    // Tree-shaking options for reducing bundle size
     treeshake: {
-      // Automatically tree-shake Sentry logger statements to reduce bundle size
       removeDebugLogging: true,
     },
-  }
+  },
 });

@@ -46,25 +46,17 @@ Builds on **Stage 1** (API origin / `fetchApi`) and **Stage 2** (client auth + `
 
 ---
 
-## 5. Export readiness (honest status)
+## 5. Export readiness (updated)
 
-**`output: 'export'` is still not enabled.** Remaining blockers include:
+**`npm run build:export`** now produces **`out/`** by stashing API, middleware, internal admin, and **pretty** dynamic segments for the duration of the build. See **`KURIOSA_STATIC_EXPORT_ENABLEMENT.md`**.
 
-- All **`src/app/api/**`** route handlers (must stay hosted).
-- **Middleware** (no-op in Capacitor; client guard + `fetchApi` already mitigate).
-- **`generateMetadata`** on **`curiosity/[slug]`** (and any other server-only pages you add).
-- **Sentry** `withSentryConfig` — validate when flipping export.
-- **Cross-origin cookies** for `fetchApi` (Stage 4+ / CORS).
-
-Stage 3 **reduces** the **routing** / **infinite prerender** problem; it does **not** complete packaging.
+Remaining product/infra work: **CORS / cookies** for cross-origin `fetchApi`, Capacitor iOS, and env wiring for export CI.
 
 ---
 
-## 6. Stage 4 (suggested next)
+## 6. Stage 5 (Capacitor / device)
 
-- Enable **`output: 'export'`** in a branch; fix build errors.
-- CORS / session for **`NEXT_PUBLIC_API_ORIGIN`** if needed.
-- Capacitor **`webDir: 'out'`**, `npx cap add ios`, device testing.
+- `npx cap add ios`, **`cap sync`**, ATS, deep links (`MOBILE_SAFE_ROUTES`).
 
 ---
 

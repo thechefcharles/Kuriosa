@@ -58,13 +58,12 @@ Checklist derived from the codebase audit. Use with **`KURIOSA_CAPACITOR_TESTFLI
 - [x] **`profile-access`** + middleware / **`ProtectedAppRoute`** for **`/profile?userId=`** (public) vs **`/profile`** (own hub).
 - [x] **`next.config`** comments documenting export blockers.
 
-## Stage 3b — Static / mobile-safe build output (next)
+## Stage 3b / 4 — Static export (`out/`)
 
-- [ ] Add **`output: 'export'`** to `next.config.ts` (validate with Sentry wrapper).
-- [ ] Run **`npm run build`** and confirm **`out/`**; fix remaining server-only pages.
-- [ ] Set Capacitor **`webDir: 'out'`** (or actual export dir).
+- [x] **`output: 'export'`** when **`STATIC_EXPORT=1`** + **`npm run build:export`** (`scripts/static-export-build.mjs` stashes API/middleware/pretty dynamics). See **`KURIOSA_STATIC_EXPORT_ENABLEMENT.md`**, **`STAGE_4_STATIC_EXPORT_SUMMARY.md`**.
+- [x] Capacitor **`webDir: 'out'`** in **`capacitor.config.ts`** (run **`build:export`** before **`cap sync`**).
 
-**Success:** reproducible static artifact suitable for `npx cap sync`.
+**Success:** reproducible **`out/`** for `npx cap sync` (hosted APIs unchanged on Vercel).
 
 ---
 
