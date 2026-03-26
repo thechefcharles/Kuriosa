@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { privacySettingsQueryKeys } from "@/lib/query/query-keys";
 import type { ProfilePrivacySettings } from "@/types/social";
+import { fetchApi } from "@/lib/network/fetch-api";
 
 type UpdatePrivacyInput = Partial<
   Pick<ProfilePrivacySettings, "isPublicProfile" | "allowActivityFeed" | "allowLeaderboard">
@@ -13,11 +14,10 @@ export function useUpdatePrivacySettings() {
 
   return useMutation({
     mutationFn: async (input: UpdatePrivacyInput) => {
-      const res = await fetch("/api/social/settings/privacy", {
+      const res = await fetchApi("/api/social/settings/privacy", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
-        credentials: "same-origin",
       });
       const json = await res.json();
       if (!res.ok) {

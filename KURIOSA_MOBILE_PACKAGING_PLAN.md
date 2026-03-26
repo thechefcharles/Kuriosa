@@ -8,8 +8,8 @@ Checklist derived from the codebase audit. Use with **`KURIOSA_CAPACITOR_TESTFLI
 
 - [ ] Register **Bundle ID** in [Apple Developer](https://developer.apple.com) (replace `com.yourname.kuriosa`).
 - [ ] Add **`@capacitor/ios`** (and run `npx cap add ios` when `webDir` is valid).
-- [ ] Introduce **`NEXT_PUBLIC_API_ORIGIN`** (or equivalent) and a **single helper** for API calls so Capacitor builds hit `https://<vercel-app>` instead of relative `/api/*`.
-- [ ] Document **env vars** required in the **mobile build** pipeline (at minimum `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, analytics keys, API origin).
+- [x] Introduce **`NEXT_PUBLIC_API_ORIGIN`** and **`fetchApi`** (`src/lib/config/api-origin.ts`, `src/lib/network/fetch-api.ts`); main app hooks migrated — see **`KURIOSA_MOBILE_NETWORKING_PREP.md`** / **`STAGE_1_MOBILE_PACKAGING_PREP_SUMMARY.md`**.
+- [x] Document **env vars** for mobile/API origin in **`ENVIRONMENT_SETUP.md`** and **`KURIOSA_MOBILE_NETWORKING_PREP.md`**.
 
 **Success:** iOS folder generated; team knows where API traffic must go in native builds.
 

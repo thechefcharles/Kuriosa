@@ -145,6 +145,7 @@ Additional (when implementing):
 
 ---
 
-## 9. Related doc
+## 9. Related docs
 
-Action-oriented checklist: **`KURIOSA_MOBILE_PACKAGING_PLAN.md`**.
+- Action-oriented checklist: **`KURIOSA_MOBILE_PACKAGING_PLAN.md`**
+- Stage 1 client → hosted API wiring: **`KURIOSA_MOBILE_NETWORKING_PREP.md`**, **`STAGE_1_MOBILE_PACKAGING_PREP_SUMMARY.md`**

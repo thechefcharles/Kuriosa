@@ -7,6 +7,7 @@ import type {
 } from "@/types/progress";
 import { createSupabaseBrowserClient } from "@/lib/supabase/supabase-browser-client";
 import { invalidateProgressQueries } from "@/lib/query/invalidate-progress-queries";
+import { fetchApi } from "@/lib/network/fetch-api";
 
 export type RecordCuriosityCompletionResult =
   | { ok: true; data: NonNullable<Extract<ProgressUpdateResult, { ok: true }>["data"]> }
@@ -20,11 +21,10 @@ export function useRecordCuriosityCompletion() {
     mutationFn: async (
       input: CompleteCuriosityClientPayload
     ): Promise<RecordCuriosityCompletionResult> => {
-      const res = await fetch("/api/progress/complete-curiosity", {
+      const res = await fetchApi("/api/progress/complete-curiosity", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
-        credentials: "same-origin",
       });
 
       let json: unknown;

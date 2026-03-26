@@ -5,6 +5,7 @@
 import { getTopicShareMetadata } from "./get-topic-share-metadata";
 import type { TopicShareMetadataInput } from "./get-topic-share-metadata";
 import type { ShareChannel } from "./record-share-event";
+import { fetchApi } from "@/lib/network/fetch-api";
 
 export type ShareResult =
   | { ok: true; channel: ShareChannel }
@@ -14,11 +15,10 @@ function recordShareAnalytics(
   topicId: string,
   channel: ShareChannel
 ): void {
-  fetch("/api/social/record-share", {
+  fetchApi("/api/social/record-share", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ topicId, channel }),
-    credentials: "same-origin",
   }).catch(() => {});
 }
 

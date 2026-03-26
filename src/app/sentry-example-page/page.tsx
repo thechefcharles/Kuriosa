@@ -3,6 +3,7 @@
 import * as Sentry from "@sentry/nextjs";
 import Head from "next/head";
 import { useEffect, useState } from "react";
+import { fetchApi } from "@/lib/network/fetch-api";
 
 class SentryExampleFrontendError extends Error {
   constructor(message: string | undefined) {
@@ -85,7 +86,7 @@ export default function Page() {
                 op: "test",
               },
               async () => {
-                const res = await fetch("/api/sentry-example-api");
+                const res = await fetchApi("/api/sentry-example-api");
                 if (!res.ok) {
                   setHasSentError(true);
                 }

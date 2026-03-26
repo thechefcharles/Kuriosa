@@ -30,6 +30,32 @@ The home **Daily Challenge** reads one row per UTC date from `daily_curiosity`. 
 |----------|-------------|
 | `NEXT_PUBLIC_APP_URL` | App base URL for share links (e.g. `https://yourdomain.com`). Falls back to `localhost:3005` in dev. |
 
+## Optional — Client API origin (mobile / Capacitor prep)
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_API_ORIGIN` | **Base URL of the Next app that serves Route Handlers** (scheme + host, no path, no trailing slash). Used by `fetchApi` so browser/client code calls an absolute URL instead of relative `/api/*`. |
+
+**When to set**
+
+- **Local web (`next dev` / same-origin deploy):** Leave **unset**. The client falls back to `window.location.origin`, so requests stay same-origin and cookies behave as today.
+- **Capacitor or any UI not served from the same origin as `/api/*`:** Set to your hosted app, e.g. `https://your-app.vercel.app`. The static/shell build must point at the deployment that runs your API routes.
+- **Staging vs production:** Use the staging deployment URL when testing against staging APIs; use production URL for production mobile builds.
+
+**Examples**
+
+| Scenario | Example value |
+|----------|----------------|
+| Local dev (default) | *(omit — uses `http://localhost:3005` from the browser)* |
+| Production Vercel | `https://kuriosa.vercel.app` *(your real hostname)* |
+| Preview deployment | `https://kuriosa-git-feature-xyz.vercel.app` |
+
+**Vercel:** You do not need this variable for a normal browser deploy where the site and `/api/*` share the same origin. Add it to the **mobile static export** build environment when the WebView loads from `capacitor://` (or file) and must reach Vercel.
+
+**CORS / cookies:** Cross-origin API calls use `credentials: "include"`. Hosted Next must respond with appropriate `Access-Control-Allow-*` headers if the web and API origins differ. Stage 2 may add explicit CORS on Route Handlers if needed.
+
+See **`KURIOSA_MOBILE_NETWORKING_PREP.md`**.
+
 ## Optional — Phase 8 audio Storage
 
 | Variable | Description |
