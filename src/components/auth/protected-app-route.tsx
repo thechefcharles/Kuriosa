@@ -4,18 +4,21 @@ import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { ROUTES } from "@/lib/constants/routes";
+import {
+  isPrettyPublicProfilePath,
+  isPublicProfileAccess,
+} from "@/lib/routing/profile-access";
 
-/**
- * True for `/profile/:userId` (public view of another member). Not for `/profile` (own hub).
- */
+/** Pathname-only check (pretty `/profile/:id`). For query-based public access use `isPublicProfileAccess`. */
 export function isPublicProfileAppPath(pathname: string): boolean {
-  if (!pathname.startsWith("/profile/")) return false;
-  const rest = pathname.slice("/profile/".length);
-  return rest.length > 0 && !rest.includes("/");
+  return isPrettyPublicProfilePath(pathname);
 }
 
-function isProtectedAppPath(pathname: string): boolean {
-  if (isPublicProfileAppPath(pathname)) return false;
+function isProtectedAppPath(
+  pathname: string,
+  userIdSearchParam: string | null
+): boolean {
+  if (isPublicProfileAccess(pathname, userIdSearchParam)) return false;
   return true;
 }
 
@@ -36,7 +39,10 @@ export function ProtectedAppRoute({
   const searchParams = useSearchParams();
   const auth = useRequireAuth();
 
-  const needsAuth = isProtectedAppPath(pathname);
+  const needsAuth = isProtectedAppPath(
+    pathname,
+    searchParams.get("userId")
+  );
 
   useEffect(() => {
     if (!needsAuth) return;

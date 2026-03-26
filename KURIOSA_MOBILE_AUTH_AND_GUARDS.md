@@ -33,7 +33,7 @@ Companion to **`KURIOSA_MOBILE_NETWORKING_PREP.md`** (Stage 1 API origin). This 
 
 ### Middleware alignment
 
-`supabase-middleware.ts` now treats **`/leaderboard`** and **`/settings/social`** as protected (previously omitted). **Public profile** `/profile/:id` stays **unauthenticated** in both middleware and `ProtectedAppRoute` (matching `isPublicProfileAppPath`).
+`supabase-middleware.ts` treats **`/leaderboard`** and **`/settings/social`** as protected. **Public profile** access is **`/profile/:userId`** or **`/profile?userId=…`** (see **`src/lib/routing/profile-access.ts`**) — both skip auth in middleware and **`ProtectedAppRoute`**. **`/curiosity`** and **`/challenge`** (exact paths for query shells) are protected too.
 
 ---
 

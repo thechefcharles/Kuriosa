@@ -52,13 +52,16 @@ Checklist derived from the codebase audit. Use with **`KURIOSA_CAPACITOR_TESTFLI
 
 ---
 
-## Stage 3 — Static / mobile-safe build output
+## Stage 3 — Mobile-safe routing (export prep, not export yet)
+
+- [x] **Query-param shell routes** next to pretty dynamic segments — see **`MOBILE_SAFE_ROUTES`** and **`KURIOSA_MOBILE_ROUTING_AND_EXPORT_PREP.md`**.
+- [x] **`profile-access`** + middleware / **`ProtectedAppRoute`** for **`/profile?userId=`** (public) vs **`/profile`** (own hub).
+- [x] **`next.config`** comments documenting export blockers.
+
+## Stage 3b — Static / mobile-safe build output (next)
 
 - [ ] Add **`output: 'export'`** to `next.config.ts` (validate with Sentry wrapper).
-- [ ] Resolve **dynamic route** strategy:
-  - [ ] **Option A:** `generateStaticParams` for all **published** topic slugs, category slugs, and any **profile** paths you need (CI job querying Supabase).
-  - [ ] **Option B:** Structural change to **SPA-friendly** routing / fallback so new slugs work without a new HTML file (validate with Capacitor local server behavior).
-- [ ] Run **`npm run build`** and confirm **`out/`** contains the full navigable app for required paths.
+- [ ] Run **`npm run build`** and confirm **`out/`**; fix remaining server-only pages.
 - [ ] Set Capacitor **`webDir: 'out'`** (or actual export dir).
 
 **Success:** reproducible static artifact suitable for `npx cap sync`.

@@ -150,3 +150,4 @@ Additional (when implementing):
 - Action-oriented checklist: **`KURIOSA_MOBILE_PACKAGING_PLAN.md`**
 - Stage 1 client → hosted API wiring: **`KURIOSA_MOBILE_NETWORKING_PREP.md`**, **`STAGE_1_MOBILE_PACKAGING_PREP_SUMMARY.md`**
 - Stage 2 client auth + route guards: **`KURIOSA_MOBILE_AUTH_AND_GUARDS.md`**, **`STAGE_2_MOBILE_AUTH_PREP_SUMMARY.md`**
+- Stage 3 mobile-safe query routes + export prep notes: **`KURIOSA_MOBILE_ROUTING_AND_EXPORT_PREP.md`**, **`STAGE_3_MOBILE_ROUTING_PREP_SUMMARY.md`**

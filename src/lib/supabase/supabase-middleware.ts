@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isPublicProfileAccess } from "@/lib/routing/profile-access";
 
 /**
  * Web deployment: refreshes Supabase session cookies and redirects unauthenticated users
@@ -42,10 +43,8 @@ export async function updateSession(request: NextRequest) {
 
   const isAuthPage = request.nextUrl.pathname.startsWith("/auth/");
   const path = request.nextUrl.pathname;
-  const isPublicProfilePath =
-    path.startsWith("/profile/") &&
-    path.split("/").length === 3 &&
-    path.split("/")[2] !== "";
+  const profileUserIdQuery = request.nextUrl.searchParams.get("userId");
+  const isPublicProfile = isPublicProfileAccess(path, profileUserIdQuery);
 
   const isAppProtected =
     path.startsWith("/home") ||
@@ -53,13 +52,16 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/progress") ||
     path.startsWith("/leaderboard") ||
     path.startsWith("/settings/social") ||
-    (path.startsWith("/profile") && !isPublicProfilePath) ||
+    (path.startsWith("/profile") && !isPublicProfile) ||
+    path === "/curiosity" ||
     path.startsWith("/curiosity/") ||
+    path === "/challenge" ||
     path.startsWith("/challenge/");
 
   if (isAppProtected && !user) {
     const signInUrl = new URL("/auth/sign-in", request.url);
-    signInUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    const redirectTarget = path + (request.nextUrl.search || "");
+    signInUrl.searchParams.set("redirect", redirectTarget);
     return NextResponse.redirect(signInUrl);
   }
 

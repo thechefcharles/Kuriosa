@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+/**
+ * Static export (`output: "export"`) is **not** enabled yet — Route Handlers, middleware,
+ * and some server metadata remain. Stage 3 adds mobile-safe **query** routes so `out/` can
+ * eventually cover a finite set of shells; see `KURIOSA_MOBILE_ROUTING_AND_EXPORT_PREP.md`.
+ *
+ * When enabling export, re-validate: Sentry wrapper, dynamic `[slug]` siblings, API routes
+ * (they will not ship in the bundle; keep hosted backend + `NEXT_PUBLIC_API_ORIGIN`).
+ */
 const nextConfig: NextConfig = {
   /* config options here */
 };

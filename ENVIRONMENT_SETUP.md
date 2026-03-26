@@ -62,6 +62,8 @@ Sign-in, sign-up, and sign-out use the **Supabase JS client in the browser** (`a
 
 For **Capacitor** or cross-origin API hosts, combine with **`NEXT_PUBLIC_API_ORIGIN`** (Stage 1) and review **`KURIOSA_MOBILE_AUTH_AND_GUARDS.md`** (middleware vs client guard, future CORS).
 
+**Deep links (Stage 3):** Prefer pretty URLs on the web; packaged shells can use **`MOBILE_SAFE_ROUTES`** (`src/lib/constants/routes.ts`) — e.g. `/curiosity?slug=…`. See **`KURIOSA_MOBILE_ROUTING_AND_EXPORT_PREP.md`**.
+
 ## Optional — Phase 8 audio Storage
 
 | Variable | Description |
