@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { activityFeedQueryKeys } from "@/lib/query/query-keys";
 import type { ActivityFeedItemView } from "@/types/activity-feed";
+import { fetchApi } from "@/lib/network/fetch-api";
 
 export type UseActivityFeedOptions = {
   limit?: number;
@@ -20,9 +21,7 @@ export function useActivityFeed(options: UseActivityFeedOptions = {}) {
         limit: String(limit),
         offset: String(offset),
       });
-      const res = await fetch(`/api/social/activity-feed?${params}`, {
-        credentials: "same-origin",
-      });
+      const res = await fetchApi(`/api/social/activity-feed?${params}`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err?.error ?? `Activity feed fetch failed: ${res.status}`);

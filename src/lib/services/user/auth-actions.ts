@@ -1,5 +1,11 @@
 "use server";
 
+/**
+ * Legacy Server Actions: cookie-backed sign-in/up/out + `redirect()`.
+ * **User-facing UI** should use `auth-client.ts` (`clientSignIn`, etc.) for Capacitor/static
+ * readiness; these remain available for scripts or gradual migration.
+ */
+
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
 import { ROUTES } from "@/lib/constants/routes";

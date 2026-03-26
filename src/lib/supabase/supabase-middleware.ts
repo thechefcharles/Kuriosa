@@ -1,5 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isPublicProfileAccess } from "@/lib/routing/profile-access";
+
+/**
+ * Web deployment: refreshes Supabase session cookies and redirects unauthenticated users
+ * away from app routes. Still required for SSR and first paint on Vercel.
+ *
+ * **Mobile / static shell:** Edge middleware does not run inside a Capacitor bundle.
+ * Use `ProtectedAppRoute` + `auth-client` for gates and session UX — do not rely on this alone.
+ */
 
 export async function updateSession(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -33,17 +42,26 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isAuthPage = request.nextUrl.pathname.startsWith("/auth/");
+  const path = request.nextUrl.pathname;
+  const profileUserIdQuery = request.nextUrl.searchParams.get("userId");
+  const isPublicProfile = isPublicProfileAccess(path, profileUserIdQuery);
+
   const isAppProtected =
-    request.nextUrl.pathname.startsWith("/home") ||
-    request.nextUrl.pathname.startsWith("/discover") ||
-    request.nextUrl.pathname.startsWith("/progress") ||
-    request.nextUrl.pathname.startsWith("/profile") ||
-    request.nextUrl.pathname.startsWith("/curiosity/") ||
-    request.nextUrl.pathname.startsWith("/challenge/");
+    path.startsWith("/home") ||
+    path.startsWith("/discover") ||
+    path.startsWith("/progress") ||
+    path.startsWith("/leaderboard") ||
+    path.startsWith("/settings/social") ||
+    (path.startsWith("/profile") && !isPublicProfile) ||
+    path === "/curiosity" ||
+    path.startsWith("/curiosity/") ||
+    path === "/challenge" ||
+    path.startsWith("/challenge/");
 
   if (isAppProtected && !user) {
     const signInUrl = new URL("/auth/sign-in", request.url);
-    signInUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    const redirectTarget = path + (request.nextUrl.search || "");
+    signInUrl.searchParams.set("redirect", redirectTarget);
     return NextResponse.redirect(signInUrl);
   }
 

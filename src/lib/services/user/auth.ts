@@ -1,5 +1,11 @@
 import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
 
+/**
+ * Server-only auth helpers (`cookies()`). Still used by API routes and internal tools — not
+ * for user-facing page gating when a client guard exists. See `auth-client.ts` and
+ * `KURIOSA_MOBILE_AUTH_AND_GUARDS.md`.
+ */
+
 export async function getCurrentUser() {
   const supabase = await createSupabaseServerClient();
   const {

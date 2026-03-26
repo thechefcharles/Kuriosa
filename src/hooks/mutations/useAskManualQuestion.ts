@@ -2,6 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import type { ManualQuestionResult } from "@/types/ai";
+import { fetchApi } from "@/lib/network/fetch-api";
 
 export type AIInteractionType = "guided_followup" | "manual" | "rabbit_hole";
 
@@ -15,7 +16,7 @@ export type AskManualQuestionInput = {
 async function askManualQuestion(
   input: AskManualQuestionInput
 ): Promise<ManualQuestionResult> {
-  const res = await fetch("/api/ai/manual-question", {
+  const res = await fetchApi("/api/ai/manual-question", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -24,7 +25,6 @@ async function askManualQuestion(
       topicId: input.topicId,
       interactionType: input.interactionType ?? "manual",
     }),
-    credentials: "same-origin",
   });
 
   const json = (await res.json()) as ManualQuestionResult;

@@ -26,7 +26,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { CARD_BASE } from "@/lib/constants/card-styles";
 import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES } from "@/lib/constants/routes";
 
 const DEFAULT_TEXT = "text-kuriosa-midnight-blue dark:text-slate-200";
 
@@ -103,7 +103,9 @@ function ExperienceView({
         onSuccess: (data) => {
           if (data?.identity.slug) {
             writeLastRandomSlug(data.identity.slug);
-            router.push(`${ROUTES.curiosity(data.identity.slug)}?from=discover`);
+            router.push(
+              MOBILE_SAFE_ROUTES.curiosityFromDiscover(data.identity.slug)
+            );
           }
         },
       }
@@ -251,7 +253,7 @@ function ExperienceView({
                   </div>
                   <div className="flex items-center justify-between gap-4">
                     <Link
-                      href={ROUTES.curiosity(slug)}
+                      href={MOBILE_SAFE_ROUTES.curiosity(slug)}
                       className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
                     >
                       Review

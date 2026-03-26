@@ -15,7 +15,7 @@ import {
 } from "@/components/discovery/discovery-section-body";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { TopicCardView } from "@/types/discovery";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES } from "@/lib/constants/routes";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 4;
@@ -36,7 +36,7 @@ export type DiscoverHeroZoneProps = {
   onRandomClick?: () => void;
 };
 
-const SWIPE_THRESHOLD = 50;
+const SWIPE_THRESHOLD = 72;
 
 export function DiscoverHeroZone({
   searchInput,
@@ -82,8 +82,11 @@ export function DiscoverHeroZone({
   const canGoPrev = clampedPage > 0;
   const canGoNext = clampedPage < totalPages - 1;
 
-  const touchStartX = useRef<number>(0);
-  const touchEndX = useRef<number>(0);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchEndX = useRef(0);
+  const touchEndY = useRef(0);
+  const touchStartTarget = useRef<EventTarget | null>(null);
 
   const handleSwipe = useCallback(
     (direction: "left" | "right") => {
@@ -97,18 +100,32 @@ export function DiscoverHeroZone({
   );
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0]?.clientX ?? 0;
+    const t = e.touches[0];
+    touchStartX.current = t?.clientX ?? 0;
+    touchStartY.current = t?.clientY ?? 0;
+    touchEndX.current = touchStartX.current;
+    touchEndY.current = touchStartY.current;
+    touchStartTarget.current = e.target;
   }, []);
 
   const onTouchMove = useCallback((e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0]?.clientX ?? 0;
+    const t = e.touches[0];
+    touchEndX.current = t?.clientX ?? 0;
+    touchEndY.current = t?.clientY ?? 0;
   }, []);
 
   const onTouchEnd = useCallback(() => {
-    const diff = touchStartX.current - touchEndX.current;
-    if (Math.abs(diff) > SWIPE_THRESHOLD) {
-      handleSwipe(diff > 0 ? "left" : "right");
+    const startEl = touchStartTarget.current;
+    if (startEl instanceof Element) {
+      if (startEl.closest("a, button, [role='button'], input, textarea, select")) {
+        return;
+      }
     }
+    const dx = touchStartX.current - touchEndX.current;
+    const dy = touchStartY.current - touchEndY.current;
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    handleSwipe(dx > 0 ? "left" : "right");
   }, [handleSwipe]);
 
   useEffect(() => {
@@ -202,7 +219,10 @@ export function DiscoverHeroZone({
             <DiscoveryCardGrid>
               {searchQuery.data.map((t) => (
                 <li key={t.id}>
-                  <TopicCard topic={t} href={`${ROUTES.curiosity(t.slug)}?from=discover`} />
+                  <TopicCard
+                  topic={t}
+                  href={MOBILE_SAFE_ROUTES.curiosityFromDiscover(t.slug)}
+                />
                 </li>
               ))}
             </DiscoveryCardGrid>
@@ -276,7 +296,10 @@ export function DiscoverHeroZone({
               >
                 {topicsToShow.map((t) => (
                   <li key={t.id}>
-                    <JumpInTopicCard topic={t} href={`${ROUTES.curiosity(t.slug)}?from=discover`} />
+                    <JumpInTopicCard
+                    topic={t}
+                    href={MOBILE_SAFE_ROUTES.curiosityFromDiscover(t.slug)}
+                  />
                   </li>
                 ))}
               </DiscoveryCardGrid>

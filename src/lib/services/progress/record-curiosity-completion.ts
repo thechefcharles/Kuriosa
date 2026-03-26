@@ -1,6 +1,7 @@
 /**
  * Legacy client-side upsert (Phase 5). Production flow uses
- * POST /api/progress/complete-curiosity → processCuriosityCompletion (XP, streaks, profile).
+ * Client: `useRecordCuriosityCompletion` → hosted `POST .../api/progress/complete-curiosity`
+ * (`fetchApi`) → processCuriosityCompletion (XP, streaks, profile).
  * Kept for reference or one-off scripts only.
  */
 

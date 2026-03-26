@@ -5,6 +5,7 @@ import { leaderboardQueryKeys } from "@/lib/query/query-keys";
 import { useAuthUserId } from "@/hooks/queries/useAuthUserId";
 import type { LeaderboardWindow } from "@/types/leaderboard";
 import type { UserLeaderboardPosition } from "@/types/leaderboard";
+import { fetchApi } from "@/lib/network/fetch-api";
 
 export function useUserLeaderboardPosition(window: LeaderboardWindow) {
   const { data: userId, isPending: authPending } = useAuthUserId();
@@ -13,9 +14,7 @@ export function useUserLeaderboardPosition(window: LeaderboardWindow) {
     queryKey: leaderboardQueryKeys.position(window),
     queryFn: async () => {
       const params = new URLSearchParams({ window });
-      const res = await fetch(`/api/social/leaderboard/position?${params}`, {
-        credentials: "same-origin",
-      });
+      const res = await fetchApi(`/api/social/leaderboard/position?${params}`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err?.error ?? `Position fetch failed: ${res.status}`);

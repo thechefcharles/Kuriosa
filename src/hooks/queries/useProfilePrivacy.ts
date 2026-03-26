@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { privacySettingsQueryKeys } from "@/lib/query/query-keys";
 import { useAuthUserId } from "@/hooks/queries/useAuthUserId";
 import type { ProfilePrivacySettings } from "@/types/social";
+import { fetchApi } from "@/lib/network/fetch-api";
 
 export function useProfilePrivacy() {
   const { data: userId, isPending: authPending } = useAuthUserId();
@@ -11,9 +12,7 @@ export function useProfilePrivacy() {
   const q = useQuery<ProfilePrivacySettings | null, Error>({
     queryKey: privacySettingsQueryKeys.all,
     queryFn: async () => {
-      const res = await fetch("/api/social/settings/privacy", {
-        credentials: "same-origin",
-      });
+      const res = await fetchApi("/api/social/settings/privacy");
       if (!res.ok) {
         if (res.status === 401) return null;
         const err = await res.json().catch(() => ({}));

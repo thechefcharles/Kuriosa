@@ -1,13 +1,14 @@
-import { redirect } from "next/navigation";
+"use client";
+
 import { PageContainer } from "@/components/shared/page-container";
 import { PageHeader } from "@/components/shared/page-header";
 import { PrivacySettings } from "@/components/social/privacy-settings";
-import { getCurrentUser } from "@/lib/services/user/auth";
 
-export default async function SocialSettingsPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/auth/sign-in");
-
+/**
+ * Auth: `ProtectedAppRoute` + middleware (web). Previously used `getCurrentUser` + server
+ * redirect; no longer required for gating.
+ */
+export default function SocialSettingsPage() {
   return (
     <div className="min-h-[calc(100vh-8rem)] bg-gradient-to-b from-violet-50/60 via-slate-50 to-slate-50 dark:from-kuriosa-midnight-blue dark:via-slate-950 dark:to-slate-950">
       <PageContainer className="pb-12 pt-6 sm:pt-10">

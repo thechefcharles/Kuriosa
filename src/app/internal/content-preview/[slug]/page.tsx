@@ -4,7 +4,6 @@ import { ROUTES } from "@/lib/constants/routes";
 import { getCurrentUser } from "@/lib/services/user/auth";
 import { assertInternalContentWorkflowAllowed } from "@/lib/services/internal/internal-content-workflow-guard";
 import { loadCuriosityPreviewBySlug } from "@/lib/services/content/load-curiosity-preview";
-
 interface InternalContentPreviewPageProps {
   params: Promise<{ slug: string }>;
 }

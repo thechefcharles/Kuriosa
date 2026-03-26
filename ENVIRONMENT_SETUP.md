@@ -5,7 +5,7 @@
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon (public) key |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon (public) key — used by **browser** auth (`auth-client.ts`, `ProtectedAppRoute`) and all client Supabase calls |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role — **server-only**; content persistence (Phase 4.9). Never expose to client. |
 | `OPENAI_API_KEY` | OpenAI API key |
 | `INTERNAL_CONTENT_WORKFLOW_ALLOWLIST_EMAILS` | Comma-separated developer emails allowed to access internal preview + publish/reject endpoints (Phase 4.10). Server-only. |
@@ -29,6 +29,75 @@ The home **Daily Challenge** reads one row per UTC date from `daily_curiosity`. 
 | Variable | Description |
 |----------|-------------|
 | `NEXT_PUBLIC_APP_URL` | App base URL for share links (e.g. `https://yourdomain.com`). Falls back to `localhost:3005` in dev. |
+
+## Optional — Client API origin (mobile / Capacitor prep)
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_API_ORIGIN` | **Base URL of the Next app that serves Route Handlers** (scheme + host, no path, no trailing slash). Used by `fetchApi` so browser/client code calls an absolute URL instead of relative `/api/*`. |
+
+**When to set**
+
+- **Local web (`next dev` / same-origin deploy):** Leave **unset**. The client falls back to `window.location.origin`, so requests stay same-origin and cookies behave as today.
+- **Capacitor or any UI not served from the same origin as `/api/*`:** Set to your hosted app, e.g. `https://your-app.vercel.app`. The static/shell build must point at the deployment that runs your API routes.
+- **Staging vs production:** Use the staging deployment URL when testing against staging APIs; use production URL for production mobile builds.
+
+**Examples**
+
+| Scenario | Example value |
+|----------|----------------|
+| Local dev (default) | *(omit — uses `http://localhost:3005` from the browser)* |
+| Production Vercel | `https://kuriosa.vercel.app` *(your real hostname)* |
+| Preview deployment | `https://kuriosa-git-feature-xyz.vercel.app` |
+
+**Vercel:** You do not need this variable for a normal browser deploy where the site and `/api/*` share the same origin. Add it to the **mobile static export** build environment when the WebView loads from `capacitor://` (or file) and must reach Vercel.
+
+**CORS / cookies:** Cross-origin API calls use `credentials: "include"`. Hosted Next must respond with appropriate `Access-Control-Allow-*` headers if the web and API origins differ. Stage 2 may add explicit CORS on Route Handlers if needed.
+
+See **`KURIOSA_MOBILE_NETWORKING_PREP.md`**.
+
+## Client auth (mobile prep — Stage 2)
+
+Sign-in, sign-up, and sign-out use the **Supabase JS client in the browser** (`auth-client.ts`). No extra env vars beyond **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**.
+
+For **Capacitor** or cross-origin API hosts, combine with **`NEXT_PUBLIC_API_ORIGIN`** (Stage 1) and review **`KURIOSA_MOBILE_AUTH_AND_GUARDS.md`** (middleware vs client guard, future CORS).
+
+**Deep links (Stage 3):** Prefer pretty URLs on the web; packaged shells can use **`MOBILE_SAFE_ROUTES`** (`src/lib/constants/routes.ts`) — e.g. `/curiosity?slug=…`. See **`KURIOSA_MOBILE_ROUTING_AND_EXPORT_PREP.md`**.
+
+## Static export for Capacitor (`out/`)
+
+| Command | Purpose |
+|---------|---------|
+| `npm run build` | Normal production build (Vercel): includes **API routes** and **middleware**. |
+| `npm run build:export` | Emits **`out/`** for Capacitor: temporarily moves aside API, middleware, and pretty dynamic segments (see **`KURIOSA_STATIC_EXPORT_ENABLEMENT.md`**). |
+
+Set the same **`NEXT_PUBLIC_*`** values in the environment used for **`build:export`** (especially **`NEXT_PUBLIC_SUPABASE_*`**, **`NEXT_PUBLIC_API_ORIGIN`** when the shell is cross-origin).
+
+**Capacitor:** `webDir` is **`out`** — run **`npm run build:export`** before **`npx cap sync`**.
+
+### Checking env at export time
+
+`NEXT_PUBLIC_*` values are **inlined when `next build` runs** (inside `build:export`). They must exist at that moment—empty strings in the bundle break Supabase auth.
+
+1. **Automated (recommended)** — from the repo root:
+   ```bash
+   npm run check:export-env
+   ```
+   This loads `.env` / `.env.local` and merges the current shell `process.env`, then verifies **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**. It exits with code **1** if either is missing. It also reminds you about **`NEXT_PUBLIC_API_ORIGIN`** for Capacitor → Vercel.
+
+2. **What Next actually does** — When you run `npm run build:export`, `next build` loads (in order) `.env.production.local`, `.env.local`, `.env.production`, `.env` from the project root. Your shell can override with exported variables. If you build on **CI**, copy the same `NEXT_PUBLIC_*` values into that environment (or use a secrets file the workflow reads before `build:export`).
+
+3. **Quick manual check** — Same terminal you use for export:
+   ```bash
+   cd /path/to/Kuriosa
+   npm run check:export-env && npm run build:export
+   ```
+
+4. **After export** (optional) — Confirm the Supabase **project hostname** appears inside the client bundle (proves inlining):
+   ```bash
+   rg "supabase\.co" out/_next/static/chunks --max-count 3
+   ```
+   (Use your real Supabase host if different.)
 
 ## Optional — Phase 8 audio Storage
 
