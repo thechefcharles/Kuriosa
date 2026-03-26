@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getUserForApiRoute } from "@/lib/supabase/get-user-for-api-route";
 import { answerManualQuestion } from "@/lib/services/ai/answer-manual-question";
 
 const INTERACTION_TYPES = new Set(["guided_followup", "manual", "rabbit_hole"]);
@@ -46,10 +46,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUserForApiRoute(request);
 
   if (!user?.id) {
     return NextResponse.json(

@@ -4,7 +4,7 @@ import { useCallback, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shuffle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { getCardXpFromDifficulty } from "@/lib/progress/xp-config";
 import {
   useFeedRandomCuriosity,
@@ -92,7 +92,7 @@ export function FeedMyCuriosityButton({
       wasDailyFeature: false,
       wasRandomSpin: true,
     });
-    router.push(ROUTES.curiosity(previewTopic.identity.slug));
+    router.push(MOBILE_SAFE_ROUTES.curiosity(previewTopic.identity.slug));
   }, [previewTopic, router]);
 
   const isLoading = mutation.isPending;

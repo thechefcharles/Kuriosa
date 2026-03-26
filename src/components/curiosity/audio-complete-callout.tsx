@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, CircleCheck } from "lucide-react";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -66,7 +66,7 @@ export function AudioCompleteCallout({
           </div>
         </div>
         <Link
-          href={ROUTES.challenge(slug)}
+          href={MOBILE_SAFE_ROUTES.challenge(slug)}
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
             "inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 sm:w-auto sm:min-w-[200px]"

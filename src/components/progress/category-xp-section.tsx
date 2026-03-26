@@ -4,7 +4,7 @@ import { useUserCategoryXp } from "@/hooks/queries/useUserCategoryXp";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
 import { FolderTree } from "lucide-react";
 import Link from "next/link";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES } from "@/lib/constants/routes";
 import { cn } from "@/lib/utils";
 
 export function CategoryXpSection() {
@@ -34,7 +34,7 @@ export function CategoryXpSection() {
           return (
             <li key={entry.categoryId}>
               <Link
-                href={ROUTES.progressCategory(entry.categorySlug)}
+                href={MOBILE_SAFE_ROUTES.progressCategory(entry.categorySlug)}
                 className={cn(
                   "flex items-center gap-3 rounded-xl border p-4 shadow-sm transition-colors",
                   theme.card,

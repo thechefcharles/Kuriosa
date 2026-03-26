@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { Button } from "@/components/ui/button";
 import { useRecordCuriosityCompletion } from "@/hooks/mutations/useRecordCuriosityCompletion";
 import { getTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
@@ -77,7 +77,7 @@ export function ChallengeContinueExploringButton({
     } catch {
       setSyncMissed(true);
     } finally {
-      router.push(`${ROUTES.curiosity(slug)}#whats-next`);
+      router.push(`${MOBILE_SAFE_ROUTES.curiosity(slug)}#whats-next`);
     }
   };
 

@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getUserForApiRoute } from "@/lib/supabase/get-user-for-api-route";
 import { recordShareEvent } from "@/lib/services/social/record-share-event";
 import type { ShareChannel } from "@/lib/services/social/record-share-event";
 
@@ -38,10 +38,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUserForApiRoute(request);
 
   recordShareEvent({
     userId: user?.id ?? null,

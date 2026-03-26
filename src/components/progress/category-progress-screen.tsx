@@ -7,12 +7,12 @@ import { PageContainer } from "@/components/shared/page-container";
 import { useCategoryProgress } from "@/hooks/queries/useCategoryProgress";
 import { useUserCategoryXp } from "@/hooks/queries/useUserCategoryXp";
 import { CategoryProgressCard } from "@/components/progress/category-progress-card";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 4;
-const SWIPE_THRESHOLD = 50;
+const SWIPE_THRESHOLD = 72;
 
 export function CategoryProgressScreen({ slug }: { slug: string }) {
   const categoryXp = useUserCategoryXp();
@@ -34,7 +34,10 @@ export function CategoryProgressScreen({ slug }: { slug: string }) {
   const canGoNext = clampedPage < totalPages - 1;
 
   const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
   const touchEndX = useRef(0);
+  const touchEndY = useRef(0);
+  const touchStartTarget = useRef<EventTarget | null>(null);
 
   const handleSwipe = useCallback(
     (direction: "left" | "right") => {
@@ -45,14 +48,30 @@ export function CategoryProgressScreen({ slug }: { slug: string }) {
   );
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0]?.clientX ?? 0;
+    const t = e.touches[0];
+    touchStartX.current = t?.clientX ?? 0;
+    touchStartY.current = t?.clientY ?? 0;
+    touchEndX.current = touchStartX.current;
+    touchEndY.current = touchStartY.current;
+    touchStartTarget.current = e.target;
   }, []);
   const onTouchMove = useCallback((e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0]?.clientX ?? 0;
+    const t = e.touches[0];
+    touchEndX.current = t?.clientX ?? 0;
+    touchEndY.current = t?.clientY ?? 0;
   }, []);
   const onTouchEnd = useCallback(() => {
-    const diff = touchStartX.current - touchEndX.current;
-    if (Math.abs(diff) > SWIPE_THRESHOLD) handleSwipe(diff > 0 ? "left" : "right");
+    const startEl = touchStartTarget.current;
+    if (startEl instanceof Element) {
+      if (startEl.closest("a, button, [role='button'], input, textarea, select")) {
+        return;
+      }
+    }
+    const dx = touchStartX.current - touchEndX.current;
+    const dy = touchStartY.current - touchEndY.current;
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.25) return;
+    handleSwipe(dx > 0 ? "left" : "right");
   }, [handleSwipe]);
 
   // Progress bar: fill based on progress to next 100 XP
@@ -107,7 +126,7 @@ export function CategoryProgressScreen({ slug }: { slug: string }) {
               Complete curiosities in this category to see your progress here.
             </p>
             <Link
-              href={ROUTES.discoverCategory(slug)}
+              href={MOBILE_SAFE_ROUTES.discoverCategory(slug)}
               className="mt-6 inline-flex items-center rounded-lg bg-kuriosa-deep-purple px-4 py-2 text-sm font-medium text-white hover:bg-kuriosa-deep-purple/90"
             >
               Browse {categoryName}

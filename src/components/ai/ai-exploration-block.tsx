@@ -12,7 +12,7 @@ import { AIAnswerCard } from "./ai-answer-card";
 import { AIAnswerLoading } from "./ai-answer-loading";
 import { AIAnswerError } from "./ai-answer-error";
 import { RabbitHoleSection } from "./rabbit-hole-section";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import type { ManualQuestionResult } from "@/types/ai";
 import type { TopicRabbitHoleItem } from "@/types/ai";
 
@@ -62,7 +62,7 @@ export function AIExplorationBlock({
 
   const onRabbitHoleSelect = (item: TopicRabbitHoleItem) => {
     if (item.topicSlug) {
-      router.push(ROUTES.curiosity(item.topicSlug));
+      router.push(MOBILE_SAFE_ROUTES.curiosity(item.topicSlug));
       return;
     }
     setManualAnswer(null);

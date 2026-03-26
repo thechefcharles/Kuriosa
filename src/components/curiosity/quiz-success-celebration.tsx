@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Map, Sparkles, Flame, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import {
   xpRequiredToAdvanceFromLevel,
   cumulativeXpForLevel,
@@ -80,7 +80,7 @@ export function QuizSuccessCelebration({
           wasRandomSpin: true,
         });
         onComplete?.();
-        router.push(ROUTES.curiosity(exp.identity.slug));
+        router.push(MOBILE_SAFE_ROUTES.curiosity(exp.identity.slug));
       } else {
         onComplete?.();
         router.push(ROUTES.discover);

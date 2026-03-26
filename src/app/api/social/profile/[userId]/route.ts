@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getUserForApiRoute } from "@/lib/supabase/get-user-for-api-route";
 import { getSupabaseServiceRoleClient } from "@/lib/supabase/supabase-service-client";
 import { getPublicProfile } from "@/lib/services/social/get-public-profile";
 import { getUserBadges } from "@/lib/services/progress/get-user-badges";
@@ -12,7 +12,7 @@ import { getRecentTopics } from "@/lib/services/discovery/get-recent-topics";
 import { recordProfileView } from "@/lib/services/social/record-profile-view";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   const { userId } = await params;
@@ -43,9 +43,8 @@ export async function GET(
     getRecentTopics(supabase, uid),
   ]);
 
-  const serverSupabase = await createSupabaseServerClient();
-  const { data: { user } } = await serverSupabase.auth.getUser();
-  recordProfileView(user?.id ?? null, uid);
+  const viewer = await getUserForApiRoute(request);
+  recordProfileView(viewer?.id ?? null, uid);
 
   return NextResponse.json({
     ok: true as const,

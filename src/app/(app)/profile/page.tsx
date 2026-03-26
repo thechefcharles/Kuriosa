@@ -7,7 +7,7 @@ import { PageContainer } from "@/components/shared/page-container";
 import { PageHeader } from "@/components/shared/page-header";
 import { ProfileProgressHub } from "@/components/profile/profile-progress-hub";
 import { PublicProfileLayout } from "@/components/social/public-profile-layout";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { useAuthUserId } from "@/hooks/queries/useAuthUserId";
 
 /**
@@ -48,7 +48,7 @@ function OwnProfileHub() {
             </Link>
             <span>·</span>
             <Link
-              href={ROUTES.profilePublic(userId)}
+              href={MOBILE_SAFE_ROUTES.profilePublic(userId)}
               className="font-medium text-kuriosa-electric-cyan hover:underline"
             >
               View public profile
