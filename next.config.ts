@@ -17,6 +17,26 @@ const nextConfig: NextConfig = {
         images: { unoptimized: true },
       }
     : {}),
+  /** CORS on Route Handler responses — Capacitor `fetch` to Vercel (Community, social APIs). */
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value:
+              "authorization, content-type, x-client-info, x-supabase-api-version",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withSentryConfig(nextConfig, {

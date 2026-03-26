@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { formatActivityEventParts } from "@/lib/services/social/format-activity-event";
 import type { ActivityFeedItemView } from "@/types/activity-feed";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES } from "@/lib/constants/routes";
 
 function formatRelativeTime(iso: string): string {
   const date = new Date(iso);
@@ -23,11 +23,11 @@ interface ActivityFeedItemProps {
 export function ActivityFeedItem({ item }: ActivityFeedItemProps) {
   const { name, beforeTopic, topicTitle, afterTopic } =
     formatActivityEventParts(item);
-  const profileHref = ROUTES.profilePublic(item.userId);
+  const profileHref = MOBILE_SAFE_ROUTES.profilePublic(item.userId);
   const topicHref =
     item.topicSlug &&
     (item.type === "topic_completed" || item.type === "topic_shared")
-      ? ROUTES.curiosity(item.topicSlug)
+      ? MOBILE_SAFE_ROUTES.curiosity(item.topicSlug)
       : null;
 
   return (

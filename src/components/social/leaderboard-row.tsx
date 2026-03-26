@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { LeaderboardEntryView } from "@/types/leaderboard";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES } from "@/lib/constants/routes";
 import { cn } from "@/lib/utils";
 
 interface LeaderboardRowProps {
@@ -16,7 +16,7 @@ function displayLabel(entry: LeaderboardEntryView): string {
 export function LeaderboardRow({ entry }: LeaderboardRowProps) {
   const label = displayLabel(entry);
   const isYou = entry.isCurrentUser;
-  const profileHref = ROUTES.profilePublic(entry.userId);
+  const profileHref = MOBILE_SAFE_ROUTES.profilePublic(entry.userId);
 
   return (
     <Link

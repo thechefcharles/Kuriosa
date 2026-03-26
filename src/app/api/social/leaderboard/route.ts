@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getUserForApiRoute } from "@/lib/supabase/get-user-for-api-route";
 import { getLeaderboard } from "@/lib/services/social/get-leaderboard";
 import type { LeaderboardWindow } from "@/types/leaderboard";
 
@@ -30,10 +30,7 @@ export async function GET(request: Request) {
   const limit = limitParam ? Math.min(parseInt(limitParam, 10) || 50, 100) : 50;
   const offset = offsetParam ? Math.max(0, parseInt(offsetParam, 10) || 0) : 0;
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUserForApiRoute(request);
 
   const result = await getLeaderboard(windowParam, {
     limit,

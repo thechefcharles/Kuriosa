@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getUserForApiRoute } from "@/lib/supabase/get-user-for-api-route";
 import { getUserLeaderboardPosition } from "@/lib/services/social/get-user-leaderboard-position";
 import type { LeaderboardWindow } from "@/types/leaderboard";
 
@@ -25,10 +25,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUserForApiRoute(request);
 
   if (!user?.id) {
     return NextResponse.json(
