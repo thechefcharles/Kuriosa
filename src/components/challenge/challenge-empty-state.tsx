@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +20,7 @@ export function ChallengeEmptyState({ slug }: { slug: string }) {
       </p>
       <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
         <Link
-          href={ROUTES.curiosity(slug)}
+          href={MOBILE_SAFE_ROUTES.curiosity(slug)}
           className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full sm:w-auto")}
         >
           Back to lesson

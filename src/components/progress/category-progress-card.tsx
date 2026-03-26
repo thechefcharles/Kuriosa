@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { CheckCircle2, XCircle } from "lucide-react";
 import type { CompletedTopicCardView } from "@/lib/services/progress/get-completed-topics-by-category";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
 import {
   DIFFICULTY_BANNER,
@@ -67,7 +67,7 @@ export function CategoryProgressCard({
         {/* Footer: Review left, XP right */}
         <div className="mt-4 flex w-full items-center justify-between gap-4 px-2">
           <Link
-            href={ROUTES.curiosity(topic.slug)}
+            href={MOBILE_SAFE_ROUTES.curiosity(topic.slug)}
             className="inline-flex items-center rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-kuriosa-midnight-blue transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
           >
             Review

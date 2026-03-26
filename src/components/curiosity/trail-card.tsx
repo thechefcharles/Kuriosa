@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { ChevronRight, Compass } from "lucide-react";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 import type { CuriosityTrail } from "@/types/curiosity-experience";
 import { cn } from "@/lib/utils";
 
 export function TrailCard({ trail }: { trail: CuriosityTrail }) {
   const slug = trail.toTopicSlug.trim();
-  const href = ROUTES.curiosity(slug);
+  const href = MOBILE_SAFE_ROUTES.curiosity(slug);
   const title =
     (trail.toTopicTitle ?? "").trim() || slug.replace(/-/g, " ");
   const reason = trail.reasonText.trim();

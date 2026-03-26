@@ -4,7 +4,7 @@ import { useCallback, useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useCuriosityExperience } from "@/hooks/queries/useCuriosityExperience";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { LoadingState } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
@@ -97,7 +97,7 @@ export function ChallengeScreen({ slug }: { slug: string }) {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Link
-          href={ROUTES.curiosity(slug)}
+          href={MOBILE_SAFE_ROUTES.curiosity(slug)}
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
             "inline-flex items-center gap-1.5 text-muted-foreground"

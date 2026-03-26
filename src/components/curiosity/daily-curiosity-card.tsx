@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { getCategoryTheme } from "@/lib/constants/category-themes";
 import {
   DIFFICULTY_BANNER,
@@ -35,7 +35,7 @@ export function DailyCuriosityCard({
   className,
 }: DailyCuriosityCardProps) {
   const slug = experience.identity.slug;
-  const href = ROUTES.curiosity(slug);
+  const href = MOBILE_SAFE_ROUTES.curiosity(slug);
   const diff = (experience.taxonomy.difficultyLevel ?? "").trim().toLowerCase();
   const bannerBg = DIFFICULTY_BANNER[diff] ?? DEFAULT_BANNER;
   const theme = getCategoryTheme(experience.taxonomy.categorySlug);

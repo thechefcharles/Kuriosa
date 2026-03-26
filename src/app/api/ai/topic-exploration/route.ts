@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getUserForApiRoute } from "@/lib/supabase/get-user-for-api-route";
 import { getGuidedTopicExploration } from "@/lib/services/ai/get-guided-topic-exploration";
 
 export async function GET(request: Request) {
@@ -19,10 +19,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUserForApiRoute(request);
 
   const input = slug ? { slug } : { topicId: topicId! };
   const result = await getGuidedTopicExploration(input, {

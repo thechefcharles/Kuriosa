@@ -7,7 +7,7 @@ import type {
 } from "@/types/progress";
 import { createSupabaseBrowserClient } from "@/lib/supabase/supabase-browser-client";
 import { invalidateProgressQueries } from "@/lib/query/invalidate-progress-queries";
-import { fetchApi } from "@/lib/network/fetch-api";
+import { fetchApiWithOptionalAuth } from "@/lib/network/fetch-api-session";
 
 export type RecordCuriosityCompletionResult =
   | { ok: true; data: NonNullable<Extract<ProgressUpdateResult, { ok: true }>["data"]> }
@@ -21,20 +21,9 @@ export function useRecordCuriosityCompletion() {
     mutationFn: async (
       input: CompleteCuriosityClientPayload
     ): Promise<RecordCuriosityCompletionResult> => {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (session?.access_token) {
-        headers.Authorization = `Bearer ${session.access_token}`;
-      }
-
-      const res = await fetchApi("/api/progress/complete-curiosity", {
+      const res = await fetchApiWithOptionalAuth("/api/progress/complete-curiosity", {
         method: "POST",
-        headers,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
       });
 

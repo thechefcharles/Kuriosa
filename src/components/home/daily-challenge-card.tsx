@@ -25,7 +25,7 @@ import type { LoadedCuriosityExperience } from "@/types/curiosity-experience";
 import { isAudioAvailable } from "@/lib/audio/is-audio-available";
 import { useCompletedTopicIds } from "@/hooks/queries/useCompletedTopicIds";
 import { cn } from "@/lib/utils";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import {
   XP_CONFIG,
   getCardXpFromDifficulty,
@@ -217,7 +217,7 @@ export function DailyChallengeCard({
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <Link
-                    href={ROUTES.curiosity(slug)}
+                    href={MOBILE_SAFE_ROUTES.curiosity(slug)}
                     className="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
                   >
                     Review

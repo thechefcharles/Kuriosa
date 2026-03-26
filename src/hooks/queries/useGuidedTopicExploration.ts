@@ -7,7 +7,7 @@ import type {
   TopicAIContext,
   TopicRabbitHoleItem,
 } from "@/types/ai";
-import { fetchApi } from "@/lib/network/fetch-api";
+import { fetchApiWithOptionalAuth } from "@/lib/network/fetch-api-session";
 
 type TopicExplorationInput = { slug?: string; topicId?: string };
 
@@ -18,7 +18,7 @@ async function fetchTopicExploration(
   if (input.slug) params.set("slug", input.slug);
   if (input.topicId) params.set("topicId", input.topicId);
 
-  const res = await fetchApi(`/api/ai/topic-exploration?${params}`);
+  const res = await fetchApiWithOptionalAuth(`/api/ai/topic-exploration?${params}`);
 
   const json = (await res.json()) as GuidedTopicExplorationResult;
 

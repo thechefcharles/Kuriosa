@@ -13,7 +13,7 @@ import {
 } from "@/lib/progress/level-config";
 import { X, Sparkles, TrendingUp, Flame, Award, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { useFeedRandomCuriosity, writeLastRandomSlug } from "@/hooks/mutations/useFeedRandomCuriosity";
 import { setTopicDiscoveryContext } from "@/lib/services/progress/session-topic-discovery";
 import { cn } from "@/lib/utils";
@@ -107,7 +107,7 @@ export function CompletionCelebrationCard({
           wasRandomSpin: true,
         });
         onDismiss();
-        router.push(ROUTES.curiosity(exp.identity.slug));
+        router.push(MOBILE_SAFE_ROUTES.curiosity(exp.identity.slug));
       } else {
         onDismiss();
         router.push(ROUTES.discover);

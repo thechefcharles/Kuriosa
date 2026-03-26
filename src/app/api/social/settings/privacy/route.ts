@@ -5,18 +5,28 @@
  */
 
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/supabase-server-client";
+import { getUserForApiRoute } from "@/lib/supabase/get-user-for-api-route";
+import { getSupabaseServiceRoleClient } from "@/lib/supabase/supabase-service-client";
 import { getProfilePrivacy } from "@/lib/services/social/get-profile-privacy";
 import { updateProfileSettings } from "@/lib/services/social/update-profile-settings";
 
-export async function GET() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export async function GET(request: Request) {
+  const user = await getUserForApiRoute(request);
 
   if (!user?.id) {
     return NextResponse.json(
       { ok: false as const, error: "Sign in required" },
       { status: 401 }
+    );
+  }
+
+  let supabase;
+  try {
+    supabase = getSupabaseServiceRoleClient();
+  } catch {
+    return NextResponse.json(
+      { ok: false as const, error: "Server configuration error" },
+      { status: 500 }
     );
   }
 
@@ -33,13 +43,22 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUserForApiRoute(request);
 
   if (!user?.id) {
     return NextResponse.json(
       { ok: false as const, error: "Sign in required" },
       { status: 401 }
+    );
+  }
+
+  let supabase;
+  try {
+    supabase = getSupabaseServiceRoleClient();
+  } catch {
+    return NextResponse.json(
+      { ok: false as const, error: "Server configuration error" },
+      { status: 500 }
     );
   }
 

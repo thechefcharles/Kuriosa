@@ -5,7 +5,7 @@ import { publicProfileQueryKeys } from "@/lib/query/query-keys";
 import type { PublicProfileView } from "@/types/social";
 import type { UserBadgeView } from "@/types/progress-view";
 import type { RecentTopicView } from "@/types/discovery";
-import { fetchApi } from "@/lib/network/fetch-api";
+import { fetchApiWithOptionalAuth } from "@/lib/network/fetch-api-session";
 
 export type PublicProfileData = {
   profile: PublicProfileView;
@@ -23,7 +23,7 @@ export function usePublicProfile(userId: string | null) {
     queryFn: async (): Promise<UsePublicProfileResult> => {
       if (!userId?.trim()) return { ok: false, error: "User ID required" };
 
-      const res = await fetchApi(
+      const res = await fetchApiWithOptionalAuth(
         `/api/social/profile/${encodeURIComponent(userId)}`
       );
       const json = await res.json();

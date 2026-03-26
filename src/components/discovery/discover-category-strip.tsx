@@ -6,7 +6,7 @@ import {
   DiscoverySectionError,
   DiscoverySectionEmpty,
 } from "@/components/discovery/discovery-section-body";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES } from "@/lib/constants/routes";
 import type { CategoryView } from "@/types/discovery";
 import { cn } from "@/lib/utils";
 
@@ -108,7 +108,7 @@ export function DiscoverCategoryStrip({
           <li key={c.id} className="min-w-[130px] shrink-0">
             <CategoryCard
               category={c}
-              href={ROUTES.discoverCategory(c.slug)}
+              href={MOBILE_SAFE_ROUTES.discoverCategory(c.slug)}
               compact
               className="h-full min-h-[80px]"
             />

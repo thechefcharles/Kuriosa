@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { RecentTopicView } from "@/types/discovery";
-import { ROUTES } from "@/lib/constants/routes";
+import { MOBILE_SAFE_ROUTES, ROUTES } from "@/lib/constants/routes";
 import { BookOpen } from "lucide-react";
 
 interface ProfileTopicsProps {
@@ -32,7 +32,7 @@ export function ProfileTopics({ topics, totalCount }: ProfileTopicsProps) {
           {topics.slice(0, 5).map((t) => (
             <li key={t.id}>
               <Link
-                href={ROUTES.curiosity(t.slug)}
+                href={MOBILE_SAFE_ROUTES.curiosity(t.slug)}
                 className="block rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
                 {t.title}
