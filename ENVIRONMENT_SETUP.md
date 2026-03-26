@@ -75,6 +75,30 @@ Set the same **`NEXT_PUBLIC_*`** values in the environment used for **`build:exp
 
 **Capacitor:** `webDir` is **`out`** — run **`npm run build:export`** before **`npx cap sync`**.
 
+### Checking env at export time
+
+`NEXT_PUBLIC_*` values are **inlined when `next build` runs** (inside `build:export`). They must exist at that moment—empty strings in the bundle break Supabase auth.
+
+1. **Automated (recommended)** — from the repo root:
+   ```bash
+   npm run check:export-env
+   ```
+   This loads `.env` / `.env.local` and merges the current shell `process.env`, then verifies **`NEXT_PUBLIC_SUPABASE_URL`** and **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**. It exits with code **1** if either is missing. It also reminds you about **`NEXT_PUBLIC_API_ORIGIN`** for Capacitor → Vercel.
+
+2. **What Next actually does** — When you run `npm run build:export`, `next build` loads (in order) `.env.production.local`, `.env.local`, `.env.production`, `.env` from the project root. Your shell can override with exported variables. If you build on **CI**, copy the same `NEXT_PUBLIC_*` values into that environment (or use a secrets file the workflow reads before `build:export`).
+
+3. **Quick manual check** — Same terminal you use for export:
+   ```bash
+   cd /path/to/Kuriosa
+   npm run check:export-env && npm run build:export
+   ```
+
+4. **After export** (optional) — Confirm the Supabase **project hostname** appears inside the client bundle (proves inlining):
+   ```bash
+   rg "supabase\.co" out/_next/static/chunks --max-count 3
+   ```
+   (Use your real Supabase host if different.)
+
 ## Optional — Phase 8 audio Storage
 
 | Variable | Description |

@@ -21,6 +21,10 @@ function requireCredentials(email: string, password: string): string | null {
   return null;
 }
 
+function signInDebugEnabled() {
+  return process.env.NEXT_PUBLIC_DEBUG_SIGN_IN === "1";
+}
+
 export async function clientSignIn(input: {
   email: string;
   password: string;
@@ -29,12 +33,32 @@ export async function clientSignIn(input: {
   if (msg) return { ok: false, error: msg };
 
   const supabase = createSupabaseBrowserClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: input.email.trim(),
     password: input.password,
   });
 
-  if (error) return { ok: false, error: error.message };
+  if (signInDebugEnabled()) {
+    console.log("signInWithPassword result", { data, error });
+  }
+
+  if (error) {
+    if (signInDebugEnabled() && typeof window !== "undefined") {
+      window.alert(`Sign in failed: ${error.message}`);
+    }
+    return { ok: false, error: error.message };
+  }
+
+  if (signInDebugEnabled()) {
+    const sessionResult = await supabase.auth.getSession();
+    console.log("session after sign in", sessionResult);
+    if (typeof window !== "undefined") {
+      window.alert(
+        `Session exists: ${Boolean(sessionResult.data.session)}`
+      );
+    }
+  }
+
   return { ok: true };
 }
 

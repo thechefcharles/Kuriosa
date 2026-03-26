@@ -5,7 +5,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 // KURIOSA_STATIC_EXPORT_ENABLEMENT.md
 
 const config: CapacitorConfig = {
-  appId: 'com.yourname.kuriosa',
+  appId: 'com.charlesforeman.kuriosa',
   appName: 'Kuriosa',
   webDir: 'out'
 };

@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/lib/constants/routes";
 
+/** Capacitor / device: set `NEXT_PUBLIC_DEBUG_SIGN_IN=1` in `.env.local`, then `npm run build:export`. Remove for release. */
+const DEBUG_SIGN_IN = process.env.NEXT_PUBLIC_DEBUG_SIGN_IN === "1";
+
 function SignInForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -19,14 +22,11 @@ function SignInForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  async function handleSubmit(formData: FormData) {
-    setError(null);
-    setIsPending(true);
+  async function submitSignIn(formData: FormData) {
     const email = (formData.get("email") as string) ?? "";
     const password = (formData.get("password") as string) ?? "";
 
     const result = await clientSignIn({ email, password });
-    setIsPending(false);
 
     if (!result.ok) {
       setError(result.error);
@@ -49,7 +49,30 @@ function SignInForm() {
         <CardTitle>Sign in</CardTitle>
       </CardHeader>
       <CardContent>
-        <form action={handleSubmit} className="flex flex-col gap-4">
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setError(null);
+            setIsPending(true);
+            if (DEBUG_SIGN_IN) {
+              window.alert("Sign in clicked");
+            }
+            try {
+              const formData = new FormData(e.currentTarget);
+              await submitSignIn(formData);
+            } catch (err) {
+              const message =
+                err instanceof Error ? err.message : String(err);
+              setError(message);
+              if (DEBUG_SIGN_IN) {
+                window.alert(`Sign in threw: ${message}`);
+              }
+            } finally {
+              setIsPending(false);
+            }
+          }}
+        >
           <div>
             <label htmlFor="email" className="mb-1 block text-sm font-medium">
               Email
